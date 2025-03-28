@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "622071411652",
+    "project_id": "magosdelbalon-f8f08",
+    "storage_bucket": "magosdelbalon-f8f08.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:622071411652:android:1f2bb17f999e0a12ec6a91",
+        "android_client_info": {
+          "package_name": "com.example.magosdelbalon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeqBy-HjmA4KqeDolWcxtn7-9pJ4fkQKI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
