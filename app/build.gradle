@@ -29,9 +29,17 @@ android {
 }
 
 dependencies {
+    //FireBase
+    implementation 'com.google.firebase:firebase-firestore:24.6.1'
+    implementation 'com.google.firebase:firebase-auth:22.1.1'  // Si usarás autenticación
+    implementation 'com.google.firebase:firebase-core:21.1.1'
+    implementation 'com.google.firebase:firebase-storage:20.2.1' // Si usarás almacenamiento
 
+    //LoginConGoogle
+    implementation 'com.google.android.gms:play-services-auth:20.6.0'  // Para Google Sign-In
     implementation libs.appcompat
     implementation libs.material
+    implementation libs.firebase.firestore
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

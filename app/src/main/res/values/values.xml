@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_web_client_id">622071411652-32is129g0i40vk78vpgk8tl9t0h1lkss.apps.googleusercontent.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">622071411652</string>
+    <string name="google_api_key" translatable="false">AIzaSyCeqBy-HjmA4KqeDolWcxtn7-9pJ4fkQKI</string>
+    <string name="google_app_id" translatable="false">1:622071411652:android:1f2bb17f999e0a12ec6a91</string>
+    <string name="google_storage_bucket" translatable="false">magosdelbalon-f8f08.firebasestorage.app</string>
+    <string name="project_id" translatable="false">magosdelbalon-f8f08</string>
+</resources>

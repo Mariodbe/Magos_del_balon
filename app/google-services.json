@@ -12,7 +12,20 @@
           "package_name": "com.example.magosdelbalon"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "622071411652-j56co000rhcb9b6jto1a67l99bgsc0se.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.magosdelbalon",
+            "certificate_hash": "a070497b5276a51a90411e79987cb506c1d65cdf"
+          }
+        },
+        {
+          "client_id": "622071411652-32is129g0i40vk78vpgk8tl9t0h1lkss.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCeqBy-HjmA4KqeDolWcxtn7-9pJ4fkQKI"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "622071411652-32is129g0i40vk78vpgk8tl9t0h1lkss.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
