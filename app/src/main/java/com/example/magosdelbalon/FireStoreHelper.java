@@ -12,9 +12,15 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class FireStoreHelper {
     private static final String TAG="FireStoreHelper";
     private FirebaseAuth mAuth;
@@ -138,4 +144,51 @@ public class FireStoreHelper {
     public interface AuthCallback {
         void onSuccess(String username);
     }
+
+
+    public void createLigaInFirestore(int ligaId, String ligaName, String equipoName, FireStoreCallback callback) {
+        String ligaCollection = "ligas";
+        String usersCollection = "users";
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // Generar ID automático para la liga
+        DocumentReference ligaRef = db.collection(ligaCollection).document(); // ID aleatorio
+        String ligaIdHash = ligaRef.getId();
+
+        // Crear el objeto Liga con ID generado y equipo elegido
+        ArrayList<String> equipos = new ArrayList<>();
+        equipos.add(equipoName);
+        Liga liga = new Liga(ligaName, userId, equipos);
+
+        // Guardar la liga con el ID generado
+        ligaRef.set(liga)
+                .addOnSuccessListener(aVoid -> {
+
+                    // Mapa con liga y equipo
+                    Map<String, Object> ligaData = new HashMap<>();
+                    ligaData.put("liga", ligaName);
+                    ligaData.put("equipo", equipoName);
+
+                    // Crear el mapa anidado: ligas.ligaIdHash = { liga, equipo }
+                    Map<String, Object> userUpdate = new HashMap<>();
+                    userUpdate.put("ligas." + ligaIdHash, ligaData);
+
+                    // Actualizar el documento del usuario
+                    db.collection(usersCollection).document(userId)
+                            .set(userUpdate, SetOptions.merge())
+                            .addOnSuccessListener(unused -> callback.onSuccess("Liga creada"))
+                            .addOnFailureListener(e -> callback.onFailure("Liga creada, pero error al guardar en el usuario: " + e.getMessage()));
+                })
+                .addOnFailureListener(e -> callback.onFailure("Error al crear la liga: " + e.getMessage()));
+    }
+
+
+
+
+
+    public interface FireStoreCallback {
+        void onSuccess(String message);
+        void onFailure(String message);
+    }
+
 }

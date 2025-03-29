@@ -1,0 +1,70 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Campo para nombre de la liga -->
+        <EditText
+            android:id="@+id/et_liga_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nombre de la Liga"
+            android:inputType="text" />
+
+        <!-- Sección para seleccionar imagen de la liga -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selecciona la imagen de la liga"
+            android:layout_marginTop="16dp"
+            android:textSize="16sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
+
+            <!-- Botón de imagen para La Liga -->
+            <ImageButton
+                android:id="@+id/btn_laliga"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/ic_liga"
+                android:background="@android:color/transparent"
+                android:contentDescription="Seleccionar La Liga"
+                android:layout_marginEnd="16dp" />
+
+            <!-- Botón de imagen para Premier -->
+            <ImageButton
+                android:id="@+id/btn_premier"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/ic_premier"
+                android:background="@android:color/transparent"
+                android:contentDescription="Seleccionar Premier" />
+        </LinearLayout>
+
+        <!-- Desplegable para seleccionar el equipo -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selecciona el equipo"
+            android:layout_marginTop="16dp"
+            android:textSize="16sp"/>
+
+        <Spinner
+            android:id="@+id/spinner_equipo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+</ScrollView>
