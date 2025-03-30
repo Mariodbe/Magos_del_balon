@@ -90,8 +90,13 @@ public class HomeFragment extends Fragment {
                     }
 
                     if (createButton != null) {
-                        createButton.setEnabled(false);
-                        createButton.setAlpha(0.3f);
+                        if (liga.getNombre() != null && !liga.getNombre().isEmpty()) {
+                            // Si hay un equipo asignado, ocultamos el botón
+                            createButton.setVisibility(View.GONE);
+                        } else {
+                            // Si no hay equipo asignado, mostramos el botón para crear
+                            createButton.setVisibility(View.VISIBLE);
+                        }
                     }
                 }
             }
@@ -102,6 +107,7 @@ public class HomeFragment extends Fragment {
             }
         });
     }
+
 
     private void showCreateLigaDialog(int ligaId) {
         if (getActivity() == null) return;

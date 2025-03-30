@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -48,7 +47,7 @@
             android:orientation="horizontal"
             android:gravity="center">
 
-            <!-- Cuadrado de liga 1 con botón + -->
+            <!-- Cuadrado de liga 1 -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -66,6 +65,7 @@
                     android:src="@drawable/ic_add"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
+
                 <TextView
                     android:id="@+id/liga_1_nombre"
                     android:layout_width="wrap_content"
@@ -85,6 +85,7 @@
                 android:background="#B0BEC5"
                 android:padding="16dp"
                 android:layout_margin="8dp">
+
                 <ImageView
                     android:id="@+id/btn_create_liga_2"
                     android:layout_width="50dp"
@@ -92,6 +93,7 @@
                     android:src="@drawable/ic_add"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
+
                 <TextView
                     android:id="@+id/liga_2_nombre"
                     android:layout_width="wrap_content"
@@ -121,6 +123,7 @@
                 android:background="#B0BEC5"
                 android:padding="16dp"
                 android:layout_margin="8dp">
+
                 <ImageView
                     android:id="@+id/btn_create_liga_3"
                     android:layout_width="50dp"
@@ -128,6 +131,7 @@
                     android:src="@drawable/ic_add"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
+
                 <TextView
                     android:id="@+id/liga_3_nombre"
                     android:layout_width="wrap_content"
@@ -147,6 +151,7 @@
                 android:background="#B0BEC5"
                 android:padding="16dp"
                 android:layout_margin="8dp">
+
                 <ImageView
                     android:id="@+id/btn_create_liga_4"
                     android:layout_width="50dp"
@@ -154,6 +159,7 @@
                     android:src="@drawable/ic_add"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
+
                 <TextView
                     android:id="@+id/liga_4_nombre"
                     android:layout_width="wrap_content"
