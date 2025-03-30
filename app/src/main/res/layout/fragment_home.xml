@@ -67,6 +67,7 @@
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
                 <TextView
+                    android:id="@+id/liga_1_nombre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Liga 1"
@@ -92,6 +93,7 @@
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
                 <TextView
+                    android:id="@+id/liga_2_nombre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Liga 2"
@@ -127,6 +129,7 @@
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
                 <TextView
+                    android:id="@+id/liga_3_nombre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Liga 3"
@@ -152,6 +155,7 @@
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
                 <TextView
+                    android:id="@+id/liga_4_nombre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Liga 4"

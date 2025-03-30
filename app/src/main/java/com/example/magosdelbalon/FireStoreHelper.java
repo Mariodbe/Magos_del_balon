@@ -18,7 +18,9 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FireStoreHelper {
@@ -151,33 +153,31 @@ public class FireStoreHelper {
         String usersCollection = "users";
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // Generar ID automático para la liga
-        DocumentReference ligaRef = db.collection(ligaCollection).document(); // ID aleatorio
-        String ligaIdHash = ligaRef.getId();
+        // Crear un ID válido para Firestore basado en el nombre de la liga
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
 
-        // Crear el objeto Liga con ID generado y equipo elegido
-        ArrayList<String> equipos = new ArrayList<>();
-        equipos.add(equipoName);
-        Liga liga = new Liga(ligaName, userId, equipos);
+        // Crear la referencia a la liga en la colección "ligas"
+        DocumentReference ligaRef = db.collection(ligaCollection).document(ligaIdHash);
 
-        // Guardar la liga con el ID generado
-        ligaRef.set(liga)
+        ligaRef.set(new Liga(ligaName, userId, new ArrayList<>(Collections.singletonList(equipoName))))
                 .addOnSuccessListener(aVoid -> {
+                    // Obtener la referencia del usuario
+                    DocumentReference userRef = db.collection(usersCollection).document(userId);
 
-                    // Mapa con liga y equipo
-                    Map<String, Object> ligaData = new HashMap<>();
-                    ligaData.put("liga", ligaName);
-                    ligaData.put("equipo", equipoName);
+                    userRef.get().addOnSuccessListener(documentSnapshot -> {
+                        Map<String, Object> userData = (documentSnapshot.exists()) ? documentSnapshot.getData() : new HashMap<>();
 
-                    // Crear el mapa anidado: ligas.ligaIdHash = { liga, equipo }
-                    Map<String, Object> userUpdate = new HashMap<>();
-                    userUpdate.put("ligas." + ligaIdHash, ligaData);
+                        // Crear/Actualizar la estructura deseada dentro de users
+                        Map<String, Object> ligaData = new HashMap<>();
+                        ligaData.put("equipo", equipoName);
 
-                    // Actualizar el documento del usuario
-                    db.collection(usersCollection).document(userId)
-                            .set(userUpdate, SetOptions.merge())
-                            .addOnSuccessListener(unused -> callback.onSuccess("Liga creada"))
-                            .addOnFailureListener(e -> callback.onFailure("Liga creada, pero error al guardar en el usuario: " + e.getMessage()));
+                        userData.put(ligaIdHash, ligaData);
+
+                        userRef.set(userData, SetOptions.merge())
+                                .addOnSuccessListener(unused -> callback.onSuccess("Liga creada y equipo guardado correctamente"))
+                                .addOnFailureListener(e -> callback.onFailure("Liga creada, pero error al actualizar usuario: " + e.getMessage()));
+
+                    }).addOnFailureListener(e -> callback.onFailure("Error al obtener usuario: " + e.getMessage()));
                 })
                 .addOnFailureListener(e -> callback.onFailure("Error al crear la liga: " + e.getMessage()));
     }
@@ -186,9 +186,94 @@ public class FireStoreHelper {
 
 
 
+
+
     public interface FireStoreCallback {
         void onSuccess(String message);
         void onFailure(String message);
+    }
+    public void checkUserHasLiga(int ligaSlot, FireStoreCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        int ligasContadas = 0;
+
+                        for (String key : documentSnapshot.getData().keySet()) {
+                            if (key.equals("email") || key.equals("username")) continue;
+                            ligasContadas++;
+                            if (ligasContadas == ligaSlot) {
+                                callback.onFailure("Ya tienes una liga en este espacio.");
+                                return;
+                            }
+                        }
+                        callback.onSuccess("Puedes crear una liga.");
+                    } else {
+                        callback.onSuccess("Puedes crear una liga.");
+                    }
+                })
+                .addOnFailureListener(e -> callback.onFailure("Error al consultar ligas: " + e.getMessage()));
+    }
+    public void getUserLigas(FireStoreHelper.LigasCallback callback) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String uid = auth.getCurrentUser().getUid();
+
+        // Obtener el documento del usuario en la colección "users"
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> userData = documentSnapshot.getData();
+                        List<Liga> ligas = new ArrayList<>();
+
+                        if (userData != null) {
+                            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                                // Cada clave del documento representa una liga
+                                String ligaId = entry.getKey();
+                                Object ligaValue = entry.getValue();
+
+                                // Verificar si el valor es un Map antes de hacer el cast
+                                if (ligaValue instanceof Map) {
+                                    Map<String, Object> ligaData = (Map<String, Object>) ligaValue;
+
+                                    if (ligaData.containsKey("equipo")) {
+                                        String equipo = (String) ligaData.get("equipo");
+
+                                        Log.d("Firestore", "Liga: " + ligaId + ", Equipo: " + equipo);
+
+                                        // Crear un objeto Liga y agregarlo a la lista
+                                        ArrayList<String> equipos = new ArrayList<>();
+                                        equipos.add(equipo);  // Solo un equipo por usuario en la liga
+
+                                        ligas.add(new Liga(ligaId, uid, equipos));
+                                    }
+                                } else {
+                                    // Si no es un Map, loguear el tipo inesperado o manejarlo
+                                    Log.w("Firestore", "Valor inesperado para la liga " + ligaId + ": " + ligaValue.getClass().getName());
+                                }
+                            }
+                        }
+
+                        // Pasar las ligas cargadas al callback
+                        callback.onLigasLoaded(ligas);
+                    } else {
+                        // No hay datos en el usuario
+                        Log.d("Firestore", "No hay ligas para este usuario.");
+                        callback.onLigasLoaded(new ArrayList<>());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // En caso de error, pasar el mensaje al callback
+                    Log.e("Firestore", "Error al cargar las ligas: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
+    }
+
+
+    public interface LigasCallback {
+        void onLigasLoaded(List<Liga> ligas); // Se ejecuta cuando las ligas se cargan correctamente
+        void onError(String errorMessage);    // Se ejecuta si ocurre un error
     }
 
 }

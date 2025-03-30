@@ -2,6 +2,7 @@ package com.example.magosdelbalon;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.List;
 
 public class HomeFragment extends Fragment {
 
@@ -29,13 +33,79 @@ public class HomeFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
         db = FirebaseFirestore.getInstance();
 
-        rootView.findViewById(R.id.btn_create_liga_1).setOnClickListener(v -> showCreateLigaDialog(1));
-        rootView.findViewById(R.id.btn_create_liga_2).setOnClickListener(v -> showCreateLigaDialog(2));
+        // Cargar ligas automáticamente al inicio
+        loadUserLigas(rootView);
+
+        // Asignar listeners a los 4 botones
+        setUpCreateLigaButton(rootView, R.id.btn_create_liga_1, 1);
+        setUpCreateLigaButton(rootView, R.id.btn_create_liga_2, 2);
+        setUpCreateLigaButton(rootView, R.id.btn_create_liga_3, 3);
+        setUpCreateLigaButton(rootView, R.id.btn_create_liga_4, 4);
 
         return rootView;
     }
 
+    private void setUpCreateLigaButton(View rootView, int buttonId, int ligaId) {
+        View button = rootView.findViewById(buttonId);
+        if (button != null) {
+            button.setOnClickListener(v -> {
+                FireStoreHelper helper = new FireStoreHelper();
+                helper.checkUserHasLiga(ligaId, new FireStoreHelper.FireStoreCallback() {
+                    @Override
+                    public void onSuccess(String message) {
+                        showCreateLigaDialog(ligaId);
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+                        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
+        }
+    }
+
+    private void loadUserLigas(View rootView) {
+        FireStoreHelper helper = new FireStoreHelper();
+        helper.getUserLigas(new FireStoreHelper.LigasCallback() {
+            @Override
+            public void onLigasLoaded(List<Liga> ligas) {
+                if (getActivity() == null) return; // Evita errores si el fragmento ya no está activo
+
+                for (int i = 0; i < ligas.size(); i++) {
+                    Liga liga = ligas.get(i);
+                    int ligaId = i + 1;
+                    String nombreLiga = liga.getNombre();
+
+                    // Obtener IDs de TextView e ImageView
+                    int textViewId = getResources().getIdentifier("liga_" + ligaId + "_nombre", "id", getActivity().getPackageName());
+                    int imageViewId = getResources().getIdentifier("btn_create_liga_" + ligaId, "id", getActivity().getPackageName());
+
+                    TextView ligaTextView = rootView.findViewById(textViewId);
+                    ImageView createButton = rootView.findViewById(imageViewId);
+
+                    if (ligaTextView != null) {
+                        ligaTextView.setText(nombreLiga);
+                        ligaTextView.setVisibility(View.VISIBLE);
+                    }
+
+                    if (createButton != null) {
+                        createButton.setEnabled(false);
+                        createButton.setAlpha(0.3f);
+                    }
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Toast.makeText(getActivity(), "Error cargando ligas: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void showCreateLigaDialog(int ligaId) {
+        if (getActivity() == null) return;
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Crear Liga");
 
@@ -49,22 +119,9 @@ public class HomeFragment extends Fragment {
 
         final String[] ligaSeleccionada = {""};
 
-        // Arrays de equipos
-        String[] equiposLaLiga = {
-                "Real Madrid", "Barcelona", "Atlético de Madrid", "Sevilla", "Valencia",
-                "Villarreal", "Real Sociedad", "Athletic Club", "Betis", "Osasuna",
-                "Celta", "Espanyol", "Getafe", "Granada", "Mallorca",
-                "Alavés", "Cádiz", "Elche", "Levante", "Rayo Vallecano"
-        };
+        String[] equiposLaLiga = {"Real Madrid", "Barcelona", "Atlético de Madrid"};
+        String[] equiposPremier = {"Manchester City", "Liverpool", "Chelsea"};
 
-        String[] equiposPremier = {
-                "Manchester City", "Liverpool", "Chelsea", "Arsenal", "Manchester United",
-                "Tottenham", "Newcastle", "Brighton", "Aston Villa", "West Ham",
-                "Leicester", "Everton", "Wolves", "Crystal Palace", "Fulham",
-                "Bournemouth", "Southampton", "Leeds", "Nottingham Forest", "Brentford"
-        };
-
-        // Imágenes como botones de selección
         imgLiga.setOnClickListener(v -> {
             ligaSeleccionada[0] = "La Liga";
             setSpinnerEquipos(spinnerEquipos, equiposLaLiga);
@@ -91,6 +148,7 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onSuccess(String message) {
                         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+                        loadUserLigas(getView()); // Recargar ligas después de crear una
                     }
 
                     @Override
