@@ -2,7 +2,6 @@ package com.example.magosdelbalon;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,12 +76,14 @@ public class HomeFragment extends Fragment {
                     int ligaId = i + 1;
                     String nombreLiga = liga.getNombre();
 
-                    // Obtener IDs de TextView e ImageView
+                    // Obtener IDs de los elementos
                     int textViewId = getResources().getIdentifier("liga_" + ligaId + "_nombre", "id", getActivity().getPackageName());
                     int imageViewId = getResources().getIdentifier("btn_create_liga_" + ligaId, "id", getActivity().getPackageName());
+                    int layoutId = getResources().getIdentifier("liga_layout_" + ligaId, "id", getActivity().getPackageName());
 
                     TextView ligaTextView = rootView.findViewById(textViewId);
                     ImageView createButton = rootView.findViewById(imageViewId);
+                    View ligaLayout = rootView.findViewById(layoutId); // Captura el cuadrado de la liga
 
                     if (ligaTextView != null) {
                         ligaTextView.setText(nombreLiga);
@@ -91,10 +92,13 @@ public class HomeFragment extends Fragment {
 
                     if (createButton != null) {
                         if (liga.getNombre() != null && !liga.getNombre().isEmpty()) {
-                            // Si hay un equipo asignado, ocultamos el botón
-                            createButton.setVisibility(View.GONE);
+                            createButton.setVisibility(View.GONE); // Ocultar botón si la liga está ocupada
+
+                            // Si la liga está ocupada, agregar click al cuadrado
+                            if (ligaLayout != null) {
+                                ligaLayout.setOnClickListener(v -> openLigaDetalleFragment(ligaId));
+                            }
                         } else {
-                            // Si no hay equipo asignado, mostramos el botón para crear
                             createButton.setVisibility(View.VISIBLE);
                         }
                     }
@@ -106,6 +110,14 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(getActivity(), "Error cargando ligas: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void openLigaDetalleFragment(int ligaId) {
+        Fragment ligaDetalleFragment = new PrincipalFragment();
+
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, ligaDetalleFragment)
+                .addToBackStack(null) // Permite volver atrás con el botón de retroceso
+                .commit();
     }
 
 

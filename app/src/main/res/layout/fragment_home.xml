@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -49,6 +50,7 @@
 
             <!-- Cuadrado de liga 1 -->
             <LinearLayout
+                android:id="@+id/liga_layout_1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -77,6 +79,7 @@
 
             <!-- Cuadrado de liga 2 -->
             <LinearLayout
+                android:id="@+id/liga_layout_2"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -115,6 +118,7 @@
 
             <!-- Cuadrado de liga 3 -->
             <LinearLayout
+                android:id="@+id/liga_layout_3"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -143,6 +147,7 @@
 
             <!-- Cuadrado de liga 4 -->
             <LinearLayout
+                android:id="@+id/liga_layout_4"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
