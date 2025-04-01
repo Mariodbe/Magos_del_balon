@@ -148,7 +148,7 @@ public class FireStoreHelper {
     }
 
 
-    public void createLigaInFirestore(int ligaId, String ligaName, String equipoName, FireStoreCallback callback) {
+    public void createLigaInFirestore(int ligaId, String ligaName, String equipoName, String tipoLiga, FireStoreCallback callback) {
         String ligaCollection = "ligas";
         String usersCollection = "users";
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -159,7 +159,7 @@ public class FireStoreHelper {
         // Crear la referencia a la liga en la colección "ligas"
         DocumentReference ligaRef = db.collection(ligaCollection).document(ligaIdHash);
 
-        ligaRef.set(new Liga(ligaName, userId, new ArrayList<>(Collections.singletonList(equipoName))))
+        ligaRef.set(new Liga(ligaName, userId, new ArrayList<>(Collections.singletonList(equipoName)), tipoLiga))
                 .addOnSuccessListener(aVoid -> {
                     // Obtener la referencia del usuario
                     DocumentReference userRef = db.collection(usersCollection).document(userId);
@@ -240,13 +240,31 @@ public class FireStoreHelper {
                                     if (ligaData.containsKey("equipo")) {
                                         String equipo = (String) ligaData.get("equipo");
 
-                                        Log.d("Firestore", "Liga: " + ligaId + ", Equipo: " + equipo);
+                                        // Obtener el documento de la liga en la colección "ligas"
+                                        db.collection("ligas").document(ligaId).get()
+                                                .addOnSuccessListener(ligaSnapshot -> {
+                                                    if (ligaSnapshot.exists()) {
+                                                        Map<String, Object> ligaInfo = ligaSnapshot.getData();
+                                                        if (ligaInfo != null) {
+                                                            String nombreLiga = (String) ligaInfo.get("nombre");
+                                                            String tipoLiga = (String) ligaInfo.get("tipoLiga");
 
-                                        // Crear un objeto Liga y agregarlo a la lista
-                                        ArrayList<String> equipos = new ArrayList<>();
-                                        equipos.add(equipo);  // Solo un equipo por usuario en la liga
+                                                            // Crear un objeto Liga y agregarlo a la lista
+                                                            ArrayList<String> equipos = new ArrayList<>();
+                                                            equipos.add(equipo);  // Solo un equipo por usuario en la liga
 
-                                        ligas.add(new Liga(ligaId, uid, equipos));
+                                                            ligas.add(new Liga(nombreLiga, uid, equipos, tipoLiga));
+                                                        }
+                                                    }
+
+                                                    // Pasar las ligas cargadas al callback
+                                                    callback.onLigasLoaded(ligas);
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    // En caso de error, pasar el mensaje al callback
+                                                    Log.e("Firestore", "Error al cargar la liga: " + e.getMessage());
+                                                    callback.onError(e.getMessage());
+                                                });
                                     }
                                 } else {
                                     // Si no es un Map, loguear el tipo inesperado o manejarlo
@@ -254,9 +272,6 @@ public class FireStoreHelper {
                                 }
                             }
                         }
-
-                        // Pasar las ligas cargadas al callback
-                        callback.onLigasLoaded(ligas);
                     } else {
                         // No hay datos en el usuario
                         Log.d("Firestore", "No hay ligas para este usuario.");
@@ -269,6 +284,7 @@ public class FireStoreHelper {
                     callback.onError(e.getMessage());
                 });
     }
+
 
 
     public interface LigasCallback {

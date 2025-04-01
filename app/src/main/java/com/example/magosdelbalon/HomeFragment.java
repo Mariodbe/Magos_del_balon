@@ -162,7 +162,7 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(getActivity(), "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
             } else {
                 FireStoreHelper fireStoreHelper = new FireStoreHelper();
-                fireStoreHelper.createLigaInFirestore(ligaId, ligaName, equipoName, new FireStoreHelper.FireStoreCallback() {
+                fireStoreHelper.createLigaInFirestore(ligaId, ligaName, equipoName, ligaSeleccionada[0], new FireStoreHelper.FireStoreCallback() {
                     @Override
                     public void onSuccess(String message) {
                         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
