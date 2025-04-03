@@ -14,8 +14,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +29,6 @@ public class FireStoreHelper {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
-
     public FireStoreHelper() {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -171,11 +171,45 @@ public class FireStoreHelper {
                         Map<String, Object> ligaData = new HashMap<>();
                         ligaData.put("equipo", equipoName);
 
-                        userData.put(ligaIdHash, ligaData);
+                        // Llamar a la función de Firebase Cloud Functions para obtener los jugadores
+                        fetchBarcelonaPlayers(new FireStoreHelper.PlayersCallback() {
+                            @Override
+                            public void onPlayersLoaded(List<Jugador> players) {
+                                // Asegurarse de que players no sea nulo
+                                if (players != null) {
+                                    // Convertir la lista de jugadores a una lista de mapas para almacenarla en Firestore
+                                    List<Map<String, Object>> playersMapList = new ArrayList<>();
+                                    for (Jugador jugador : players) {
+                                        Map<String, Object> playerMap = new HashMap<>();
+                                        playerMap.put("nombre", jugador.getNombre());
+                                        playerMap.put("posicion", jugador.getPosicion());
+                                        playerMap.put("overall", jugador.getOverall());
+                                        playerMap.put("ritmo", jugador.getRitmo());
+                                        playerMap.put("disparo", jugador.getDisparo());
+                                        playerMap.put("pase", jugador.getPase());
+                                        playerMap.put("regate", jugador.getRegate());
+                                        playerMap.put("defensa", jugador.getDefensa());
+                                        playerMap.put("fisico", jugador.getFisico());
+                                        playersMapList.add(playerMap);
+                                    }
 
-                        userRef.set(userData, SetOptions.merge())
-                                .addOnSuccessListener(unused -> callback.onSuccess("Liga creada y equipo guardado correctamente"))
-                                .addOnFailureListener(e -> callback.onFailure("Liga creada, pero error al actualizar usuario: " + e.getMessage()));
+                                    ligaData.put("jugadores", playersMapList);
+
+                                    userData.put(ligaIdHash, ligaData);
+
+                                    userRef.set(userData, SetOptions.merge())
+                                            .addOnSuccessListener(unused -> callback.onSuccess("Liga creada y equipo guardado correctamente"))
+                                            .addOnFailureListener(e -> callback.onFailure("Liga creada, pero error al actualizar usuario: " + e.getMessage()));
+                                } else {
+                                    callback.onFailure("Error al obtener los jugadores.");
+                                }
+                            }
+
+                            @Override
+                            public void onError(String errorMessage) {
+                                callback.onFailure("Error al obtener los jugadores: " + errorMessage);
+                            }
+                        });
 
                     }).addOnFailureListener(e -> callback.onFailure("Error al obtener usuario: " + e.getMessage()));
                 })
@@ -183,6 +217,60 @@ public class FireStoreHelper {
     }
 
 
+
+
+
+    private void fetchBarcelonaPlayers(FireStoreHelper.PlayersCallback callback) {
+        FirebaseFunctions functions = FirebaseFunctions.getInstance();
+
+        functions.getHttpsCallable("getBarcelonaPlayers")
+                .call()
+                .addOnSuccessListener(result -> {
+                    // Log de la respuesta completa
+                    Log.d(TAG, "Response: " + result.getData());
+
+                    // Parsear la respuesta JSON
+                    List<Map<String, Object>> playersData = (List<Map<String, Object>>) result.getData();
+                    List<Jugador> players = new ArrayList<>();
+
+                    for (Map<String, Object> playerData : playersData) {
+                        Jugador jugador = new Jugador(
+                                (String) playerData.get("name"),
+                                (String) playerData.get("position"),
+                                ((Number) playerData.get("overall")).intValue(),
+                                ((Number) playerData.get("pace")).intValue(),
+                                ((Number) playerData.get("shooting")).intValue(),
+                                ((Number) playerData.get("passing")).intValue(),
+                                ((Number) playerData.get("dribbling")).intValue(),
+                                ((Number) playerData.get("defending")).intValue(),
+                                ((Number) playerData.get("physical")).intValue()
+                        );
+                        players.add(jugador);
+                    }
+
+                    // Llamar al callback con players
+                    if (!players.isEmpty()) {
+                        callback.onPlayersLoaded(players);
+                    } else {
+                        callback.onError("No se encontraron jugadores.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Manejar el error
+                    Log.e(TAG, "Error al obtener jugadores: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
+    }
+
+
+
+
+
+
+    public interface PlayersCallback {
+        void onPlayersLoaded(List<Jugador> players);
+        void onError(String errorMessage);
+    }
 
 
 

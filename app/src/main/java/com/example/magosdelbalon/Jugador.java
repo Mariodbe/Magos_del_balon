@@ -3,26 +3,28 @@ package com.example.magosdelbalon;
 public class Jugador {
     private String nombre;
     private String posicion;
-    private int velocidad;
-    private int resistencia;
-    private int habilidad;
+    private int overall;
+    private int ritmo;
+    private int disparo;
+    private int pase;
+    private int regate;
     private int defensa;
-    private int ataque;
+    private int fisico;
 
-    // Constructor, getters y setters
-    public Jugador(String nombre, String posicion, int velocidad, int resistencia, int habilidad, int defensa, int ataque) {
+    // Constructor
+    public Jugador(String nombre, String posicion, int overall, int ritmo, int disparo, int pase, int regate, int defensa, int fisico) {
         this.nombre = nombre;
         this.posicion = posicion;
-        this.velocidad = velocidad;
-        this.resistencia = resistencia;
-        this.habilidad = habilidad;
+        this.overall = overall;
+        this.ritmo = ritmo;
+        this.disparo = disparo;
+        this.pase = pase;
+        this.regate = regate;
         this.defensa = defensa;
-        this.ataque = ataque;
+        this.fisico = fisico;
     }
 
-    // Getters y setters...
-
-
+    // Getters y setters
     public String getNombre() {
         return nombre;
     }
@@ -39,28 +41,44 @@ public class Jugador {
         this.posicion = posicion;
     }
 
-    public int getVelocidad() {
-        return velocidad;
+    public int getOverall() {
+        return overall;
     }
 
-    public void setVelocidad(int velocidad) {
-        this.velocidad = velocidad;
+    public void setOverall(int overall) {
+        this.overall = overall;
     }
 
-    public int getResistencia() {
-        return resistencia;
+    public int getRitmo() {
+        return ritmo;
     }
 
-    public void setResistencia(int resistencia) {
-        this.resistencia = resistencia;
+    public void setRitmo(int ritmo) {
+        this.ritmo = ritmo;
     }
 
-    public int getHabilidad() {
-        return habilidad;
+    public int getDisparo() {
+        return disparo;
     }
 
-    public void setHabilidad(int habilidad) {
-        this.habilidad = habilidad;
+    public void setDisparo(int disparo) {
+        this.disparo = disparo;
+    }
+
+    public int getPase() {
+        return pase;
+    }
+
+    public void setPase(int pase) {
+        this.pase = pase;
+    }
+
+    public int getRegate() {
+        return regate;
+    }
+
+    public void setRegate(int regate) {
+        this.regate = regate;
     }
 
     public int getDefensa() {
@@ -71,11 +89,11 @@ public class Jugador {
         this.defensa = defensa;
     }
 
-    public int getAtaque() {
-        return ataque;
+    public int getFisico() {
+        return fisico;
     }
 
-    public void setAtaque(int ataque) {
-        this.ataque = ataque;
+    public void setFisico(int fisico) {
+        this.fisico = fisico;
     }
 }
