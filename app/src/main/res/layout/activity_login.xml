@@ -4,8 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".LoginActivity">
 
+    <!-- Título -->
     <TextView
         android:id="@+id/loginTitle"
         android:layout_width="wrap_content"
@@ -13,61 +15,81 @@
         android:text="Inicio de Sesión"
         android:textSize="32sp"
         android:textStyle="bold"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="40dp"/>
 
-    <EditText
-        android:id="@+id/usernameEditText"
-        android:layout_width="280dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="76dp"
-        android:hint="Usuario"
-        android:padding="10dp"
-        android:textColorHint="#AAAAAA"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.1"
+    <!-- Contenedor para los campos de texto -->
+    <LinearLayout
+        android:id="@+id/formContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginTitle" />
+        app:layout_constraintEnd_toStartOf="@id/buttonContainer"
+        app:layout_constraintTop_toBottomOf="@id/loginTitle"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <EditText
-        android:id="@+id/passwordEditText"
-        android:layout_width="280dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:hint="Contraseña"
-        android:inputType="textPassword"
-        android:padding="10dp"
-        android:textColorHint="#AAAAAA"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/usernameEditText" />
+        <EditText
+            android:id="@+id/usernameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:hint="Usuario"
+            android:inputType="text"
+            android:padding="16dp"
+            android:background="@drawable/edit_text_background"
+            android:textColorHint="#AAAAAA"
+            android:textSize="16sp"/>
 
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="220dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="76dp"
-        android:text="Iniciar Sesión"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        app:backgroundTint="@null"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.825"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginTitle" />
+        <EditText
+            android:id="@+id/passwordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Contraseña"
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:background="@drawable/edit_text_background"
+            android:textColorHint="#AAAAAA"
+            android:textSize="16sp"/>
+    </LinearLayout>
 
-    <ImageView
-        android:id="@+id/googleSignInButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:contentDescription="Iniciar sesión con Google"
-        android:src="@drawable/icono_google"
+    <!-- Contenedor para los botones -->
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginEnd="32dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.741"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginButton" />
+        app:layout_constraintTop_toBottomOf="@id/loginTitle"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/loginButton"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Iniciar Sesión"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:background="@drawable/button_background"/>
+
+        <ImageView
+            android:id="@+id/googleSignInButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:layout_gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Iniciar sesión con Google"
+            android:src="@drawable/icono_google"/>
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

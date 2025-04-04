@@ -3,6 +3,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.AuthCredential;
@@ -22,6 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.bumptech.glide.Glide;
 
 public class FireStoreHelper {
     private static final String TAG="FireStoreHelper";
@@ -290,6 +293,86 @@ public class FireStoreHelper {
     public interface LigasCallback {
         void onLigasLoaded(List<Liga> ligas); // Se ejecuta cuando las ligas se cargan correctamente
         void onError(String errorMessage);    // Se ejecuta si ocurre un error
+    }
+
+    public interface UploadCallback {
+        void onSuccess(String imageUrl);
+        void onFailure(String error);
+    }
+
+    public void uploadProfileImage(Uri imageUri, UploadCallback callback) {
+        if (imageUri == null) {
+            callback.onFailure("No se ha seleccionado ninguna imagen");
+            return;
+        }
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            callback.onFailure("Usuario no autenticado");
+            return;
+        }
+
+        String userId = currentUser.getUid();
+        StorageReference profileImageRef = storage.getReference()
+                .child("profile_images")
+                .child(userId + ".jpg");
+
+        profileImageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    // Obtener la URL de la imagen
+                    profileImageRef.getDownloadUrl()
+                            .addOnSuccessListener(uri -> {
+                                String imageUrl = uri.toString();
+                                
+                                // Actualizar el documento del usuario en Firestore
+                                db.collection("users").document(userId)
+                                        .update("profileImageUrl", imageUrl)
+                                        .addOnSuccessListener(aVoid -> callback.onSuccess(imageUrl))
+                                        .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+                            })
+                            .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+                })
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public void getProfileImage(ImageView imageView) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            Log.d(TAG, "Usuario no autenticado");
+            return;
+        }
+
+        String userId = currentUser.getUid();
+        Log.d(TAG, "Buscando imagen de perfil para usuario: " + userId);
+
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("profileImageUrl");
+                        Log.d(TAG, "URL de imagen encontrada: " + imageUrl);
+                        
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Glide.with(imageView.getContext())
+                                .load(imageUrl)
+                                .circleCrop()
+                                .placeholder(R.drawable.ic_profile_placeholder)
+                                .error(R.drawable.ic_profile_placeholder)
+                                .into(imageView);
+                        } else {
+                            Log.d(TAG, "No hay URL de imagen en el documento");
+                            // Establecer la imagen por defecto si no hay URL
+                            imageView.setImageResource(R.drawable.ic_profile_placeholder);
+                        }
+                    } else {
+                        Log.d(TAG, "Documento de usuario no encontrado");
+                        imageView.setImageResource(R.drawable.ic_profile_placeholder);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error al obtener la imagen de perfil: " + e.getMessage());
+                    imageView.setImageResource(R.drawable.ic_profile_placeholder);
+                });
     }
 
 }

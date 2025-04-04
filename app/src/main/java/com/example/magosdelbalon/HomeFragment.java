@@ -1,6 +1,8 @@
 package com.example.magosdelbalon;
 
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,13 +18,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
 public class HomeFragment extends Fragment {
-
+    private static final int PICK_IMAGE_REQUEST = 1;
     private FirebaseFirestore db;
+    private ImageView profileImage;
 
     @Nullable
     @Override
@@ -31,6 +35,15 @@ public class HomeFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
         db = FirebaseFirestore.getInstance();
+
+        // Inicializar la imagen de perfil
+        profileImage = rootView.findViewById(R.id.profile_image);
+        if (profileImage != null) {
+            profileImage.setOnClickListener(v -> openImagePicker());
+            // Cargar la imagen de perfil al iniciar
+            FireStoreHelper helper = new FireStoreHelper();
+            helper.getProfileImage(profileImage);
+        }
 
         // Cargar ligas automáticamente al inicio
         loadUserLigas(rootView);
@@ -42,6 +55,45 @@ public class HomeFragment extends Fragment {
         setUpCreateLigaButton(rootView, R.id.btn_create_liga_4, 4);
 
         return rootView;
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Selecciona una imagen"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK 
+            && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+            
+            // Aplicar circleCrop inmediatamente con Glide
+            Glide.with(this)
+                .load(imageUri)
+                .circleCrop()
+                .placeholder(R.drawable.ic_profile_placeholder)
+                .error(R.drawable.ic_profile_placeholder)
+                .into(profileImage);
+            
+            // Subir la imagen a Firebase Storage
+            FireStoreHelper helper = new FireStoreHelper();
+            helper.uploadProfileImage(imageUri, new FireStoreHelper.UploadCallback() {
+                @Override
+                public void onSuccess(String imageUrl) {
+                    Toast.makeText(getActivity(), "Foto de perfil actualizada", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    Toast.makeText(getActivity(), "Error al subir la imagen: " + error, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void setUpCreateLigaButton(View rootView, int buttonId, int ligaId) {

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".RegisterActivity">
 
     <!-- Título -->
@@ -12,109 +13,107 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Registro"
-        android:textSize="30sp"
+        android:textSize="32sp"
         android:textStyle="bold"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="40dp"/>
 
-    <!-- Campos de texto alineados a la izquierda -->
-
-    <EditText
-        android:id="@+id/usernameEditText"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="16dp"
-        android:hint="Usuario"
-        android:inputType="text"
-        android:padding="15dp"
-        android:textColorHint="#AAAAAA"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+    <!-- Contenedor para los campos de texto -->
+    <LinearLayout
+        android:id="@+id/formContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/registerTitle" />
+        app:layout_constraintEnd_toStartOf="@id/buttonContainer"
+        app:layout_constraintTop_toBottomOf="@id/registerTitle"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <EditText
-        android:id="@+id/emailEditText"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="16dp"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        android:padding="15dp"
-        android:textColorHint="#AAAAAA"
-        android:textSize="20sp"
+        <EditText
+            android:id="@+id/usernameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:hint="Usuario"
+            android:inputType="text"
+            android:padding="16dp"
+            android:background="@drawable/edit_text_background"
+            android:textColorHint="#AAAAAA"
+            android:textSize="16sp"/>
+
+        <EditText
+            android:id="@+id/emailEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:padding="16dp"
+            android:background="@drawable/edit_text_background"
+            android:textColorHint="#AAAAAA"
+            android:textSize="16sp"/>
+
+        <EditText
+            android:id="@+id/passwordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Contraseña"
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:background="@drawable/edit_text_background"
+            android:textColorHint="#AAAAAA"
+            android:textSize="16sp"/>
+
+        <EditText
+            android:id="@+id/confirmPasswordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Confirma tu contraseña"
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:background="@drawable/edit_text_background"
+            android:textColorHint="#AAAAAA"
+            android:textSize="16sp"/>
+    </LinearLayout>
+
+    <!-- Contenedor para los botones -->
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginEnd="32dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/usernameEditText" />
+        app:layout_constraintTop_toBottomOf="@id/registerTitle"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <EditText
-        android:id="@+id/passwordEditText"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="24dp"
-        android:hint="Contraseña"
-        android:inputType="textPassword"
-        android:padding="15dp"
-        android:textColorHint="#AAAAAA"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/emailEditText" />
+        <Button
+            android:id="@+id/registerButton"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Registrarse"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:background="@drawable/button_background"/>
 
-    <!-- Botón de registro alineado a la derecha -->
-    <EditText
-        android:id="@+id/confirmPasswordEditText"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="28dp"
-        android:hint="Confirma tu contraseña"
-        android:inputType="textPassword"
-        android:padding="15dp"
-        android:textColorHint="#AAAAAA"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/passwordEditText" />
-
-    <!-- Botón de Google alineado a la derecha -->
-
-    <Button
-        android:id="@+id/registerButton"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="20dp"
-        android:text="Registrarse"
-        android:textColor="#FFFFFF"
-        app:backgroundTint="@null"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.845"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/registerTitle" />
-
-    <ImageView
-        android:id="@+id/googleSignInButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="end"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="20dp"
-        android:background="?attr/selectableItemBackground"
-        android:contentDescription="Iniciar sesión con Google"
-        android:src="@drawable/icono_google"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.77"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/registerButton" />
+        <ImageView
+            android:id="@+id/googleSignInButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:layout_gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Iniciar sesión con Google"
+            android:src="@drawable/icono_google"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
