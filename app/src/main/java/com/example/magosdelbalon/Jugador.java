@@ -24,76 +24,14 @@ public class Jugador {
         this.fisico = fisico;
     }
 
-    // Getters y setters
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getPosicion() {
-        return posicion;
-    }
-
-    public void setPosicion(String posicion) {
-        this.posicion = posicion;
-    }
-
-    public int getOverall() {
-        return overall;
-    }
-
-    public void setOverall(int overall) {
-        this.overall = overall;
-    }
-
-    public int getRitmo() {
-        return ritmo;
-    }
-
-    public void setRitmo(int ritmo) {
-        this.ritmo = ritmo;
-    }
-
-    public int getDisparo() {
-        return disparo;
-    }
-
-    public void setDisparo(int disparo) {
-        this.disparo = disparo;
-    }
-
-    public int getPase() {
-        return pase;
-    }
-
-    public void setPase(int pase) {
-        this.pase = pase;
-    }
-
-    public int getRegate() {
-        return regate;
-    }
-
-    public void setRegate(int regate) {
-        this.regate = regate;
-    }
-
-    public int getDefensa() {
-        return defensa;
-    }
-
-    public void setDefensa(int defensa) {
-        this.defensa = defensa;
-    }
-
-    public int getFisico() {
-        return fisico;
-    }
-
-    public void setFisico(int fisico) {
-        this.fisico = fisico;
-    }
+    // Getters y Setters
+    public String getNombre() { return nombre; }
+    public String getPosicion() { return posicion; }
+    public int getOverall() { return overall; }
+    public int getRitmo() { return ritmo; }
+    public int getDisparo() { return disparo; }
+    public int getPase() { return pase; }
+    public int getRegate() { return regate; }
+    public int getDefensa() { return defensa; }
+    public int getFisico() { return fisico; }
 }
