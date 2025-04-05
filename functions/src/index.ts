@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 
-export const getBarcelonaPlayers = functions.https.onRequest(
+exports.getBarcelonaPlayers = functions.https.onRequest(
   (request, response) => {
     const barcelonaPlayers = [
       {
@@ -280,6 +280,6 @@ export const getBarcelonaPlayers = functions.https.onRequest(
       },
     ];
 
-    response.send(barcelonaPlayers);
+    response.json({data: {players: barcelonaPlayers}});
   }
 );
