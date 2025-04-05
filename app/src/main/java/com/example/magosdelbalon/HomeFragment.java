@@ -9,11 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -24,9 +27,38 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
-    private static final int PICK_IMAGE_REQUEST = 1;
     private FirebaseFirestore db;
     private ImageView profileImage;
+    private ImageButton btnSettings;
+
+    // ActivityResultLauncher para la selección de imagen
+    private final ActivityResultLauncher<String> getContent = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    // Aplicar circleCrop inmediatamente con Glide
+                    Glide.with(this)
+                            .load(uri)
+                            .circleCrop()
+                            .placeholder(R.drawable.ic_profile_placeholder)
+                            .error(R.drawable.ic_profile_placeholder)
+                            .into(profileImage);
+
+                    // Subir la imagen a Firebase Storage
+                    FireStoreHelper helper = new FireStoreHelper();
+                    helper.uploadProfileImage(uri, new FireStoreHelper.UploadCallback() {
+                        @Override
+                        public void onSuccess(String imageUrl) {
+                            Toast.makeText(getActivity(), "Foto de perfil actualizada", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            Toast.makeText(getActivity(), "Error al subir la imagen: " + error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
 
     @Nullable
     @Override
@@ -45,6 +77,12 @@ public class HomeFragment extends Fragment {
             helper.getProfileImage(profileImage);
         }
 
+        // Inicializar botón de configuración
+        btnSettings = rootView.findViewById(R.id.btn_settings);
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> openSettingsFragment());
+        }
+
         // Cargar ligas automáticamente al inicio
         loadUserLigas(rootView);
 
@@ -58,42 +96,15 @@ public class HomeFragment extends Fragment {
     }
 
     private void openImagePicker() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Selecciona una imagen"), PICK_IMAGE_REQUEST);
+        getContent.launch("image/*");
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK 
-            && data != null && data.getData() != null) {
-            Uri imageUri = data.getData();
-            
-            // Aplicar circleCrop inmediatamente con Glide
-            Glide.with(this)
-                .load(imageUri)
-                .circleCrop()
-                .placeholder(R.drawable.ic_profile_placeholder)
-                .error(R.drawable.ic_profile_placeholder)
-                .into(profileImage);
-            
-            // Subir la imagen a Firebase Storage
-            FireStoreHelper helper = new FireStoreHelper();
-            helper.uploadProfileImage(imageUri, new FireStoreHelper.UploadCallback() {
-                @Override
-                public void onSuccess(String imageUrl) {
-                    Toast.makeText(getActivity(), "Foto de perfil actualizada", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onFailure(String error) {
-                    Toast.makeText(getActivity(), "Error al subir la imagen: " + error, Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+    private void openSettingsFragment() {
+        SettingsFragment settingsFragment = new SettingsFragment();
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, settingsFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void setUpCreateLigaButton(View rootView, int buttonId, int ligaId) {
@@ -171,7 +182,6 @@ public class HomeFragment extends Fragment {
                 .addToBackStack(null) // Permite volver atrás con el botón de retroceso
                 .commit();
     }
-
 
     private void showCreateLigaDialog(int ligaId) {
         if (getActivity() == null) return;
