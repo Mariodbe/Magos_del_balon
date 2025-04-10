@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
@@ -60,7 +61,6 @@ public class HomeFragment extends Fragment {
                 }
             });
 
-    @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
@@ -68,25 +68,28 @@ public class HomeFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
         db = FirebaseFirestore.getInstance();
 
-        // Inicializar la imagen de perfil
+        // Aquí ocultamos el BottomNavigationView en HomeFragment
+        if (getActivity() != null) {
+            BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
+            bottomNavigationView.setVisibility(View.GONE); // Ocultar menú
+        }
+
+        // Inicializar la imagen de perfil y otros componentes
         profileImage = rootView.findViewById(R.id.profile_image);
         if (profileImage != null) {
             profileImage.setOnClickListener(v -> openImagePicker());
-            // Cargar la imagen de perfil al iniciar
             FireStoreHelper helper = new FireStoreHelper();
             helper.getProfileImage(profileImage);
         }
 
-        // Inicializar botón de configuración
         btnSettings = rootView.findViewById(R.id.btn_settings);
         if (btnSettings != null) {
             btnSettings.setOnClickListener(v -> openSettingsFragment());
         }
 
-        // Cargar ligas automáticamente al inicio
         loadUserLigas(rootView);
 
-        // Asignar listeners a los 4 botones
+        // Configurar los botones de ligas
         setUpCreateLigaButton(rootView, R.id.btn_create_liga_1, 1);
         setUpCreateLigaButton(rootView, R.id.btn_create_liga_2, 2);
         setUpCreateLigaButton(rootView, R.id.btn_create_liga_3, 3);
@@ -94,6 +97,7 @@ public class HomeFragment extends Fragment {
 
         return rootView;
     }
+
 
     private void openImagePicker() {
         getContent.launch("image/*");

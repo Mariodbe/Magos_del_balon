@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.storage.StorageReference;
 
 public class FireStoreHelper {
     private static final String TAG="FireStoreHelper";
