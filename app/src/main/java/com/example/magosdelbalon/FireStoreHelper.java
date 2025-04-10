@@ -175,8 +175,8 @@ public class FireStoreHelper {
                         Map<String, Object> ligaData = new HashMap<>();
                         ligaData.put("equipo", equipoName);
 
-                        // Llamar a la función de Firebase Cloud Functions para obtener los jugadores
-                        fetchBarcelonaPlayers(new FireStoreHelper.PlayersCallback() {
+                        // Aquí cambiamos la función para obtener jugadores dependiendo del equipo seleccionado
+                        fetchPlayersForTeam(equipoName, new FireStoreHelper.PlayersCallback() {
                             @Override
                             public void onPlayersLoaded(List<Jugador> players) {
                                 // Asegurarse de que players no sea nulo
@@ -219,6 +219,33 @@ public class FireStoreHelper {
                 })
                 .addOnFailureListener(e -> callback.onFailure("Error al crear la liga: " + e.getMessage()));
     }
+
+    private void fetchPlayersForTeam(String equipoName, FireStoreHelper.PlayersCallback callback) {
+        switch (equipoName) {
+            case "Barcelona":
+                fetchBarcelonaPlayers(callback);
+                break;
+            case "Real Madrid":
+                fetchRealMadridPlayers(callback);
+                break;
+            case "Atlético de Madrid":
+                fetchAtleticoPlayers(callback);
+                break;
+            case "Manchester City":
+                fetchManCityPlayers(callback);
+                break;
+            case "Liverpool":
+                fetchLiverpoolPlayers(callback);
+                break;
+            case "Chelsea":
+                fetchChelseaPlayers(callback);
+                break;
+            default:
+                callback.onError("Equipo no reconocido.");
+                break;
+        }
+    }
+
 
     private void fetchBarcelonaPlayers(FireStoreHelper.PlayersCallback callback) {
         FirebaseFunctions functions = FirebaseFunctions.getInstance();
@@ -277,6 +304,298 @@ public class FireStoreHelper {
                     callback.onError(e.getMessage());
                 });
     }
+
+    private void fetchRealMadridPlayers(FireStoreHelper.PlayersCallback callback) {
+        FirebaseFunctions functions = FirebaseFunctions.getInstance();
+
+        functions.getHttpsCallable("getMadridPlayers")
+                .call()
+                .addOnSuccessListener(result -> {
+                    // Log de la respuesta completa
+                    Log.d(TAG, "Response: " + result.getData());
+
+                    // Verificar si la respuesta es un Map
+                    if (result.getData() instanceof Map) {
+                        Map<String, Object> responseMap = (Map<String, Object>) result.getData();
+
+                        // Verificar si el campo 'players' existe en la respuesta
+                        if (responseMap.containsKey("players")) {
+                            List<Map<String, Object>> playersData = (List<Map<String, Object>>) responseMap.get("players");
+
+                            if (playersData != null) {
+                                List<Jugador> players = new ArrayList<>();
+
+                                for (Map<String, Object> playerData : playersData) {
+                                    Jugador jugador = new Jugador(
+                                            (String) playerData.get("name"),
+                                            (String) playerData.get("position"),
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("pace")).intValue(),
+                                            ((Number) playerData.get("shooting")).intValue(),
+                                            ((Number) playerData.get("passing")).intValue(),
+                                            ((Number) playerData.get("dribbling")).intValue(),
+                                            ((Number) playerData.get("defending")).intValue(),
+                                            ((Number) playerData.get("physical")).intValue()
+                                    );
+                                    players.add(jugador);
+                                }
+
+                                // Llamar al callback con players
+                                if (!players.isEmpty()) {
+                                    callback.onPlayersLoaded(players);
+                                } else {
+                                    callback.onError("No se encontraron jugadores.");
+                                }
+                            } else {
+                                callback.onError("La respuesta no contiene datos de jugadores.");
+                            }
+                        } else {
+                            callback.onError("El campo 'players' no existe en la respuesta.");
+                        }
+                    } else {
+                        callback.onError("La respuesta no es un objeto JSON válido.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Manejar el error
+                    Log.e(TAG, "Error al obtener jugadores: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
+    }
+
+    private void fetchAtleticoPlayers(FireStoreHelper.PlayersCallback callback) {
+        FirebaseFunctions functions = FirebaseFunctions.getInstance();
+
+        functions.getHttpsCallable("getAtleticoPlayers")
+                .call()
+                .addOnSuccessListener(result -> {
+                    // Log de la respuesta completa
+                    Log.d(TAG, "Response: " + result.getData());
+
+                    // Verificar si la respuesta es un Map
+                    if (result.getData() instanceof Map) {
+                        Map<String, Object> responseMap = (Map<String, Object>) result.getData();
+
+                        // Verificar si el campo 'players' existe en la respuesta
+                        if (responseMap.containsKey("players")) {
+                            List<Map<String, Object>> playersData = (List<Map<String, Object>>) responseMap.get("players");
+
+                            if (playersData != null) {
+                                List<Jugador> players = new ArrayList<>();
+
+                                for (Map<String, Object> playerData : playersData) {
+                                    Jugador jugador = new Jugador(
+                                            (String) playerData.get("name"),
+                                            (String) playerData.get("position"),
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("pace")).intValue(),
+                                            ((Number) playerData.get("shooting")).intValue(),
+                                            ((Number) playerData.get("passing")).intValue(),
+                                            ((Number) playerData.get("dribbling")).intValue(),
+                                            ((Number) playerData.get("defending")).intValue(),
+                                            ((Number) playerData.get("physical")).intValue()
+                                    );
+                                    players.add(jugador);
+                                }
+
+                                // Llamar al callback con players
+                                if (!players.isEmpty()) {
+                                    callback.onPlayersLoaded(players);
+                                } else {
+                                    callback.onError("No se encontraron jugadores.");
+                                }
+                            } else {
+                                callback.onError("La respuesta no contiene datos de jugadores.");
+                            }
+                        } else {
+                            callback.onError("El campo 'players' no existe en la respuesta.");
+                        }
+                    } else {
+                        callback.onError("La respuesta no es un objeto JSON válido.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Manejar el error
+                    Log.e(TAG, "Error al obtener jugadores: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
+    }
+
+    private void fetchManCityPlayers(FireStoreHelper.PlayersCallback callback) {
+        FirebaseFunctions functions = FirebaseFunctions.getInstance();
+
+        functions.getHttpsCallable("getManCityPlayers")
+                .call()
+                .addOnSuccessListener(result -> {
+                    // Log de la respuesta completa
+                    Log.d(TAG, "Response: " + result.getData());
+
+                    // Verificar si la respuesta es un Map
+                    if (result.getData() instanceof Map) {
+                        Map<String, Object> responseMap = (Map<String, Object>) result.getData();
+
+                        // Verificar si el campo 'players' existe en la respuesta
+                        if (responseMap.containsKey("players")) {
+                            List<Map<String, Object>> playersData = (List<Map<String, Object>>) responseMap.get("players");
+
+                            if (playersData != null) {
+                                List<Jugador> players = new ArrayList<>();
+
+                                for (Map<String, Object> playerData : playersData) {
+                                    Jugador jugador = new Jugador(
+                                            (String) playerData.get("name"),
+                                            (String) playerData.get("position"),
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("pace")).intValue(),
+                                            ((Number) playerData.get("shooting")).intValue(),
+                                            ((Number) playerData.get("passing")).intValue(),
+                                            ((Number) playerData.get("dribbling")).intValue(),
+                                            ((Number) playerData.get("defending")).intValue(),
+                                            ((Number) playerData.get("physical")).intValue()
+                                    );
+                                    players.add(jugador);
+                                }
+
+                                // Llamar al callback con players
+                                if (!players.isEmpty()) {
+                                    callback.onPlayersLoaded(players);
+                                } else {
+                                    callback.onError("No se encontraron jugadores.");
+                                }
+                            } else {
+                                callback.onError("La respuesta no contiene datos de jugadores.");
+                            }
+                        } else {
+                            callback.onError("El campo 'players' no existe en la respuesta.");
+                        }
+                    } else {
+                        callback.onError("La respuesta no es un objeto JSON válido.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Manejar el error
+                    Log.e(TAG, "Error al obtener jugadores: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
+    }
+
+    private void fetchLiverpoolPlayers(FireStoreHelper.PlayersCallback callback) {
+        FirebaseFunctions functions = FirebaseFunctions.getInstance();
+
+        functions.getHttpsCallable("getLiverpoolPlayers")
+                .call()
+                .addOnSuccessListener(result -> {
+                    // Log de la respuesta completa
+                    Log.d(TAG, "Response: " + result.getData());
+
+                    // Verificar si la respuesta es un Map
+                    if (result.getData() instanceof Map) {
+                        Map<String, Object> responseMap = (Map<String, Object>) result.getData();
+
+                        // Verificar si el campo 'players' existe en la respuesta
+                        if (responseMap.containsKey("players")) {
+                            List<Map<String, Object>> playersData = (List<Map<String, Object>>) responseMap.get("players");
+
+                            if (playersData != null) {
+                                List<Jugador> players = new ArrayList<>();
+
+                                for (Map<String, Object> playerData : playersData) {
+                                    Jugador jugador = new Jugador(
+                                            (String) playerData.get("name"),
+                                            (String) playerData.get("position"),
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("pace")).intValue(),
+                                            ((Number) playerData.get("shooting")).intValue(),
+                                            ((Number) playerData.get("passing")).intValue(),
+                                            ((Number) playerData.get("dribbling")).intValue(),
+                                            ((Number) playerData.get("defending")).intValue(),
+                                            ((Number) playerData.get("physical")).intValue()
+                                    );
+                                    players.add(jugador);
+                                }
+
+                                // Llamar al callback con players
+                                if (!players.isEmpty()) {
+                                    callback.onPlayersLoaded(players);
+                                } else {
+                                    callback.onError("No se encontraron jugadores.");
+                                }
+                            } else {
+                                callback.onError("La respuesta no contiene datos de jugadores.");
+                            }
+                        } else {
+                            callback.onError("El campo 'players' no existe en la respuesta.");
+                        }
+                    } else {
+                        callback.onError("La respuesta no es un objeto JSON válido.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Manejar el error
+                    Log.e(TAG, "Error al obtener jugadores: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
+    }
+
+    private void fetchChelseaPlayers(FireStoreHelper.PlayersCallback callback) {
+        FirebaseFunctions functions = FirebaseFunctions.getInstance();
+
+        functions.getHttpsCallable("getChelseaPlayers")
+                .call()
+                .addOnSuccessListener(result -> {
+                    // Log de la respuesta completa
+                    Log.d(TAG, "Response: " + result.getData());
+
+                    // Verificar si la respuesta es un Map
+                    if (result.getData() instanceof Map) {
+                        Map<String, Object> responseMap = (Map<String, Object>) result.getData();
+
+                        // Verificar si el campo 'players' existe en la respuesta
+                        if (responseMap.containsKey("players")) {
+                            List<Map<String, Object>> playersData = (List<Map<String, Object>>) responseMap.get("players");
+
+                            if (playersData != null) {
+                                List<Jugador> players = new ArrayList<>();
+
+                                for (Map<String, Object> playerData : playersData) {
+                                    Jugador jugador = new Jugador(
+                                            (String) playerData.get("name"),
+                                            (String) playerData.get("position"),
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("pace")).intValue(),
+                                            ((Number) playerData.get("shooting")).intValue(),
+                                            ((Number) playerData.get("passing")).intValue(),
+                                            ((Number) playerData.get("dribbling")).intValue(),
+                                            ((Number) playerData.get("defending")).intValue(),
+                                            ((Number) playerData.get("physical")).intValue()
+                                    );
+                                    players.add(jugador);
+                                }
+
+                                // Llamar al callback con players
+                                if (!players.isEmpty()) {
+                                    callback.onPlayersLoaded(players);
+                                } else {
+                                    callback.onError("No se encontraron jugadores.");
+                                }
+                            } else {
+                                callback.onError("La respuesta no contiene datos de jugadores.");
+                            }
+                        } else {
+                            callback.onError("El campo 'players' no existe en la respuesta.");
+                        }
+                    } else {
+                        callback.onError("La respuesta no es un objeto JSON válido.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Manejar el error
+                    Log.e(TAG, "Error al obtener jugadores: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
+    }
+
+
 
 
 
