@@ -3,6 +3,7 @@ package com.example.magosdelbalon;
 import android.os.Bundle;
 import android.view.WindowManager;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -21,6 +22,13 @@ public class MainActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finishAffinity(); // Cierra todas las actividades
+                System.exit(0);   // Forzar cierre si lo ves necesario (opcional)
+            }
+        });
 
         // Hacer la ventana en pantalla completa
         getWindow().setFlags(
@@ -29,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         );
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnItemSelectedListener(item -> {
+
             Fragment selectedFragment = null;
 
             if (item.getItemId() == R.id.navigation_principal) {
@@ -46,11 +55,12 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        // Establecer el fragment inicial
+        // Establecer PrincipalFragment como fragmento por defecto.
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new HomeFragment())
+                    .replace(R.id.fragment_container, new PrincipalFragment())
                     .commit();
         }
+
     }
 }

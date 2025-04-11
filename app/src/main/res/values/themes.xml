@@ -17,4 +17,8 @@
         <!-- Esto habilita pantalla completa -->
         <item name="android:windowFullscreen">true</item>
     </style>
+    <style name="Theme.MagosDelBalon.NoAnimation">
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
 </resources>

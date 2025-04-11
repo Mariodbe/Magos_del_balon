@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="horizontal">
+    tools:context=".PrincipalFragment">
 
-    <TextView
+    <!-- Botón de regreso a Home -->
+    <ImageButton
+        android:id="@+id/btn_back_to_home"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Detalles de la Liga"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-</LinearLayout>
+        android:layout_gravity="top|end"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_home" />
+
+    <!-- Contenido principal del Fragment -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="Hello Principal fragment" />
+
+</FrameLayout>

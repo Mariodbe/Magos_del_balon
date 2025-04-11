@@ -2,11 +2,9 @@ package com.example.magosdelbalon;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -15,19 +13,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
-public class HomeFragment extends Fragment {
+public class HomeActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private ImageView profileImage;
     private ImageButton btnSettings;
@@ -50,69 +47,67 @@ public class HomeFragment extends Fragment {
                     helper.uploadProfileImage(uri, new FireStoreHelper.UploadCallback() {
                         @Override
                         public void onSuccess(String imageUrl) {
-                            Toast.makeText(getActivity(), "Foto de perfil actualizada", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(HomeActivity.this, "Foto de perfil actualizada", Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
                         public void onFailure(String error) {
-                            Toast.makeText(getActivity(), "Error al subir la imagen: " + error, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(HomeActivity.this, "Error al subir la imagen: " + error, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
             });
-
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
         db = FirebaseFirestore.getInstance();
-
-        // Aquí ocultamos el BottomNavigationView en HomeFragment
-        if (getActivity() != null) {
-            BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
-            bottomNavigationView.setVisibility(View.GONE); // Ocultar menú
+        // Ocultar la barra de acción (ActionBar)
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
         }
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finishAffinity(); // Cierra todas las actividades
+                System.exit(0);   // Forzar cierre si lo ves necesario (opcional)
+            }
+        });
 
+        // Configurar la ventana para un diseño de pantalla completa
+        getWindow().setFlags(
+                android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        );
         // Inicializar la imagen de perfil y otros componentes
-        profileImage = rootView.findViewById(R.id.profile_image);
+        profileImage = findViewById(R.id.profile_image);
         if (profileImage != null) {
             profileImage.setOnClickListener(v -> openImagePicker());
             FireStoreHelper helper = new FireStoreHelper();
             helper.getProfileImage(profileImage);
         }
 
-        btnSettings = rootView.findViewById(R.id.btn_settings);
+        btnSettings = findViewById(R.id.btn_settings);
         if (btnSettings != null) {
             btnSettings.setOnClickListener(v -> openSettingsFragment());
         }
 
-        loadUserLigas(rootView);
+        loadUserLigas();
 
         // Configurar los botones de ligas
-        setUpCreateLigaButton(rootView, R.id.btn_create_liga_1, 1);
-        setUpCreateLigaButton(rootView, R.id.btn_create_liga_2, 2);
-        setUpCreateLigaButton(rootView, R.id.btn_create_liga_3, 3);
-        setUpCreateLigaButton(rootView, R.id.btn_create_liga_4, 4);
-
-        return rootView;
+        setUpCreateLigaButton(findViewById(R.id.btn_create_liga_1), 1);
+        setUpCreateLigaButton(findViewById(R.id.btn_create_liga_2), 2);
+        setUpCreateLigaButton(findViewById(R.id.btn_create_liga_3), 3);
+        setUpCreateLigaButton(findViewById(R.id.btn_create_liga_4), 4);
     }
-
-
     private void openImagePicker() {
         getContent.launch("image/*");
     }
 
     private void openSettingsFragment() {
-        SettingsFragment settingsFragment = new SettingsFragment();
-        getParentFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, settingsFragment)
-                .addToBackStack(null)
-                .commit();
+        //TODO:Implementar cuando este la activity de settings
     }
-
-    private void setUpCreateLigaButton(View rootView, int buttonId, int ligaId) {
-        View button = rootView.findViewById(buttonId);
+    private void setUpCreateLigaButton(View button, int ligaId) {
         if (button != null) {
             button.setOnClickListener(v -> {
                 FireStoreHelper helper = new FireStoreHelper();
@@ -124,19 +119,20 @@ public class HomeFragment extends Fragment {
 
                     @Override
                     public void onFailure(String message) {
-                        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(HomeActivity.this, message, Toast.LENGTH_SHORT).show();
                     }
                 });
             });
         }
     }
 
-    private void loadUserLigas(View rootView) {
+
+    private void loadUserLigas() {
         FireStoreHelper helper = new FireStoreHelper();
         helper.getUserLigas(new FireStoreHelper.LigasCallback() {
             @Override
             public void onLigasLoaded(List<Liga> ligas) {
-                if (getActivity() == null) return; // Evita errores si el fragmento ya no está activo
+                if (HomeActivity.this == null) return; // Evita errores si el fragmento ya no está activo
 
                 for (int i = 0; i < ligas.size(); i++) {
                     Liga liga = ligas.get(i);
@@ -144,13 +140,13 @@ public class HomeFragment extends Fragment {
                     String nombreLiga = liga.getNombre();
 
                     // Obtener IDs de los elementos
-                    int textViewId = getResources().getIdentifier("liga_" + ligaId + "_nombre", "id", getActivity().getPackageName());
-                    int imageViewId = getResources().getIdentifier("btn_create_liga_" + ligaId, "id", getActivity().getPackageName());
-                    int layoutId = getResources().getIdentifier("liga_layout_" + ligaId, "id", getActivity().getPackageName());
+                    int textViewId = getResources().getIdentifier("liga_" + ligaId + "_nombre", "id", getPackageName());
+                    int imageViewId = getResources().getIdentifier("btn_create_liga_" + ligaId, "id", getPackageName());
+                    int layoutId = getResources().getIdentifier("liga_layout_" + ligaId, "id", getPackageName());
 
-                    TextView ligaTextView = rootView.findViewById(textViewId);
-                    ImageView createButton = rootView.findViewById(imageViewId);
-                    View ligaLayout = rootView.findViewById(layoutId); // Captura el cuadrado de la liga
+                    TextView ligaTextView = findViewById(textViewId);
+                    ImageView createButton = findViewById(imageViewId);
+                    View ligaLayout = findViewById(layoutId); // Captura el cuadrado de la liga
 
                     if (ligaTextView != null) {
                         ligaTextView.setText(nombreLiga);
@@ -174,26 +170,25 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onError(String errorMessage) {
-                Toast.makeText(getActivity(), "Error cargando ligas: " + errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, "Error cargando ligas: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
-    private void openLigaDetalleFragment(int ligaId) {
-        Fragment ligaDetalleFragment = new PrincipalFragment();
 
-        getParentFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, ligaDetalleFragment)
-                .addToBackStack(null) // Permite volver atrás con el botón de retroceso
-                .commit();
+    private void openLigaDetalleFragment(int ligaId) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("ligaId", ligaId);
+        startActivity(intent);
+        overridePendingTransition(0, 0);
     }
 
     private void showCreateLigaDialog(int ligaId) {
-        if (getActivity() == null) return;
+        if (HomeActivity.this == null) return;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
         builder.setTitle("Crear Liga");
 
-        View dialogView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_create_liga, null);
+        View dialogView = LayoutInflater.from(HomeActivity.this).inflate(R.layout.dialog_create_liga, null);
         builder.setView(dialogView);
 
         EditText etLigaName = dialogView.findViewById(R.id.et_liga_name);
@@ -225,19 +220,19 @@ public class HomeFragment extends Fragment {
             String equipoName = spinnerEquipos.getSelectedItem() != null ? spinnerEquipos.getSelectedItem().toString() : "";
 
             if (ligaName.isEmpty() || equipoName.isEmpty() || ligaSeleccionada[0].isEmpty()) {
-                Toast.makeText(getActivity(), "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
             } else {
                 FireStoreHelper fireStoreHelper = new FireStoreHelper();
                 fireStoreHelper.createLigaInFirestore(ligaId, ligaName, equipoName, ligaSeleccionada[0], new FireStoreHelper.FireStoreCallback() {
                     @Override
                     public void onSuccess(String message) {
-                        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-                        loadUserLigas(getView()); // Recargar ligas después de crear una
+                        Toast.makeText(HomeActivity.this, message, Toast.LENGTH_SHORT).show();
+                        loadUserLigas(); // Recargar ligas después de crear una
                     }
 
                     @Override
                     public void onFailure(String message) {
-                        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(HomeActivity.this, message, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -248,7 +243,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void setSpinnerEquipos(Spinner spinner, String[] equipos) {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, equipos);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, equipos);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
     }

@@ -21,7 +21,11 @@
         android:theme="@style/Theme.MagosDelBalon"
         tools:ignore="DiscouragedApi"
         tools:targetApi="31">
-
+        <!-- Actividad principal -->
+        <activity
+            android:name=".HomeActivity"
+            android:screenOrientation="landscape"
+            />
         <!-- Actividad principal que carga fragmentos -->
         <activity
             android:name=".MainActivity"
