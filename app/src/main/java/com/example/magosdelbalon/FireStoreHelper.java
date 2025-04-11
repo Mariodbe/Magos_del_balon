@@ -617,16 +617,12 @@ public class FireStoreHelper {
         db.collection("users").document(userId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        int ligasContadas = 0;
-
-                        for (String key : documentSnapshot.getData().keySet()) {
-                            if (key.equals("email") || key.equals("username")) continue;
-                            ligasContadas++;
-                            if (ligasContadas == ligaSlot) {
-                                callback.onFailure("Ya tienes una liga en este espacio.");
-                                return;
-                            }
+                    if (documentSnapshot.exists() && documentSnapshot.getData() != null) {
+                        String ligaKey = "liga_" + ligaSlot; // Assuming the keys are named like liga_1, liga_2, etc.
+                        //Check if a key like liga_1, liga_2, liga_3 or liga_4 exists.
+                        if (documentSnapshot.getData().containsKey(ligaKey)) {
+                            callback.onFailure("Ya tienes una liga en este espacio.");
+                            return;
                         }
                         callback.onSuccess("Puedes crear una liga.");
                     } else {
@@ -740,7 +736,7 @@ public class FireStoreHelper {
                     profileImageRef.getDownloadUrl()
                             .addOnSuccessListener(uri -> {
                                 String imageUrl = uri.toString();
-                                
+
                                 // Actualizar el documento del usuario en Firestore
                                 db.collection("users").document(userId)
                                         .update("profileImageUrl", imageUrl)
@@ -768,14 +764,14 @@ public class FireStoreHelper {
                     if (documentSnapshot.exists()) {
                         String imageUrl = documentSnapshot.getString("profileImageUrl");
                         Log.d(TAG, "URL de imagen encontrada: " + imageUrl);
-                        
+
                         if (imageUrl != null && !imageUrl.isEmpty()) {
                             Glide.with(imageView.getContext())
-                                .load(imageUrl)
-                                .circleCrop()
-                                .placeholder(R.drawable.ic_profile_placeholder)
-                                .error(R.drawable.ic_profile_placeholder)
-                                .into(imageView);
+                                    .load(imageUrl)
+                                    .circleCrop()
+                                    .placeholder(R.drawable.ic_profile_placeholder)
+                                    .error(R.drawable.ic_profile_placeholder)
+                                    .into(imageView);
                         } else {
                             Log.d(TAG, "No hay URL de imagen en el documento");
                             // Establecer la imagen por defecto si no hay URL
