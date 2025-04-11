@@ -747,6 +747,45 @@ public class FireStoreHelper {
                 })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
+    public void obtenerDatosLigaPorId(String ligaName, FirestoreCallback1 callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onError("Usuario no autenticado.");
+            return;
+        }
+
+        String userId = user.getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Buscar en la colección "users" y obtener los datos del usuario
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> userData = documentSnapshot.getData();
+                        if (userData != null) {
+                            // Verificar si la liga está en la lista de ligas del usuario
+                            if (userData.containsKey(ligaName)) {
+                                Map<String, Object> ligaData = (Map<String, Object>) userData.get(ligaName);
+                                callback.onSuccess(ligaData);
+                            } else {
+                                callback.onError("No se encontró la liga: " + ligaName);
+                            }
+                        }
+                    } else {
+                        callback.onError("El documento del usuario no existe.");
+                    }
+                })
+                .addOnFailureListener(e -> callback.onError("Error al obtener datos de la liga: " + e.getMessage()));
+    }
+
+
+    // Interfaz callback
+    public interface FirestoreCallback1 {
+        void onSuccess(Map<String, Object> ligaData);
+        void onError(String errorMessage);
+    }
+
+
 
     public void getProfileImage(ImageView imageView) {
         FirebaseUser currentUser = mAuth.getCurrentUser();

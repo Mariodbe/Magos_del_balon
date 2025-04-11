@@ -159,7 +159,7 @@ public class HomeActivity extends AppCompatActivity {
 
                             // Si la liga está ocupada, agregar click al cuadrado
                             if (ligaLayout != null) {
-                                ligaLayout.setOnClickListener(v -> openLigaDetalleFragment(ligaId));
+                                ligaLayout.setOnClickListener(v -> openLigaDetalleFragment(nombreLiga)); // Pasamos el nombre de la liga
                             }
                         } else {
                             createButton.setVisibility(View.VISIBLE);
@@ -175,12 +175,13 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void openLigaDetalleFragment(int ligaId) {
+    private void openLigaDetalleFragment(String nombreLiga) {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("ligaId", ligaId);
+        intent.putExtra("ligaName", nombreLiga); // Pasamos el nombre de la liga
         startActivity(intent);
         overridePendingTransition(0, 0);
     }
+
 
     private void showCreateLigaDialog(int ligaId) {
         if (HomeActivity.this == null) return;

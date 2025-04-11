@@ -1,43 +1,105 @@
 package com.example.magosdelbalon;
 
-import android.content.Intent; // Importa la clase Intent
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.Map;
 
 public class PrincipalFragment extends Fragment {
 
+    private TextView ligaNombreTextView;
+    private TextView equipoTextView;
+    private ImageButton btnBackToHome;
+
+    public PrincipalFragment() {
+        // Constructor vacío requerido
+    }
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        // Mostrar el BottomNavigationView cuando estemos en PrincipalFragment
-        if (getActivity() != null) {
-            BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
-            bottomNavigationView.setVisibility(View.VISIBLE); // Hacer visible el menú
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.d("PrincipalFragment", "Inflando layout del fragment");
+
+        View rootView = inflater.inflate(R.layout.fragment_principal, container, false);
+
+        // Inicialización de vistas
+        ligaNombreTextView = rootView.findViewById(R.id.leagueNameTextView);
+        equipoTextView = rootView.findViewById(R.id.teamNameTextView);
+        btnBackToHome = rootView.findViewById(R.id.btn_back_to_home);
+
+        Log.d("PrincipalFragment", "leagueNameTextView es null? " + (ligaNombreTextView == null));
+        Log.d("PrincipalFragment", "teamNameTextView es null? " + (equipoTextView == null));
+        Log.d("PrincipalFragment", "btnBackToHome es null? " + (btnBackToHome == null));
+
+        // Obtener argumentos
+        String ligaName = getArguments() != null ? getArguments().getString("leagueName") : null;
+        Log.d("PrincipalFragment", "Liga recibida en fragment: " + ligaName);
+
+        if (ligaName != null) {
+            obtenerDatosLiga(ligaName);
+        } else {
+            Log.e("PrincipalFragment", "ligaName es null, no se pudo continuar");
         }
-        View view = inflater.inflate(R.layout.fragment_principal, container, false);
-        ImageButton backToHomeButton = view.findViewById(R.id.btn_back_to_home);
-        if (backToHomeButton != null) {
-            backToHomeButton.setOnClickListener(new View.OnClickListener() {
+
+        if (btnBackToHome != null) {
+            btnBackToHome.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Iniciar HomeActivity
+                    Log.d("PrincipalFragment", "Botón Home presionado, navegando a HomeActivity");
                     Intent intent = new Intent(getActivity(), HomeActivity.class);
                     startActivity(intent);
                     if (getActivity() != null) {
-                        getActivity().overridePendingTransition(0, 0); // <- desde la actividad contenedora
-                    }                }
+                        getActivity().overridePendingTransition(0, 0);
+                    }
+                }
             });
         }
 
-        return view;
+        return rootView;
+    }
+
+    private void obtenerDatosLiga(String ligaName) {
+        FireStoreHelper helper = new FireStoreHelper();
+
+        Log.d("PrincipalFragment", "Llamando a obtenerDatosLigaPorId para: " + ligaName);
+
+        helper.obtenerDatosLigaPorId(ligaName, new FireStoreHelper.FirestoreCallback1() {
+            @Override
+            public void onSuccess(Map<String, Object> ligaData) {
+                Log.d("PrincipalFragment", "Datos obtenidos: " + ligaData);
+
+                String equipo = (String) ligaData.get("equipo");
+                Log.d("PrincipalFragment", "Equipo recibido: " + equipo);
+
+                if (isAdded()) {
+                    if (ligaNombreTextView != null && equipoTextView != null) {
+                        ligaNombreTextView.setText("Liga: " + ligaName);
+                        equipoTextView.setText("Equipo: " + equipo);
+                        Log.d("PrincipalFragment", "TextViews actualizados correctamente");
+                    } else {
+                        Log.e("PrincipalFragment", "TextViews son null al intentar actualizar");
+                    }
+                } else {
+                    Log.e("PrincipalFragment", "Fragmento no está agregado al activity (isAdded = false)");
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e("PrincipalFragment", "Error en Firestore: " + errorMessage);
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }
