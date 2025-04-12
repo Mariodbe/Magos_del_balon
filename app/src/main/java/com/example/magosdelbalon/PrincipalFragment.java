@@ -2,6 +2,7 @@ package com.example.magosdelbalon;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ public class PrincipalFragment extends Fragment {
 
     private TextView ligaNombreTextView;
     private TextView equipoTextView;
+    private TextView dineroInicialTextView;
     private ImageButton btnBackToHome;
 
     public PrincipalFragment() {
@@ -34,6 +36,7 @@ public class PrincipalFragment extends Fragment {
         // Inicialización de vistas
         ligaNombreTextView = rootView.findViewById(R.id.leagueNameTextView);
         equipoTextView = rootView.findViewById(R.id.teamNameTextView);
+        dineroInicialTextView = rootView.findViewById(R.id.dineroInicialTextView);
         btnBackToHome = rootView.findViewById(R.id.btn_back_to_home);
 
         Log.d("PrincipalFragment", "leagueNameTextView es null? " + (ligaNombreTextView == null));
@@ -80,10 +83,28 @@ public class PrincipalFragment extends Fragment {
                 String equipo = (String) ligaData.get("equipo");
                 Log.d("PrincipalFragment", "Equipo recibido: " + equipo);
 
+                Object dineroInicialObject = ligaData.get("dineroInicial");
+                String dineroInicialText = null;
+                if (dineroInicialObject instanceof Number) {
+                    dineroInicialText = String.valueOf(((Number) dineroInicialObject).intValue());
+
+                }
+
                 if (isAdded()) {
-                    if (ligaNombreTextView != null && equipoTextView != null) {
+                    if(dineroInicialText == null){
+                        dineroInicialText = "N/A";
+                    }
+                    if (ligaNombreTextView != null && equipoTextView != null && dineroInicialTextView != null) {
                         ligaNombreTextView.setText("Liga: " + ligaName);
                         equipoTextView.setText("Equipo: " + equipo);
+
+                        if (!TextUtils.isEmpty(dineroInicialText)) {
+                            dineroInicialTextView.setText("Dinero inicial: " + dineroInicialText);
+                        } else {
+                            dineroInicialTextView.setText("Dinero inicial: N/A");
+                        }
+
+
                         Log.d("PrincipalFragment", "TextViews actualizados correctamente");
                     } else {
                         Log.e("PrincipalFragment", "TextViews son null al intentar actualizar");

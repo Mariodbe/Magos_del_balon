@@ -174,7 +174,8 @@ public class FireStoreHelper {
                         // Crear/Actualizar la estructura deseada dentro de users
                         Map<String, Object> ligaData = new HashMap<>();
                         ligaData.put("equipo", equipoName);
-
+                        //Añadimos dinero inicial para el equipo cuando se crea la liga.
+                        ligaData.put("dinero", 10000000);
                         // Aquí cambiamos la función para obtener jugadores dependiendo del equipo seleccionado
                         fetchPlayersForTeam(equipoName, new FireStoreHelper.PlayersCallback() {
                             @Override
