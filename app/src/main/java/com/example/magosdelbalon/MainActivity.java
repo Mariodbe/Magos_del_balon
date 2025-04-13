@@ -64,8 +64,13 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment = new PrincipalFragment(); // fallback
                 }
             } else if (item.getItemId() == R.id.navigation_estadio) {
-                selectedFragment = new EstadioFragment();
+                if (ligaName != null) {
+                    selectedFragment = crearEstadioFragmentConLiga();
+                } else {
+                    selectedFragment = new EstadioFragment();
+                }
             }
+
 
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction()
@@ -85,5 +90,13 @@ public class MainActivity extends AppCompatActivity {
         fragment.setArguments(bundle);
         return fragment;
     }
+    private EstadioFragment crearEstadioFragmentConLiga() {
+        EstadioFragment fragment = new EstadioFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("leagueName", ligaName);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
+
 }
 

@@ -176,6 +176,12 @@ public class FireStoreHelper {
                         ligaData.put("equipo", equipoName);
                         //Añadimos dinero inicial para el equipo cuando se crea la liga.
                         ligaData.put("dinero", 10000000);
+                        // Crear el mapa de estadios
+                        Map<String, Integer> estadio = new HashMap<>();
+                        estadio.put("nivel_estadio", 0);
+                        estadio.put("nivel_ciudad_deportiva", 0);
+                        estadio.put("nivel_centro_medico", 0);
+                        ligaData.put("estadio", estadio);
                         // Aquí cambiamos la función para obtener jugadores dependiendo del equipo seleccionado
                         fetchPlayersForTeam(equipoName, new FireStoreHelper.PlayersCallback() {
                             @Override
@@ -827,5 +833,83 @@ public class FireStoreHelper {
                     imageView.setImageResource(R.drawable.ic_profile_placeholder);
                 });
     }
+
+    public void upgradeEstadio(String userId, String ligaId, String nivelKey, final FireStoreCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Map<String, Object> userData = documentSnapshot.getData();
+                if (userData != null && userData.containsKey(ligaId)) {
+                    Map<String, Object> ligaData = (Map<String, Object>) userData.get(ligaId);
+                    if (ligaData != null) {
+                        long currentMoney = ligaData.containsKey("dinero") ? (long) ligaData.get("dinero") : 0;
+                        Map<String, Object> estadio = (Map<String, Object>) ligaData.get("estadio");
+
+                        int currentLevel;
+                        if (estadio != null && estadio.containsKey(nivelKey)) {
+                            currentLevel = ((Long) estadio.get(nivelKey)).intValue();
+                        } else {
+                            currentLevel = 0;
+                        }
+
+                        if (currentLevel >= 10) {
+                            callback.onFailure("Este ítem ya está al nivel máximo.");
+                            return;
+                        }
+
+                        long upgradeCost = 500000 + (currentLevel * 100000);
+
+                        if (currentMoney >= upgradeCost) {
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put(ligaId + ".dinero", currentMoney - upgradeCost);
+                            updates.put(ligaId + ".estadio." + nivelKey, currentLevel + 1);
+
+                            userRef.update(updates)
+                                    .addOnSuccessListener(aVoid -> callback.onSuccess("Mejora realizada con éxito. Nuevo nivel: " + (currentLevel + 1)))
+                                    .addOnFailureListener(e -> callback.onFailure("Error al realizar la mejora: " + e.getMessage()));
+                        } else {
+                            callback.onFailure("No tienes suficiente dinero. Necesitas " + upgradeCost + " €.");
+                        }
+                    } else {
+                        callback.onFailure("Datos de la liga no encontrados.");
+                    }
+                } else {
+                    callback.onFailure("Liga no encontrada para este usuario.");
+                }
+            } else {
+                callback.onFailure("Datos del usuario no encontrados.");
+            }
+        }).addOnFailureListener(e -> callback.onFailure("Error al leer datos: " + e.getMessage()));
+    }
+
+    public void obtenerNivelEstadio(String userId, String ligaId, String nivelKey, final NivelCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists() && documentSnapshot.contains(ligaId)) {
+                Map<String, Object> ligaData = (Map<String, Object>) documentSnapshot.get(ligaId);
+                Map<String, Object> estadio = (Map<String, Object>) ligaData.get("estadio");
+
+                int nivelActual = 0;
+                if (estadio != null && estadio.containsKey(nivelKey)) {
+                    nivelActual = ((Long) estadio.get(nivelKey)).intValue();
+                }
+
+                callback.onSuccess(nivelActual);
+            } else {
+                callback.onFailure("No se encontró la liga o los datos del estadio.");
+            }
+        }).addOnFailureListener(e -> callback.onFailure("Error al leer nivel: " + e.getMessage()));
+    }
+
+    // Interfaz del callback
+    public interface NivelCallback {
+        void onSuccess(int nivelActual);
+        void onFailure(String errorMessage);
+    }
+
 
 }

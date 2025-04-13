@@ -83,7 +83,7 @@ public class PrincipalFragment extends Fragment {
                 String equipo = (String) ligaData.get("equipo");
                 Log.d("PrincipalFragment", "Equipo recibido: " + equipo);
 
-                Object dineroInicialObject = ligaData.get("dineroInicial");
+                Object dineroInicialObject = ligaData.get("dinero");
                 String dineroInicialText = null;
                 if (dineroInicialObject instanceof Number) {
                     dineroInicialText = String.valueOf(((Number) dineroInicialObject).intValue());
