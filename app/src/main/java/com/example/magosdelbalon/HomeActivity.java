@@ -89,7 +89,7 @@ public class HomeActivity extends AppCompatActivity {
 
         btnSettings = findViewById(R.id.btn_settings);
         if (btnSettings != null) {
-            btnSettings.setOnClickListener(v -> openSettingsFragment());
+            btnSettings.setOnClickListener(v -> openSettings());
         }
 
         loadUserLigas();
@@ -104,8 +104,10 @@ public class HomeActivity extends AppCompatActivity {
         getContent.launch("image/*");
     }
 
-    private void openSettingsFragment() {
-        //TODO:Implementar cuando este la activity de settings
+    private void openSettings() {
+        Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
+        startActivity(intent);
+        finish();
     }
     private void setUpCreateLigaButton(View button, int ligaId) {
         if (button != null) {

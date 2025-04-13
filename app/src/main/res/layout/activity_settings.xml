@@ -44,7 +44,6 @@
                 android:layout_marginTop="8dp"
                 android:max="100"
                 android:progress="50"/>
-
         </LinearLayout>
 
         <!-- Sección de Botones -->
@@ -70,8 +69,6 @@
                 android:text="Cerrar sesión"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/button_background"/>
-
         </LinearLayout>
-
     </LinearLayout>
-</ScrollView> 
+</ScrollView>

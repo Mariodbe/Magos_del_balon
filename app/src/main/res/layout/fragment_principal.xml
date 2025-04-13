@@ -24,7 +24,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
         android:layout_marginTop="100dp"
-        android:text="Nombre de la Liga"
         android:textSize="24sp"
         android:textStyle="bold" />
 
@@ -35,7 +34,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
         android:layout_marginTop="140dp"
-        android:text="Equipo"
         android:textSize="20sp" />
 
     <!-- Dinero Inicial -->
@@ -45,7 +43,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
         android:layout_marginTop="180dp"
-        android:text="Dinero inicial: "
         android:textSize="18sp" />
 
 

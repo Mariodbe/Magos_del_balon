@@ -31,7 +31,10 @@
             android:name=".MainActivity"
             android:screenOrientation="landscape"
              />
-
+        <activity
+            android:name=".SettingsActivity"
+            android:screenOrientation="landscape"
+            />
         <!-- Actividad de login -->
         <activity
             android:name=".LoginActivity"
