@@ -21,7 +21,9 @@ public View onCreateView(@NonNull LayoutInflater inflater,
     btnBackToHome.setOnClickListener(v -> {
         Intent intent = new Intent(getActivity(), HomeActivity.class);
         startActivity(intent);
-
+        if (getActivity() != null) {
+            getActivity().overridePendingTransition(0, 0);
+        }
     });
 
     return view;

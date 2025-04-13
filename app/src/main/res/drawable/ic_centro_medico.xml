@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Edificio del hospital -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M4,8h16v12H4z"/>
+    
+    <!-- Ventanas -->
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M6,10h4v2H6z"/>
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M14,10h4v2h-4z"/>
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M6,14h4v2H6z"/>
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M14,14h4v2h-4z"/>
+    
+    <!-- Techo -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M2,8h20v2H2z"/>
+    
+    <!-- Cruz médica -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M11,4h2v16h-2z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M4,11h16v2H4z"/>
+    
+    <!-- Puerta -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M10,16h4v4h-4z"/>
+</vector> 

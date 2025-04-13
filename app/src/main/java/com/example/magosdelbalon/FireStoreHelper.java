@@ -183,9 +183,9 @@ public class FireStoreHelper {
                                 // Asegurarse de que players no sea nulo
                                 if (players != null) {
                                     // Convertir la lista de jugadores a una lista de mapas para almacenarla en Firestore
-                                    List<Map<String, Object>> playersMapList = new ArrayList<>();
+                                    List<Map<String, Object>> playersMapList = new ArrayList<Map<String, Object>>();
                                     for (Jugador jugador : players) {
-                                        Map<String, Object> playerMap = new HashMap<>();
+                                        Map<String, Object> playerMap = new HashMap<String, Object>();
                                         playerMap.put("nombre", jugador.getNombre());
                                         playerMap.put("posicion", jugador.getPosicion());
                                         playerMap.put("overall", jugador.getOverall());

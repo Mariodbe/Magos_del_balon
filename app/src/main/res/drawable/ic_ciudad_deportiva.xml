@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Fondo de césped -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M2,4h20v16H2z"/>
+    
+    <!-- Pista de atletismo -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M6,6h12v12H6z"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M8,8h8v8H8z"/>
+    
+    <!-- Cancha de tenis -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M2,2h6v6H2z"/>
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M3,3h4v4H3z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M4,3h2v4H4z"/>
+    
+    <!-- Piscina -->
+    <path
+        android:fillColor="#03A9F4"
+        android:pathData="M16,2h6v6h-6z"/>
+    <path
+        android:fillColor="#0288D1"
+        android:pathData="M17,3h4v4h-4z"/>
+    
+    <!-- Gimnasio -->
+    <path
+        android:fillColor="#9E9E9E"
+        android:pathData="M2,16h6v6H2z"/>
+    <path
+        android:fillColor="#757575"
+        android:pathData="M3,17h4v4H3z"/>
+    
+    <!-- Área de juegos -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M16,16h6v6h-6z"/>
+    <path
+        android:fillColor="#FFA000"
+        android:pathData="M17,17h4v4h-4z"/>
+</vector> 

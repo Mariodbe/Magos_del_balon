@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Campo de fútbol -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M2,4h20v16H2z"/>
+    
+    <!-- Líneas del campo -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M2,12h20"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,4v16"/>
+    
+    <!-- Círculo central -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M12,8a4,4 0,1 1,0 8a4,4 0,1 1,0 -8z"/>
+    
+    <!-- Gradas -->
+    <path
+        android:fillColor="#9E9E9E"
+        android:pathData="M2,4h20v2H2z"/>
+    <path
+        android:fillColor="#757575"
+        android:pathData="M2,18h20v2H2z"/>
+    
+    <!-- Torres de iluminación -->
+    <path
+        android:fillColor="#424242"
+        android:pathData="M4,2h2v2H4z"/>
+    <path
+        android:fillColor="#424242"
+        android:pathData="M18,2h2v2h-2z"/>
+    <path
+        android:fillColor="#424242"
+        android:pathData="M4,20h2v2H4z"/>
+    <path
+        android:fillColor="#424242"
+        android:pathData="M18,20h2v2h-2z"/>
+    
+    <!-- Luces -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M4,1h2v1H4z"/>
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M18,1h2v1h-2z"/>
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M4,21h2v1H4z"/>
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M18,21h2v1h-2z"/>
+</vector> 
