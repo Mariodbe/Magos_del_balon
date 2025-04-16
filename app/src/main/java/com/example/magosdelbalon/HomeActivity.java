@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import com.google.firebase.auth.FirebaseAuth;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
@@ -91,8 +92,11 @@ public class HomeActivity extends AppCompatActivity {
         if (btnSettings != null) {
             btnSettings.setOnClickListener(v -> openSettings());
         }
+        // Verificar si hay un usuario autenticado antes de cargar ligas
+        if(FirebaseAuth.getInstance().getCurrentUser() != null){
+            loadUserLigas();
+        }
 
-        loadUserLigas();
 
         // Configurar los botones de ligas
         setUpCreateLigaButton(findViewById(R.id.btn_create_liga_1), 1);

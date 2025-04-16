@@ -1,10 +1,8 @@
 package com.example.magosdelbalon;
 
 import static com.example.magosdelbalon.RegisterActivity.RC_SIGN_IN;
-
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -12,18 +10,21 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Bundle;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
     private FireStoreHelper fireStoreHelper;
     private GoogleSignInClient googleSignInClient;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +40,15 @@ public class LoginActivity extends AppCompatActivity {
                 android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         );
         fireStoreHelper = new FireStoreHelper();
+
+        // Verificar si hay un usuario logueado
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+
+            // Navigate to home if user is already logged in
+            navigateToHomeActivity();
+            return; // Exit to avoid showing login elements
+        }
 
         // Configurar Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -61,13 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "Por favor complete todos los campos", Toast.LENGTH_SHORT).show();
             } else {
                 fireStoreHelper.authenticateUser(emailOrUsername, password, this, username -> {
-                    SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("username", username);
-                    editor.apply();
-
                     Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-
                     // Navegar a la siguiente actividad
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(intent);
@@ -102,11 +106,6 @@ public class LoginActivity extends AppCompatActivity {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             if (account != null) {
                 fireStoreHelper.signInWithGoogle(account, this, username -> {
-                    SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("username", username);
-                    editor.apply();
-
                     Toast.makeText(this, "Bienvenido, " + username, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(intent);
@@ -116,5 +115,11 @@ public class LoginActivity extends AppCompatActivity {
         } catch (ApiException e) {
             Toast.makeText(this, "Error al autenticar con Google: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void navigateToHomeActivity() {
+        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
