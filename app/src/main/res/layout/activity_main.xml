@@ -9,14 +9,32 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end">
+        android:orientation="horizontal">
 
+        <!-- Botón Papelera (izquierda) -->
+        <ImageButton
+            android:id="@+id/btn_papelera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:gravity="start"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Papelera"
+            android:src="@drawable/ic_papelera"/>
+
+        <!-- Espacio para separar los botones -->
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <!-- Botón Home (derecha) -->
         <ImageButton
             android:id="@+id/btn_back_to_home"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
+            android:gravity="end"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back to Home"
             android:src="@drawable/ic_home"/>

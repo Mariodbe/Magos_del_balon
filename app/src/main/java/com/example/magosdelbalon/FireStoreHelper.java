@@ -10,6 +10,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -939,5 +940,38 @@ public class FireStoreHelper {
         void onSuccess();
         void onFailure(Exception e);
     }
+
+    public void deleteLiga(String ligaId, final FireStoreCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onFailure("Usuario no autenticado");
+            return;
+        }
+        String userId = user.getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("users").document(userId);
+        CollectionReference ligasRef = db.collection("ligas");
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Map<String, Object> userData = documentSnapshot.getData();
+                if (userData != null && userData.containsKey(ligaId)) {
+                    // Eliminar la liga del usuario
+                    userRef.update(ligaId, com.google.firebase.firestore.FieldValue.delete())
+                            .addOnSuccessListener(aVoid -> {
+                                // Eliminar la liga de la colección "ligas"
+                                ligasRef.document(ligaId).delete()
+                                        .addOnSuccessListener(aVoid2 -> callback.onSuccess("Liga eliminada correctamente"))
+                                        .addOnFailureListener(e -> callback.onFailure("Error al eliminar la liga de 'ligas': " + e.getMessage()));
+                            })
+                            .addOnFailureListener(e -> callback.onFailure("Error al eliminar la liga del usuario: " + e.getMessage()));
+                } else {
+                    callback.onFailure("Liga no encontrada para este usuario");
+                }
+            } else {
+                callback.onFailure("Datos del usuario no encontrados");
+            }
+        }).addOnFailureListener(e -> callback.onFailure("Error al leer datos: " + e.getMessage()));
+    }
+
 
 }

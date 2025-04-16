@@ -6,8 +6,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -16,6 +18,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private String ligaName; // <- esta será la liga activa durante toda la actividad
+    FireStoreHelper fireStoreHelper = new FireStoreHelper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,42 @@ public class MainActivity extends AppCompatActivity {
             overridePendingTransition(0, 0);
             finish();
         });
+        ImageView iconoPapelera = findViewById(R.id.btn_papelera);
+        iconoPapelera.setOnClickListener(v -> {
+            if (ligaName != null) {
+                // Mostrar un cuadro de diálogo de confirmación antes de eliminar
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Eliminar Liga")
+                        .setMessage("¿Estás seguro de que deseas eliminar la liga '" + ligaName + "'?")
+                        .setPositiveButton("Sí", (dialog, which) -> {
+                            // Llamar al método deleteLiga
+                            fireStoreHelper.deleteLiga(ligaName, new FireStoreHelper.FireStoreCallback() {
+                                @Override
+                                public void onSuccess(String message) {
+                                    // Mostrar mensaje de éxito
+                                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                                    // Ir al HomeActivity o realizar alguna otra acción si lo deseas
+                                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                                    startActivity(intent);
+                                    overridePendingTransition(0, 0);
+                                    finish();
+                                }
+
+                                @Override
+                                public void onFailure(String errorMessage) {
+                                    // Mostrar mensaje de error
+                                    Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+            } else {
+                // Si no hay una liga activa, mostrar mensaje de error
+                Toast.makeText(MainActivity.this, "No hay una liga activa para eliminar.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
 
 
