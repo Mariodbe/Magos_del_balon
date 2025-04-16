@@ -195,12 +195,6 @@ public class FireStoreHelper {
                                         playerMap.put("nombre", jugador.getNombre());
                                         playerMap.put("posicion", jugador.getPosicion());
                                         playerMap.put("overall", jugador.getOverall());
-                                        playerMap.put("ritmo", jugador.getRitmo());
-                                        playerMap.put("disparo", jugador.getDisparo());
-                                        playerMap.put("pase", jugador.getPase());
-                                        playerMap.put("regate", jugador.getRegate());
-                                        playerMap.put("defensa", jugador.getDefensa());
-                                        playerMap.put("fisico", jugador.getFisico());
                                         playersMapList.add(playerMap);
                                     }
 
@@ -278,13 +272,8 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue(),
-                                            ((Number) playerData.get("pace")).intValue(),
-                                            ((Number) playerData.get("shooting")).intValue(),
-                                            ((Number) playerData.get("passing")).intValue(),
-                                            ((Number) playerData.get("dribbling")).intValue(),
-                                            ((Number) playerData.get("defending")).intValue(),
-                                            ((Number) playerData.get("physical")).intValue()
+                                            ((Number) playerData.get("overall")).intValue()
+
                                     );
                                     players.add(jugador);
                                 }
@@ -336,13 +325,7 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue(),
-                                            ((Number) playerData.get("pace")).intValue(),
-                                            ((Number) playerData.get("shooting")).intValue(),
-                                            ((Number) playerData.get("passing")).intValue(),
-                                            ((Number) playerData.get("dribbling")).intValue(),
-                                            ((Number) playerData.get("defending")).intValue(),
-                                            ((Number) playerData.get("physical")).intValue()
+                                            ((Number) playerData.get("overall")).intValue()
                                     );
                                     players.add(jugador);
                                 }
@@ -394,13 +377,7 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue(),
-                                            ((Number) playerData.get("pace")).intValue(),
-                                            ((Number) playerData.get("shooting")).intValue(),
-                                            ((Number) playerData.get("passing")).intValue(),
-                                            ((Number) playerData.get("dribbling")).intValue(),
-                                            ((Number) playerData.get("defending")).intValue(),
-                                            ((Number) playerData.get("physical")).intValue()
+                                            ((Number) playerData.get("overall")).intValue()
                                     );
                                     players.add(jugador);
                                 }
@@ -452,13 +429,7 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue(),
-                                            ((Number) playerData.get("pace")).intValue(),
-                                            ((Number) playerData.get("shooting")).intValue(),
-                                            ((Number) playerData.get("passing")).intValue(),
-                                            ((Number) playerData.get("dribbling")).intValue(),
-                                            ((Number) playerData.get("defending")).intValue(),
-                                            ((Number) playerData.get("physical")).intValue()
+                                            ((Number) playerData.get("overall")).intValue()
                                     );
                                     players.add(jugador);
                                 }
@@ -510,13 +481,7 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue(),
-                                            ((Number) playerData.get("pace")).intValue(),
-                                            ((Number) playerData.get("shooting")).intValue(),
-                                            ((Number) playerData.get("passing")).intValue(),
-                                            ((Number) playerData.get("dribbling")).intValue(),
-                                            ((Number) playerData.get("defending")).intValue(),
-                                            ((Number) playerData.get("physical")).intValue()
+                                            ((Number) playerData.get("overall")).intValue()
                                     );
                                     players.add(jugador);
                                 }
@@ -568,13 +533,7 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue(),
-                                            ((Number) playerData.get("pace")).intValue(),
-                                            ((Number) playerData.get("shooting")).intValue(),
-                                            ((Number) playerData.get("passing")).intValue(),
-                                            ((Number) playerData.get("dribbling")).intValue(),
-                                            ((Number) playerData.get("defending")).intValue(),
-                                            ((Number) playerData.get("physical")).intValue()
+                                            ((Number) playerData.get("overall")).intValue()
                                     );
                                     players.add(jugador);
                                 }
@@ -911,5 +870,74 @@ public class FireStoreHelper {
         void onFailure(String errorMessage);
     }
 
+
+    public void obtenerJugadoresPorLiga(String ligaName, JugadoresCallback callback) {
+        String userId = mAuth.getCurrentUser().getUid();
+
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        Map<String, Object> data = document.getData();
+                        if (data != null && data.containsKey(ligaName)) {
+                            Map<String, Object> ligaData = (Map<String, Object>) data.get(ligaName);
+                            List<Map<String, Object>> jugadoresList = (List<Map<String, Object>>) ligaData.get("jugadores");
+
+                            List<Jugador> jugadores = new ArrayList<>();
+                            if (jugadoresList != null) {
+                                for (Map<String, Object> jugadorMap : jugadoresList) {
+                                    Jugador jugador = new Jugador(
+                                            (String) jugadorMap.get("nombre"),
+                                            (String) jugadorMap.get("posicion"),
+                                            ((Long) jugadorMap.get("overall")).intValue()
+                                    );
+                                    jugadores.add(jugador);
+                                }
+                            }
+                            callback.onJugadoresCargados(jugadores);
+                        } else {
+                            callback.onJugadoresCargados(new ArrayList<>());
+                        }
+                    } else {
+                        callback.onJugadoresCargados(new ArrayList<>());
+                    }
+                })
+                .addOnFailureListener(callback::onError);
+    }
+
+    public void actualizarJugador(String ligaName, Jugador jugador, SimpleCallback callback) {
+        String userId = mAuth.getCurrentUser().getUid();
+
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        Map<String, Object> userData = document.getData();
+                        Map<String, Object> ligaData = (Map<String, Object>) userData.get(ligaName);
+                        List<Map<String, Object>> jugadoresList = (List<Map<String, Object>>) ligaData.get("jugadores");
+
+                        for (Map<String, Object> jugadorMap : jugadoresList) {
+                            if (jugadorMap.get("nombre").equals(jugador.getNombre())) {
+                                jugadorMap.put("overall", jugador.getOverall());
+                                break;
+                            }
+                        }
+
+                        ligaData.put("jugadores", jugadoresList);
+
+                        db.collection("users").document(userId).update(ligaName, ligaData)
+                                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                                .addOnFailureListener(callback::onFailure);
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+    public interface JugadoresCallback {
+        void onJugadoresCargados(List<Jugador> jugadores);
+        void onError(Exception e);
+    }
+
+    public interface SimpleCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
 
 }

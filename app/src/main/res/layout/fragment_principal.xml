@@ -6,17 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".PrincipalFragment">
 
-    <!-- Botón de regreso a Home -->
-    <ImageButton
-        android:id="@+id/btn_back_to_home"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_home"/>
-
     <!-- Nombre de la Liga -->
     <TextView
         android:id="@+id/leagueNameTextView"

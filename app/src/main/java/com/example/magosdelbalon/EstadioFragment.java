@@ -39,15 +39,6 @@ public class EstadioFragment extends Fragment {
             return view;
         }
 
-        ImageButton btnBackToHome = view.findViewById(R.id.btn_back_to_home);
-        btnBackToHome.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), HomeActivity.class);
-            startActivity(intent);
-            if (getActivity() != null) {
-                getActivity().overridePendingTransition(0, 0);
-            }
-        });
-
         ImageButton btnEstadio = view.findViewById(R.id.btn_estadio);
         ImageButton btnCentroMedico = view.findViewById(R.id.btn_centro_medico);
         ImageButton btnCiudadDeportiva = view.findViewById(R.id.btn_ciudad_deportiva);

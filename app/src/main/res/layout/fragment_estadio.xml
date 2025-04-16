@@ -7,17 +7,6 @@
     tools:context=".EstadioFragment">
 
     <ImageButton
-        android:id="@+id/btn_back_to_home"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Back to Home"
-        android:src="@drawable/ic_home"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageButton
         android:id="@+id/btn_estadio"
         android:layout_width="80dp"
         android:layout_height="80dp"

@@ -37,7 +37,6 @@ public class PrincipalFragment extends Fragment {
         ligaNombreTextView = rootView.findViewById(R.id.leagueNameTextView);
         equipoTextView = rootView.findViewById(R.id.teamNameTextView);
         dineroInicialTextView = rootView.findViewById(R.id.dineroInicialTextView);
-        btnBackToHome = rootView.findViewById(R.id.btn_back_to_home);
 
         Log.d("PrincipalFragment", "leagueNameTextView es null? " + (ligaNombreTextView == null));
         Log.d("PrincipalFragment", "teamNameTextView es null? " + (equipoTextView == null));
@@ -51,20 +50,6 @@ public class PrincipalFragment extends Fragment {
             obtenerDatosLiga(ligaName);
         } else {
             Log.e("PrincipalFragment", "ligaName es null, no se pudo continuar");
-        }
-
-        if (btnBackToHome != null) {
-            btnBackToHome.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d("PrincipalFragment", "Botón Home presionado, navegando a HomeActivity");
-                    Intent intent = new Intent(getActivity(), HomeActivity.class);
-                    startActivity(intent);
-                    if (getActivity() != null) {
-                        getActivity().overridePendingTransition(0, 0);
-                    }
-                }
-            });
         }
 
         return rootView;

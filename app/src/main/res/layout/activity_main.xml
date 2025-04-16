@@ -5,6 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- LinearLayout horizontal para el ImageButton -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <ImageButton
+            android:id="@+id/btn_back_to_home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back to Home"
+            android:src="@drawable/ic_home"/>
+    </LinearLayout>
+
     <!-- Contenedor de fragments -->
     <FrameLayout
         android:id="@+id/fragment_container"
@@ -12,7 +29,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
-    <!-- Menú inferior -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"

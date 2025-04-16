@@ -1,8 +1,11 @@
 package com.example.magosdelbalon;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +30,16 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         );
+
+        ImageView iconoHome = findViewById(R.id.btn_back_to_home);
+        iconoHome.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+            startActivity(intent);
+            overridePendingTransition(0, 0);
+            finish();
+        });
+
+
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -69,6 +82,12 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     selectedFragment = new EstadioFragment();
                 }
+            }else if (item.getItemId() == R.id.navigation_entrenamiento) {
+                if (ligaName != null) {
+                    selectedFragment = crearEntrenamientoFragmentConLiga();
+                } else {
+                    selectedFragment = new EntrenamientoFragment();
+                }
             }
 
 
@@ -92,6 +111,13 @@ public class MainActivity extends AppCompatActivity {
     }
     private EstadioFragment crearEstadioFragmentConLiga() {
         EstadioFragment fragment = new EstadioFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("leagueName", ligaName);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
+    private EntrenamientoFragment crearEntrenamientoFragmentConLiga() {
+        EntrenamientoFragment fragment = new EntrenamientoFragment();
         Bundle bundle = new Bundle();
         bundle.putString("leagueName", ligaName);
         fragment.setArguments(bundle);
