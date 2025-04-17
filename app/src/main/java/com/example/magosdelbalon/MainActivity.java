@@ -146,6 +146,12 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     selectedFragment = new EntrenamientoFragment();
                 }
+            }else if (item.getItemId() == R.id.navigation_mercado) {
+                if (ligaName != null) {
+                    selectedFragment = crearMercadoFragmentConLiga();
+                } else {
+                    selectedFragment = new MercadoFragment();
+                }
             }
 
 
@@ -176,6 +182,13 @@ public class MainActivity extends AppCompatActivity {
     }
     private EntrenamientoFragment crearEntrenamientoFragmentConLiga() {
         EntrenamientoFragment fragment = new EntrenamientoFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("leagueName", ligaName);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
+    private MercadoFragment crearMercadoFragmentConLiga() {
+        MercadoFragment fragment = new MercadoFragment();
         Bundle bundle = new Bundle();
         bundle.putString("leagueName", ligaName);
         fragment.setArguments(bundle);

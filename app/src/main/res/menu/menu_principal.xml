@@ -8,5 +8,11 @@
     <item
         android:id="@+id/navigation_entrenamiento"
         android:title="Entrenamiento" />
+    <item
+        android:id="@+id/navigation_mercado"
+        android:title="Mercado" />
+    <item
+        android:id="@+id/navigation_alineacion"
+        android:title="Alineación" />
 
 </menu>

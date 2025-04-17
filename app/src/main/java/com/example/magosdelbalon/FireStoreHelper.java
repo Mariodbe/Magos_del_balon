@@ -209,6 +209,36 @@ public class FireStoreHelper {
                                 } else {
                                     callback.onFailure("Error al obtener los jugadores.");
                                 }
+
+
+                                // Al final del bloque fetchPlayersForTeam, dentro del onPlayersLoaded:
+                                fetchMercadoPlayers(tipoLiga, new FireStoreHelper.PlayersCallback() {
+                                    @Override
+                                    public void onPlayersLoaded(List<Jugador> mercadoPlayers) {
+                                        // Convertir a lista de mapas
+                                        List<Map<String, Object>> mercadoMapList = new ArrayList<>();
+                                        for (Jugador jugador : mercadoPlayers) {
+                                            Map<String, Object> map = new HashMap<>();
+                                            map.put("nombre", jugador.getNombre());
+                                            map.put("posicion", jugador.getPosicion());
+                                            map.put("overall", jugador.getOverall());
+                                            mercadoMapList.add(map);
+                                        }
+
+                                        // Guardar en el documento de la liga
+                                        db.collection("ligas").document(ligaIdHash)
+                                                .update("Mercado", mercadoMapList)
+                                                .addOnSuccessListener(aVoid1 -> Log.d("Firestore", "Mercado creado correctamente"))
+                                                .addOnFailureListener(e -> Log.e("Firestore", "Error al guardar el mercado: " + e.getMessage()));
+                                    }
+
+                                    @Override
+                                    public void onError(String errorMessage) {
+                                        Log.e("Mercado", "Error: " + errorMessage);
+                                    }
+                                });
+
+
                             }
 
                             @Override
@@ -216,6 +246,9 @@ public class FireStoreHelper {
                                 callback.onFailure("Error al obtener los jugadores: " + errorMessage);
                             }
                         });
+
+
+
 
                     }).addOnFailureListener(e -> callback.onFailure("Error al obtener usuario: " + e.getMessage()));
                 })
@@ -247,6 +280,54 @@ public class FireStoreHelper {
                 break;
         }
     }
+
+    void fetchMercadoPlayers(String tipoLiga, FireStoreHelper.PlayersCallback callback) {
+        FirebaseFunctions functions = FirebaseFunctions.getInstance();
+
+        functions.getHttpsCallable("getMercadoPlayers")
+                .call(Collections.singletonMap("tipoLiga", tipoLiga))
+                .addOnSuccessListener(result -> {
+                    Log.d("Mercado", "Response: " + result.getData());
+
+                    if (result.getData() instanceof Map) {
+                        Map<String, Object> responseMap = (Map<String, Object>) result.getData();
+
+                        if (responseMap.containsKey("players")) {
+                            List<Map<String, Object>> playersData = (List<Map<String, Object>>) responseMap.get("players");
+
+                            if (playersData != null) {
+                                List<Jugador> players = new ArrayList<>();
+
+                                for (Map<String, Object> playerData : playersData) {
+                                    Jugador jugador = new Jugador(
+                                            (String) playerData.get("name"),
+                                            (String) playerData.get("position"),
+                                            ((Number) playerData.get("overall")).intValue()
+                                    );
+                                    players.add(jugador);
+                                }
+
+                                if (!players.isEmpty()) {
+                                    callback.onPlayersLoaded(players);
+                                } else {
+                                    callback.onError("No se encontraron jugadores en el mercado.");
+                                }
+                            } else {
+                                callback.onError("La lista de jugadores del mercado es nula.");
+                            }
+                        } else {
+                            callback.onError("El campo 'players' no existe en la respuesta del mercado.");
+                        }
+                    } else {
+                        callback.onError("La respuesta de mercado no es un objeto válido.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Mercado", "Error al obtener jugadores del mercado: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
+    }
+
 
 
     private void fetchBarcelonaPlayers(FireStoreHelper.PlayersCallback callback) {
