@@ -7,6 +7,7 @@ public class Jugador {
     private boolean enEntrenamiento;
     private long tiempoFinalizacionEntrenamiento;
     private long timestampFinEntrenamiento; // en milisegundos
+    private int precio;
 
 
 
@@ -17,6 +18,15 @@ public class Jugador {
         this.overall = overall;
 
     }
+
+    //Constructor mercado
+    public Jugador(String nombre, String posicion, int overall, int precio) {
+        this.nombre = nombre;
+        this.posicion = posicion;
+        this.overall = overall;
+        this.precio = precio;
+    }
+
     public void entrenar() {
         overall += 1;
         if (overall > 99) {
@@ -46,6 +56,7 @@ public class Jugador {
     public String getNombre() { return nombre; }
     public String getPosicion() { return posicion; }
     public int getOverall() { return overall; }
+    public int getPrecio() { return precio; }
 
     @Override
     public String toString() {

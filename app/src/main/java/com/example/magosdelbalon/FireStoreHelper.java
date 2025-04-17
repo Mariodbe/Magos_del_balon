@@ -222,6 +222,7 @@ public class FireStoreHelper {
                                             map.put("nombre", jugador.getNombre());
                                             map.put("posicion", jugador.getPosicion());
                                             map.put("overall", jugador.getOverall());
+                                            map.put("precio",jugador.getPrecio());
                                             mercadoMapList.add(map);
                                         }
 
@@ -302,7 +303,8 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue()
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("precio")).intValue()
                                     );
                                     players.add(jugador);
                                 }
