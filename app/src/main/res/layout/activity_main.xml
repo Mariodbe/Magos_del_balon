@@ -5,11 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- LinearLayout horizontal para el ImageButton -->
+    <!-- LinearLayout horizontal para botones y textos centrados -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
         <!-- Botón Papelera (izquierda) -->
         <ImageButton
@@ -17,16 +18,43 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:gravity="start"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Papelera"
-            android:src="@drawable/ic_papelera"/>
+            android:src="@drawable/ic_papelera" />
 
-        <!-- Espacio para separar los botones -->
-        <Space
+        <!-- Contenedor central con los TextView en fila -->
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginHorizontal="8dp">
+
+            <!-- Nombre de la Liga -->
+            <TextView
+                android:id="@+id/leagueNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="16dp" />
+
+            <!-- Nombre del Equipo -->
+            <TextView
+                android:id="@+id/teamNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginEnd="16dp" />
+
+            <!-- Dinero Inicial -->
+            <TextView
+                android:id="@+id/dineroInicialTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp" />
+        </LinearLayout>
 
         <!-- Botón Home (derecha) -->
         <ImageButton
@@ -34,11 +62,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:gravity="end"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back to Home"
-            android:src="@drawable/ic_home"/>
+            android:src="@drawable/ic_home" />
     </LinearLayout>
+
 
     <!-- Contenedor de fragments -->
     <FrameLayout
