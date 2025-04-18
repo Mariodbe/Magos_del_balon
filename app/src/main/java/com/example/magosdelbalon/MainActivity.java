@@ -152,6 +152,12 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     selectedFragment = new MercadoFragment();
                 }
+            }else if (item.getItemId() == R.id.navigation_alineacion) {
+                if (ligaName != null) {
+                    selectedFragment = crearAlineacionFragmentConLiga();
+                } else {
+                    selectedFragment = new AlineacionFragment();
+                }
             }
 
 
@@ -189,6 +195,13 @@ public class MainActivity extends AppCompatActivity {
     }
     private MercadoFragment crearMercadoFragmentConLiga() {
         MercadoFragment fragment = new MercadoFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("leagueName", ligaName);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
+    private AlineacionFragment crearAlineacionFragmentConLiga() {
+        AlineacionFragment fragment = new AlineacionFragment();
         Bundle bundle = new Bundle();
         bundle.putString("leagueName", ligaName);
         fragment.setArguments(bundle);

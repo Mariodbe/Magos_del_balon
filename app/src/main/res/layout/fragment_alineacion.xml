@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/backgroundImage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/campo_futbol"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        tools:ignore="ContentDescription" />
+
+    <Button
+        android:id="@+id/btn_portero"
+        style="@style/PlayerButton"
+        android:layout_marginStart="56dp"
+        android:text="P"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.498" />
+
+    <!-- Mediocentros - en el centro del campo -->
+
+    <!-- Delanteros - más adelante que los medios -->
+
+    <Button
+        android:id="@+id/btn_fw1"
+        style="@style/PlayerButton"
+        android:layout_marginStart="576dp"
+        android:layout_marginTop="80dp"
+        android:text="F1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_fw2"
+        style="@style/PlayerButton"
+        android:layout_marginStart="576dp"
+        android:layout_marginTop="160dp"
+        android:text="F2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_def3"
+        style="@style/PlayerButton"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="160dp"
+        android:text="D3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_def4"
+        style="@style/PlayerButton"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="232dp"
+        android:text="D4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_def1"
+        style="@style/PlayerButton"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="16dp"
+        android:text="D1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_def2"
+        style="@style/PlayerButton"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="80dp"
+        android:text="D2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_mid3"
+        style="@style/PlayerButton"
+        android:layout_marginStart="328dp"
+        android:layout_marginTop="160dp"
+        android:text="M3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_mid2"
+        style="@style/PlayerButton"
+        android:layout_marginStart="328dp"
+        android:layout_marginTop="80dp"
+        android:text="M2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_mid4"
+        style="@style/PlayerButton"
+        android:layout_marginStart="424dp"
+        android:layout_marginTop="232dp"
+        android:text="M4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_mid1"
+        style="@style/PlayerButton"
+        android:layout_marginStart="424dp"
+        android:layout_marginTop="16dp"
+        android:text="M1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

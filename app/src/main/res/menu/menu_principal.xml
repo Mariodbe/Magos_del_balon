@@ -1,18 +1,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/navigation_principal"
-        android:title="Pincipal" />
+        android:title=""
+        android:icon="@drawable/ic_principal" />
     <item
         android:id="@+id/navigation_estadio"
-        android:title="Estadio" />
+        android:title=""
+        android:icon="@drawable/ic_estadiomenu" />
     <item
         android:id="@+id/navigation_entrenamiento"
-        android:title="Entrenamiento" />
+        android:title=""
+        android:icon="@drawable/ic_entrenamiento" />
     <item
         android:id="@+id/navigation_mercado"
-        android:title="Mercado" />
+        android:title=""
+        android:icon="@drawable/ic_mercado" />
     <item
         android:id="@+id/navigation_alineacion"
-        android:title="Alineación" />
-
+        android:title=""
+        android:icon="@drawable/ic_alineacion" />
 </menu>
