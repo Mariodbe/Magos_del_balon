@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +26,7 @@ public class MercadoFragment extends Fragment {
     private RecyclerView recyclerView;
     private JugadorAdapter adapter;
     private List<Jugador> listaJugadores = new ArrayList<>();
+    private String ligaName;
 
     private static final String TAG = "MercadoFragment";
 
@@ -40,14 +41,41 @@ public class MercadoFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerMercado);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new JugadorAdapter(listaJugadores, jugador -> comprarJugador(jugador));
+        adapter = new JugadorAdapter(listaJugadores, jugador -> {
+            if (ligaName != null) {
+                Map<String, Object> jugadorMap = new HashMap<>();
+                jugadorMap.put("nombre", jugador.getNombre());
+                jugadorMap.put("posicion", jugador.getPosicion());
+                jugadorMap.put("overall", jugador.getOverall());
+                jugadorMap.put("precio", jugador.getPrecio());
+
+                comprarJugador(ligaName, jugadorMap, new FireStoreHelper.FireStoreCallback() {
+                    @Override
+                    public void onSuccess(String message) {
+                        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Toast.makeText(getContext(), "Liga no seleccionada.", Toast.LENGTH_SHORT).show();
+            }
+        });
         recyclerView.setAdapter(adapter);
 
-        // Suponiendo que tienes el tipo de liga guardado en algún lado
-        String tipoLiga = "LaLiga"; // puedes obtenerlo de argumentos o SharedPreferences
+        if (getArguments() != null) {
+            ligaName = getArguments().getString("leagueName");
+        }
 
-        fetchMercadoPlayers(tipoLiga);
+        if (ligaName == null) {
+            Toast.makeText(getContext(), "Liga no seleccionada.", Toast.LENGTH_SHORT).show();
+            return view;
+        }
 
+        fetchMercadoPlayers(ligaName);
         return view;
     }
 
@@ -69,74 +97,91 @@ public class MercadoFragment extends Fragment {
         });
     }
 
-    private void comprarJugador(Jugador jugador) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String ligaId = "tu_id_de_liga_hash"; // Reemplaza por cómo obtienes el ID/hash de la liga
+    public void comprarJugador(String ligaId, Map<String, Object> jugador, final FireStoreHelper.FireStoreCallback callback) {
+        Log.d(TAG, "Entrando a comprarJugador con ligaId: " + ligaId + " y jugador: " + jugador.get("nombre"));
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onFailure("Usuario no autenticado");
+            return;
+        }
+
+        String userId = user.getUid();
+        Log.d(TAG, "Usuario autenticado con ID: " + userId);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference userRef = db.collection("users").document(userId);
-        DocumentReference ligaRef = db.collection("ligas").document(ligaId);
 
-        userRef.get().addOnSuccessListener(userSnapshot -> {
-            if (userSnapshot.exists()) {
-                Map<String, Object> userData = userSnapshot.getData();
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            Log.d(TAG, "documentSnapshot.exists(): " + documentSnapshot.exists());
+            try {
+                Map<String, Object> userData = documentSnapshot.getData();
+                Log.d(TAG, "Datos completos del usuario: " + userData);
+
                 if (userData != null && userData.containsKey(ligaId)) {
-                    Map<String, Object> ligaData = (Map<String, Object>) userData.get(ligaId);
-                    List<Map<String, Object>> jugadoresUsuario = (List<Map<String, Object>>) ligaData.get("jugadores");
-                    int dineroActual = ((Number) ligaData.get("dinero")).intValue();
+                    Object rawLigaData = userData.get(ligaId);
 
-                    // Verificar si el jugador ya está en el equipo
-                    for (Map<String, Object> jugadorMap : jugadoresUsuario) {
-                        if (jugadorMap.get("nombre").equals(jugador.getNombre())) {
-                            Toast.makeText(getContext(), "Ya tienes a este jugador.", Toast.LENGTH_SHORT).show();
+                    if (rawLigaData instanceof Map) {
+                        Map<String, Object> ligaData = (Map<String, Object>) rawLigaData;
+                        Log.d(TAG, "Liga encontrada: " + ligaData);
+
+                        long dinero = ((Number) ligaData.get("dinero")).longValue();
+
+                        // Precio estimado del jugador (puedes cambiar esto)
+                        int precio2 = (int) jugador.get("precio");
+                        long precio = precio2;
+
+                        // Verificar si ya tiene el jugador
+                        List<Map<String, Object>> jugadores = (List<Map<String, Object>>) ligaData.get("jugadores");
+                        if (jugadores == null) jugadores = new ArrayList<>();
+
+                        boolean yaTieneJugador = false;
+                        for (Map<String, Object> j : jugadores) {
+                            if (j.get("nombre").equals(jugador.get("nombre"))) {
+                                yaTieneJugador = true;
+                                break;
+                            }
+                        }
+
+                        if (yaTieneJugador) {
+                            callback.onFailure("Ya tienes a este jugador en tu equipo");
                             return;
                         }
+
+                        // Verificar si tiene suficiente dinero
+                        if (dinero < precio) {
+                            callback.onFailure("No tienes suficiente dinero. Precio: " + precio);
+                            return;
+                        }
+
+                        // Realizar la compra
+                        jugadores.add(jugador);
+                        ligaData.put("jugadores", jugadores);
+                        ligaData.put("dinero", dinero - precio);
+
+                        userRef.update(ligaId, ligaData)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d(TAG, "Jugador comprado correctamente");
+                                    callback.onSuccess("Has comprado a " + jugador.get("nombre") + " por " + precio);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error al actualizar jugadores: " + e.getMessage());
+                                    callback.onFailure("Error al actualizar jugadores: " + e.getMessage());
+                                });
+
+                    } else {
+                        Log.e(TAG, "El campo de la liga no es un Map");
+                        callback.onFailure("Formato de liga incorrecto");
                     }
-
-                    // Verificar dinero suficiente
-                    if (jugador.getPrecio() > dineroActual) {
-                        Toast.makeText(getContext(), "No tienes suficiente dinero.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    // Añadir jugador al equipo del usuario
-                    Map<String, Object> nuevoJugador = new HashMap<>();
-                    nuevoJugador.put("nombre", jugador.getNombre());
-                    nuevoJugador.put("posicion", jugador.getPosicion());
-                    nuevoJugador.put("overall", jugador.getOverall());
-                    jugadoresUsuario.add(nuevoJugador);
-
-                    ligaData.put("jugadores", jugadoresUsuario);
-                    ligaData.put("dinero", dineroActual - jugador.getPrecio());
-                    userData.put(ligaId, ligaData);
-
-                    userRef.set(userData, SetOptions.merge()).addOnSuccessListener(unused -> {
-                        // Luego de actualizar el usuario, eliminar el jugador del mercado
-                        ligaRef.get().addOnSuccessListener(ligaSnapshot -> {
-                            if (ligaSnapshot.exists()) {
-                                Map<String, Object> ligaDoc = ligaSnapshot.getData();
-                                List<Map<String, Object>> mercado = (List<Map<String, Object>>) ligaDoc.get("mercado");
-
-                                if (mercado != null) {
-                                    mercado.removeIf(j -> j.get("nombre").equals(jugador.getNombre()));
-                                    ligaDoc.put("mercado", mercado);
-                                    ligaRef.set(ligaDoc, SetOptions.merge())
-                                            .addOnSuccessListener(aVoid -> {
-                                                Toast.makeText(getContext(), "¡Jugador comprado!", Toast.LENGTH_SHORT).show();
-                                                fetchMercadoPlayers("LaLiga"); // O el tipoLiga real
-                                            })
-                                            .addOnFailureListener(e -> Log.e(TAG, "Error al actualizar mercado: " + e.getMessage()));
-                                }
-                            }
-                        });
-
-                    }).addOnFailureListener(e -> {
-                        Log.e(TAG, "Error al guardar jugador en usuario: " + e.getMessage());
-                    });
+                } else {
+                    Log.e(TAG, "Liga no encontrada en los datos del usuario");
+                    callback.onFailure("Liga no encontrada para este usuario");
                 }
+            } catch (Exception e) {
+                Log.e(TAG, "Excepción procesando datos del usuario", e);
+                callback.onFailure("Error procesando datos del usuario: " + e.getMessage());
             }
-        }).addOnFailureListener(e -> Log.e(TAG, "Error al acceder al usuario: " + e.getMessage()));
+        });
     }
-
 
 }

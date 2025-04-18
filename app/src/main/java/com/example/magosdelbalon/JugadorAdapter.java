@@ -1,6 +1,5 @@
 package com.example.magosdelbalon;
 
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +9,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -19,7 +17,6 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
 
     private List<Jugador> listaJugadores;
     private OnJugadorClickListener listener;
-    private String nombreLiga; // Se usará para acceder a los datos en Firestore
 
     public interface OnJugadorClickListener {
         void onComprarClick(Jugador jugador);
@@ -30,8 +27,6 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
         this.listener = listener;
     }
 
-
-
     @NonNull
     @Override
     public JugadorViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,8 +36,7 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
 
     @Override
     public void onBindViewHolder(@NonNull JugadorViewHolder holder, int position) {
-        Jugador jugador = listaJugadores.get(position);
-        holder.bind(jugador);
+        holder.bind(listaJugadores.get(position));
     }
 
     @Override
@@ -50,7 +44,7 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
         return listaJugadores.size();
     }
 
-    public class JugadorViewHolder extends RecyclerView.ViewHolder {
+    class JugadorViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvPosicion, tvOverall, tvPrecio;
         Button btnComprar;
 
@@ -71,8 +65,6 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
 
             btnComprar.setOnClickListener(v -> {
                 Log.d("ADAPTER", "Botón comprar presionado para: " + jugador.getNombre());
-                Toast.makeText(itemView.getContext(), "Comprando: " + jugador.getNombre(), Toast.LENGTH_SHORT).show();
-
                 if (listener != null) {
                     listener.onComprarClick(jugador);
                 }
@@ -80,5 +72,3 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
         }
     }
 }
-
-

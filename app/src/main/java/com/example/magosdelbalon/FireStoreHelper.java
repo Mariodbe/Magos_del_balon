@@ -196,6 +196,7 @@ public class FireStoreHelper {
                                         playerMap.put("nombre", jugador.getNombre());
                                         playerMap.put("posicion", jugador.getPosicion());
                                         playerMap.put("overall", jugador.getOverall());
+                                        playerMap.put("precio", jugador.getPrecio());
                                         playersMapList.add(playerMap);
                                     }
 
