@@ -8,9 +8,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class AlineacionFragment extends Fragment {
 
-    // Constructor vacío
+    private FireStoreHelper firestoreHelper;
+
     public AlineacionFragment() {
         // Required empty public constructor
     }
@@ -18,10 +22,15 @@ public class AlineacionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflar el layout para este fragmento
         View view = inflater.inflate(R.layout.fragment_alineacion, container, false);
 
-        // Botones de jugadores
+        firestoreHelper = new FireStoreHelper();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        // Suponiendo que tienes el ID del usuario y el nombre de la liga almacenados en algún lugar
+        String userId = user.getUid();
+
+        String ligaName = getArguments().getString("leagueName");
+
         Button btnPortero = view.findViewById(R.id.btn_portero);
         Button btnDef1 = view.findViewById(R.id.btn_def1);
         Button btnDef2 = view.findViewById(R.id.btn_def2);
@@ -34,25 +43,35 @@ public class AlineacionFragment extends Fragment {
         Button btnFw1 = view.findViewById(R.id.btn_fw1);
         Button btnFw2 = view.findViewById(R.id.btn_fw2);
 
-        // Setear onClickListener para los botones
-        btnPortero.setOnClickListener(v -> onPlayerSelected("Portero"));
-        btnDef1.setOnClickListener(v -> onPlayerSelected("Defensa 1"));
-        btnDef2.setOnClickListener(v -> onPlayerSelected("Defensa 2"));
-        btnDef3.setOnClickListener(v -> onPlayerSelected("Defensa 3"));
-        btnDef4.setOnClickListener(v -> onPlayerSelected("Defensa 4"));
-        btnMid1.setOnClickListener(v -> onPlayerSelected("Mediocentro 1"));
-        btnMid2.setOnClickListener(v -> onPlayerSelected("Mediocentro 2"));
-        btnMid3.setOnClickListener(v -> onPlayerSelected("Mediocentro 3"));
-        btnMid4.setOnClickListener(v -> onPlayerSelected("Mediocentro 4"));
-        btnFw1.setOnClickListener(v -> onPlayerSelected("Delantero 1"));
-        btnFw2.setOnClickListener(v -> onPlayerSelected("Delantero 2"));
+        btnPortero.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Goalkeeper"));
+        btnDef1.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Defender"));
+        btnDef2.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Defender"));
+        btnDef3.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Defender"));
+        btnDef4.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Defender"));
+        btnMid1.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Midfielder"));
+        btnMid2.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Midfielder"));
+        btnMid3.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Midfielder"));
+        btnMid4.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Midfielder"));
+        btnFw1.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Forward"));
+        btnFw2.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Forward"));
 
         return view;
     }
 
-    // Método que maneja la selección de un jugador
-    private void onPlayerSelected(String player) {
-        // Muestra un mensaje o realiza una acción según la selección
-        Toast.makeText(getContext(), "Jugador seleccionado: " + player, Toast.LENGTH_SHORT).show();
+
+
+    private void openPlayerSelectionDialog(String userId, String leagueName, String position) {
+        firestoreHelper.getPlayersByPosition(userId, leagueName, position, players -> {
+            if (getActivity() != null) {
+                PlayerSelectionDialog.show(getContext(), players, selectedPlayer -> {
+                    // Guardar la alineación
+                    firestoreHelper.saveLineup(userId, leagueName, position, selectedPlayer);
+                    Toast.makeText(getContext(), "Jugador seleccionado: " + selectedPlayer, Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
     }
+
+
 }
+

@@ -14,6 +14,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.functions.FirebaseFunctions;
@@ -1069,6 +1070,63 @@ public class FireStoreHelper {
             }
         }).addOnFailureListener(e -> callback.onFailure("Error al leer datos: " + e.getMessage()));
     }
+
+
+    public void getPlayersByPosition(String userId, String leagueName, String position, OnPlayersLoadedListener listener) {
+        db.collection("users")
+                .document(userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            Map<String, Object> leagues = (Map<String, Object>) document.getData().get(leagueName);
+                            if (leagues != null) {
+                                List<Map<String, Object>> players = (List<Map<String, Object>>) leagues.get("jugadores");
+                                List<String> playerNames = new ArrayList<>();
+                                for (Map<String, Object> player : players) {
+                                    String playerPosition = (String) player.get("posicion");
+                                    if (playerPosition.equals(position)) {
+                                        String playerName = (String) player.get("nombre");
+                                        playerNames.add(playerName);
+                                    }
+                                }
+                                Log.d("FirestoreHelper", "Players loaded: " + playerNames.size());
+                                listener.onPlayersLoaded(playerNames);
+                            } else {
+                                listener.onPlayersLoaded(new ArrayList<>());
+                            }
+                        } else {
+                            listener.onPlayersLoaded(new ArrayList<>());
+                        }
+                    } else {
+                        Log.e("FirestoreHelper", "Error getting document: ", task.getException());
+                        listener.onPlayersLoaded(new ArrayList<>());
+                    }
+                });
+    }
+
+
+
+    public interface OnPlayersLoadedListener {
+        void onPlayersLoaded(List<String> players);
+    }
+    public void saveLineup(String userId, String leagueName, String position, String playerName) {
+        Map<String, Object> lineupUpdate = new HashMap<>();
+        lineupUpdate.put("alineacion." + position, playerName);
+
+        db.collection("users")
+                .document(userId)
+                .update(lineupUpdate)
+                .addOnSuccessListener(aVoid -> {
+                    // Alineación guardada con éxito
+                })
+                .addOnFailureListener(e -> {
+                    // Error al guardar la alineación
+                });
+    }
+
+
 
 
 }
