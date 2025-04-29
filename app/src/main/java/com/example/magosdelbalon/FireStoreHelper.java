@@ -357,7 +357,9 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue()
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("precio")).intValue()
+
 
                                     );
                                     players.add(jugador);
@@ -410,7 +412,9 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue()
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("precio")).intValue()
+
                                     );
                                     players.add(jugador);
                                 }
@@ -462,7 +466,9 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue()
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("precio")).intValue()
+
                                     );
                                     players.add(jugador);
                                 }
@@ -514,7 +520,9 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue()
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("precio")).intValue()
+
                                     );
                                     players.add(jugador);
                                 }
@@ -566,7 +574,9 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue()
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("precio")).intValue()
+
                                     );
                                     players.add(jugador);
                                 }
@@ -618,7 +628,9 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue()
+                                            ((Number) playerData.get("overall")).intValue(),
+                                            ((Number) playerData.get("precio")).intValue()
+
                                     );
                                     players.add(jugador);
                                 }
@@ -973,7 +985,8 @@ public class FireStoreHelper {
                                     Jugador jugador = new Jugador(
                                             (String) jugadorMap.get("nombre"),
                                             (String) jugadorMap.get("posicion"),
-                                            ((Long) jugadorMap.get("overall")).intValue()
+                                            ((Long) jugadorMap.get("overall")).intValue(),
+                                            ((Long) jugadorMap.get("precio")).intValue()
                                     );
                                     jugadores.add(jugador);
                                 }

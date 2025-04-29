@@ -179,6 +179,6 @@ export const getManCityPlayers = functions.https.onRequest(
       },
     ];
 
-    response.json({ data: { players: manCityPlayers } });
+    response.json({data: {players: manCityPlayers}});
   }
 );

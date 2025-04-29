@@ -173,6 +173,6 @@ export const getLiverpoolPlayers = functions.https.onRequest(
       },
     ];
 
-    response.json({ data: { players: liverpoolPlayers } });
+    response.json({data: {players: liverpoolPlayers}});
   }
 );

@@ -227,6 +227,6 @@ export const getChelseaPlayers = functions.https.onRequest(
       },
     ];
 
-    response.json({ data: { players: chelseaPlayers } });
+    response.json({data: {players: chelseaPlayers}});
   }
 );

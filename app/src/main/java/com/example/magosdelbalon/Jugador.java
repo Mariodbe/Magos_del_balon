@@ -11,14 +11,6 @@ public class Jugador {
 
 
 
-    // Constructor
-    public Jugador(String nombre, String posicion, int overall) {
-        this.nombre = nombre;
-        this.posicion = posicion;
-        this.overall = overall;
-
-    }
-
     //Constructor mercado
     public Jugador(String nombre, String posicion, int overall, int precio) {
         this.nombre = nombre;

@@ -113,6 +113,6 @@ export const getMadridPlayers = functions.https.onRequest(
       },
     ];
 
-    response.json({ data: { players: madridPlayers } });
+    response.json({data: {players: madridPlayers}});
   }
 );

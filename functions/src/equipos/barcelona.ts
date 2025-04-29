@@ -155,6 +155,6 @@ export const getBarcelonaPlayers = functions.https.onRequest(
       },
     ];
 
-    response.json({ data: { players: barcelonaPlayers } });
+    response.json({data: {players: barcelonaPlayers}});
   }
 );
