@@ -12,19 +12,22 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
-
 public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorViewHolder> {
+
+    public enum Modo { COMPRAR, VENDER }
 
     private List<Jugador> listaJugadores;
     private OnJugadorClickListener listener;
+    private Modo modo;
 
     public interface OnJugadorClickListener {
-        void onComprarClick(Jugador jugador);
+        void onJugadorClick(Jugador jugador);
     }
 
-    public JugadorAdapter(List<Jugador> listaJugadores, OnJugadorClickListener listener) {
+    public JugadorAdapter(List<Jugador> listaJugadores, OnJugadorClickListener listener, Modo modo) {
         this.listaJugadores = listaJugadores;
         this.listener = listener;
+        this.modo = modo;
     }
 
     @NonNull
@@ -46,7 +49,7 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
 
     class JugadorViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvPosicion, tvOverall, tvPrecio;
-        Button btnComprar;
+        Button btnAccion;
 
         public JugadorViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -54,19 +57,24 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
             tvPosicion = itemView.findViewById(R.id.textPosicion);
             tvOverall = itemView.findViewById(R.id.textOverall);
             tvPrecio = itemView.findViewById(R.id.textPrecio);
-            btnComprar = itemView.findViewById(R.id.btnComprar);
+            btnAccion = itemView.findViewById(R.id.btnComprar); // Mismo botón, pero renombramos lógica
         }
 
         public void bind(Jugador jugador) {
             tvNombre.setText(jugador.getNombre());
             tvPosicion.setText(jugador.getPosicion());
             tvOverall.setText("OVR: " + jugador.getOverall());
-            tvPrecio.setText("Precio: " + jugador.getPrecio()+"€");
+            tvPrecio.setText("Precio: " + jugador.getPrecio() + "€");
 
-            btnComprar.setOnClickListener(v -> {
-                Log.d("ADAPTER", "Botón comprar presionado para: " + jugador.getNombre());
+            if (modo == Modo.COMPRAR) {
+                btnAccion.setText("Comprar");
+            } else {
+                btnAccion.setText("Vender");
+            }
+
+            btnAccion.setOnClickListener(v -> {
                 if (listener != null) {
-                    listener.onComprarClick(jugador);
+                    listener.onJugadorClick(jugador);
                 }
             });
         }

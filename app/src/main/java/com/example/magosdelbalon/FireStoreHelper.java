@@ -285,7 +285,7 @@ public class FireStoreHelper {
         }
     }
 
-    void fetchMercadoPlayers(String tipoLiga, FireStoreHelper.PlayersCallback callback) {
+    public void fetchMercadoPlayers(String tipoLiga, FireStoreHelper.PlayersCallback callback) {
         FirebaseFunctions functions = FirebaseFunctions.getInstance();
 
         functions.getHttpsCallable("getMercadoPlayers")
@@ -1207,7 +1207,106 @@ public class FireStoreHelper {
             }
         });
     }
+    public void venderJugador(String ligaId, Jugador jugador, final FireStoreCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onFailure("Usuario no autenticado");
+            return;
+        }
 
+        String userId = user.getUid();
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            try {
+                Map<String, Object> userData = documentSnapshot.getData();
+                if (userData != null && userData.containsKey(ligaId)) {
+                    Object rawLigaData = userData.get(ligaId);
+                    if (rawLigaData instanceof Map) {
+                        Map<String, Object> ligaData = (Map<String, Object>) rawLigaData;
+                        long dinero = ((Number) ligaData.get("dinero")).longValue();
+
+                        List<Map<String, Object>> jugadores = (List<Map<String, Object>>) ligaData.get("jugadores");
+                        if (jugadores == null) {
+                            callback.onFailure("No tienes jugadores para vender");
+                            return;
+                        }
+
+                        boolean encontrado = false;
+                        for (int i = 0; i < jugadores.size(); i++) {
+                            Map<String, Object> j = jugadores.get(i);
+                            if (j.get("nombre").equals(jugador.getNombre())) {
+                                long precio = ((Number) j.get("precio")).longValue();
+                                dinero += precio;
+                                jugadores.remove(i);
+                                encontrado = true;
+                                break;
+                            }
+                        }
+
+                        if (!encontrado) {
+                            callback.onFailure("Jugador no encontrado en tu equipo");
+                            return;
+                        }
+
+                        ligaData.put("jugadores", jugadores);
+                        ligaData.put("dinero", dinero);
+
+                        userRef.update(ligaId, ligaData)
+                                .addOnSuccessListener(aVoid -> callback.onSuccess("Has vendido a " + jugador.getNombre()))
+                                .addOnFailureListener(e -> callback.onFailure("Error al vender jugador: " + e.getMessage()));
+                    } else {
+                        callback.onFailure("Formato de liga incorrecto");
+                    }
+                } else {
+                    callback.onFailure("Liga no encontrada para este usuario");
+                }
+            } catch (Exception e) {
+                callback.onFailure("Error procesando datos del usuario: " + e.getMessage());
+            }
+        });
+    }
+    public void cargarJugadoresDelUsuario(String ligaId, final JugadorListCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onFailure("Usuario no autenticado");
+            return;
+        }
+
+        DocumentReference userRef = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(user.getUid());
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            try {
+                Map<String, Object> data = (Map<String, Object>) documentSnapshot.get(ligaId);
+                if (data != null && data.containsKey("jugadores")) {
+                    List<Map<String, Object>> jugadoresMap = (List<Map<String, Object>>) data.get("jugadores");
+                    List<Jugador> jugadores = new ArrayList<>();
+
+                    for (Map<String, Object> j : jugadoresMap) {
+                        jugadores.add(new Jugador(
+                                (String) j.get("nombre"),
+                                (String) j.get("posicion"),
+                                ((Number) j.get("overall")).intValue(),
+                                ((Number) j.get("precio")).intValue()
+                        ));
+                    }
+
+                    callback.onSuccess(jugadores);
+                } else {
+                    callback.onSuccess(new ArrayList<>()); // No hay jugadores
+                }
+            } catch (Exception e) {
+                callback.onFailure("Error procesando los datos: " + e.getMessage());
+            }
+        }).addOnFailureListener(e -> callback.onFailure("Error de base de datos: " + e.getMessage()));
+    }
+
+    public interface JugadorListCallback {
+        void onSuccess(List<Jugador> jugadores);
+        void onFailure(String errorMessage);
+    }
 
 
 }
