@@ -35,7 +35,7 @@
             android:id="@+id/textPrecio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Precio: $100" />
+            android:text="Precio: 100€" />
 
         <Button
             android:id="@+id/btnComprar"

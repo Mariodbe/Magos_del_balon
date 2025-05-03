@@ -57,6 +57,7 @@ public class EstadioFragment extends Fragment {
         helper.obtenerNivelEstadio(userId, ligaName, nivelKey, new FireStoreHelper.NivelCallback() {
             @Override
             public void onSuccess(int currentLevel) {
+
                 if (currentLevel >= 10) {
                     Toast.makeText(getContext(), nombreIcono + " ya está al nivel máximo.", Toast.LENGTH_SHORT).show();
                     return;
@@ -74,6 +75,9 @@ public class EstadioFragment extends Fragment {
                                 @Override
                                 public void onSuccess(String message) {
                                     Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                                    if (getActivity() instanceof MainActivity) {
+                                        ((MainActivity) getActivity()).refrescarDatosLiga();
+                                    }
                                 }
 
                                 @Override
@@ -84,6 +88,7 @@ public class EstadioFragment extends Fragment {
                         })
                         .setNegativeButton("Cancelar", null)
                         .show();
+
             }
 
             @Override

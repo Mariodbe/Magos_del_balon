@@ -61,7 +61,7 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
             tvNombre.setText(jugador.getNombre());
             tvPosicion.setText(jugador.getPosicion());
             tvOverall.setText("OVR: " + jugador.getOverall());
-            tvPrecio.setText("Precio: $" + jugador.getPrecio());
+            tvPrecio.setText("Precio: " + jugador.getPrecio()+"€");
 
             btnComprar.setOnClickListener(v -> {
                 Log.d("ADAPTER", "Botón comprar presionado para: " + jugador.getNombre());

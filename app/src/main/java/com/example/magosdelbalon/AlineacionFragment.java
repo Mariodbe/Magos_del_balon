@@ -6,10 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class AlineacionFragment extends Fragment {
 
@@ -43,34 +47,80 @@ public class AlineacionFragment extends Fragment {
         Button btnFw1 = view.findViewById(R.id.btn_fw1);
         Button btnFw2 = view.findViewById(R.id.btn_fw2);
 
+        // TextViews
+        TextView txtPortero = view.findViewById(R.id.txt_portero);
+        TextView txtDef1 = view.findViewById(R.id.txt_def1);
+        TextView txtDef2 = view.findViewById(R.id.txt_def2);
+        TextView txtDef3 = view.findViewById(R.id.txt_def3);
+        TextView txtDef4 = view.findViewById(R.id.txt_def4);
+        TextView txtMid1 = view.findViewById(R.id.txt_mid1);
+        TextView txtMid2 = view.findViewById(R.id.txt_mid2);
+        TextView txtMid3 = view.findViewById(R.id.txt_mid3);
+        TextView txtMid4 = view.findViewById(R.id.txt_mid4);
+        TextView txtFw1 = view.findViewById(R.id.txt_fw1);
+        TextView txtFw2 = view.findViewById(R.id.txt_fw2);
+
+        // Asociar cada posición con su TextView
+        Map<String, TextView> textViews = new HashMap<>();
+        textViews.put("Goalkeeper", txtPortero);
+        textViews.put("Def1", txtDef1);
+        textViews.put("Def2", txtDef2);
+        textViews.put("Def3", txtDef3);
+        textViews.put("Def4", txtDef4);
+        textViews.put("Mid1", txtMid1);
+        textViews.put("Mid2", txtMid2);
+        textViews.put("Mid3", txtMid3);
+        textViews.put("Mid4", txtMid4);
+        textViews.put("Fw1", txtFw1);
+        textViews.put("Fw2", txtFw2);
+
+
+        // Cargar nombres desde Firestore
+        firestoreHelper.cargarAlineacion(userId, ligaName, textViews);
+
         btnPortero.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Goalkeeper"));
-        btnDef1.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Defender"));
-        btnDef2.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Defender"));
-        btnDef3.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Defender"));
-        btnDef4.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Defender"));
-        btnMid1.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Midfielder"));
-        btnMid2.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Midfielder"));
-        btnMid3.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Midfielder"));
-        btnMid4.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Midfielder"));
-        btnFw1.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Forward"));
-        btnFw2.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Forward"));
+
+        btnDef1.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def1"));
+        btnDef2.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def2"));
+        btnDef3.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def3"));
+        btnDef4.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def4"));
+
+        btnMid1.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid1"));
+        btnMid2.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid2"));
+        btnMid3.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid3"));
+        btnMid4.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid4"));
+
+        btnFw1.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Fw1"));
+        btnFw2.setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Fw2"));
 
         return view;
     }
 
 
 
-    private void openPlayerSelectionDialog(String userId, String leagueName, String position) {
-        firestoreHelper.getPlayersByPosition(userId, leagueName, position, players -> {
+    private void openPlayerSelectionDialog(String userId, String leagueName, String positionKey) {
+        String playerPosition = getGeneralPosition(positionKey); // traduce Fw1 → Forward
+
+        firestoreHelper.getPlayersByPosition(userId, leagueName, playerPosition, players -> {
             if (getActivity() != null) {
                 PlayerSelectionDialog.show(getContext(), players, selectedPlayer -> {
-                    // Guardar la alineación
-                    firestoreHelper.saveLineup(userId, leagueName, position, selectedPlayer);
+                    // Guardar la alineación con la posición específica
+                    firestoreHelper.saveLineup(userId, leagueName, positionKey, selectedPlayer);
                     Toast.makeText(getContext(), "Jugador seleccionado: " + selectedPlayer, Toast.LENGTH_SHORT).show();
                 });
             }
         });
     }
+
+    // Traduce Fw1, Fw2 → Forward, Mid1 → Midfielder, etc.
+    private String getGeneralPosition(String key) {
+        if (key.startsWith("Def")) return "Defender";
+        if (key.startsWith("Mid")) return "Midfielder";
+        if (key.startsWith("Fw")) return "Forward";
+        if (key.equals("Goalkeeper")) return "Goalkeeper";
+        return ""; // posición desconocida
+    }
+
 
 
 }

@@ -2,6 +2,7 @@ package com.example.magosdelbalon;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ImageView;
 
@@ -1111,21 +1112,101 @@ public class FireStoreHelper {
     public interface OnPlayersLoadedListener {
         void onPlayersLoaded(List<String> players);
     }
-    public void saveLineup(String userId, String leagueName, String position, String playerName) {
-        Map<String, Object> lineupUpdate = new HashMap<>();
-        lineupUpdate.put("alineacion." + position, playerName);
+    public void saveLineup(String userId, String ligaName, String posicionClave, String nombreJugador) {
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+        DocumentReference userDocRef = db.collection("users").document(userId);
 
-        db.collection("users")
+        // Mapa para alineacion
+        Map<String, Object> alineacionMap = new HashMap<>();
+        alineacionMap.put(posicionClave, nombreJugador); // ej: "def1" -> "Carvajal"
+
+        // Mapa que contiene "alineacion" como subdocumento de la liga
+        Map<String, Object> ligaMap = new HashMap<>();
+        ligaMap.put("alineacion", alineacionMap);
+
+        // Mapa final que contiene la liga (ej: "yh") como clave
+        Map<String, Object> update = new HashMap<>();
+        update.put(ligaIdHash, ligaMap);
+
+        userDocRef.set(update, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Jugador alineado correctamente"))
+                .addOnFailureListener(e -> Log.e("Firestore", "Error al guardar alineación: " + e.getMessage()));
+    }
+    public void cargarAlineacion(String userId, String ligaName, Map<String, TextView> textViews) {
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
                 .document(userId)
-                .update(lineupUpdate)
-                .addOnSuccessListener(aVoid -> {
-                    // Alineación guardada con éxito
-                })
-                .addOnFailureListener(e -> {
-                    // Error al guardar la alineación
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> ligas = (Map<String, Object>) documentSnapshot.get(ligaIdHash);
+                        if (ligas != null && ligas.containsKey("alineacion")) {
+                            Map<String, Object> alineacion = (Map<String, Object>) ligas.get("alineacion");
+                            for (String posicion : textViews.keySet()) {
+                                String jugador = (String) alineacion.get(posicion);
+                                textViews.get(posicion).setText(jugador != null ? jugador : "");
+                            }
+                        }
+                    }
                 });
     }
 
+
+    public void comprarJugador(String ligaId, Map<String, Object> jugador, final FireStoreCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onFailure("Usuario no autenticado");
+            return;
+        }
+
+        String userId = user.getUid();
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            try {
+                Map<String, Object> userData = documentSnapshot.getData();
+                if (userData != null && userData.containsKey(ligaId)) {
+                    Object rawLigaData = userData.get(ligaId);
+                    if (rawLigaData instanceof Map) {
+                        Map<String, Object> ligaData = (Map<String, Object>) rawLigaData;
+                        long dinero = ((Number) ligaData.get("dinero")).longValue();
+                        long precio = ((Number) jugador.get("precio")).longValue();
+
+                        List<Map<String, Object>> jugadores = (List<Map<String, Object>>) ligaData.get("jugadores");
+                        if (jugadores == null) jugadores = new ArrayList<>();
+
+                        for (Map<String, Object> j : jugadores) {
+                            if (j.get("nombre").equals(jugador.get("nombre"))) {
+                                callback.onFailure("Ya tienes a este jugador en tu equipo");
+                                return;
+                            }
+                        }
+
+                        if (dinero < precio) {
+                            callback.onFailure("No tienes suficiente dinero. Precio: " + precio);
+                            return;
+                        }
+
+                        jugadores.add(jugador);
+                        ligaData.put("jugadores", jugadores);
+                        ligaData.put("dinero", dinero - precio);
+
+                        userRef.update(ligaId, ligaData)
+                                .addOnSuccessListener(aVoid -> callback.onSuccess("Has comprado a " + jugador.get("nombre") + " por " + precio))
+                                .addOnFailureListener(e -> callback.onFailure("Error al actualizar jugadores: " + e.getMessage()));
+                    } else {
+                        callback.onFailure("Formato de liga incorrecto");
+                    }
+                } else {
+                    callback.onFailure("Liga no encontrada para este usuario");
+                }
+            } catch (Exception e) {
+                callback.onFailure("Error procesando datos del usuario: " + e.getMessage());
+            }
+        });
+    }
 
 
 
