@@ -1,4 +1,4 @@
-package com.example.magosdelbalon;
+package com.example.magosdelbalon.alineacion;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
@@ -9,6 +9,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.magosdelbalon.FireStoreHelper;
+import com.example.magosdelbalon.PlayerSelectionDialog;
+import com.example.magosdelbalon.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 

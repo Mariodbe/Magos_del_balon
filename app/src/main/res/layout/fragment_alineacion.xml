@@ -85,10 +85,11 @@
         android:id="@+id/btn_def3"
         style="@style/PlayerButton"
         android:layout_marginStart="176dp"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="145dp"
         android:text="D3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/txt_def3"
         android:layout_width="wrap_content"
@@ -105,7 +106,7 @@
         android:id="@+id/btn_def4"
         style="@style/PlayerButton"
         android:layout_marginStart="176dp"
-        android:layout_marginTop="232dp"
+        android:layout_marginTop="205dp"
         android:text="D4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -125,10 +126,11 @@
         android:id="@+id/btn_def1"
         style="@style/PlayerButton"
         android:layout_marginStart="176dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="4dp"
         android:text="D1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/txt_def1"
         android:layout_width="wrap_content"
@@ -145,10 +147,11 @@
         android:id="@+id/btn_def2"
         style="@style/PlayerButton"
         android:layout_marginStart="176dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="64dp"
         android:text="D2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/txt_def2"
         android:layout_width="wrap_content"
@@ -205,7 +208,7 @@
         android:id="@+id/btn_mid4"
         style="@style/PlayerButton"
         android:layout_marginStart="424dp"
-        android:layout_marginTop="232dp"
+        android:layout_marginTop="205dp"
         android:text="M4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

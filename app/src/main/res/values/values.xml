@@ -6,4 +6,9 @@
     <string name="google_app_id" translatable="false">1:622071411652:android:1f2bb17f999e0a12ec6a91</string>
     <string name="google_storage_bucket" translatable="false">magosdelbalon-f8f08.firebasestorage.app</string>
     <string name="project_id" translatable="false">magosdelbalon-f8f08</string>
+    <style name="CustomTabText" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">12sp</item> <!-- Ajusta según necesites -->
+        <item name="android:textAllCaps">false</item>
+    </style>
+
 </resources>

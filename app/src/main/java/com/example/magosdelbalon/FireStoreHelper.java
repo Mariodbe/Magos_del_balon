@@ -1308,5 +1308,28 @@ public class FireStoreHelper {
         void onFailure(String errorMessage);
     }
 
+    public void saveTacticIntensity(String userId, String ligaName, String tacticKey, int intensityValue) {
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+        DocumentReference userDocRef = db.collection("users").document(userId);
+
+        // Mapa para tácticas
+        Map<String, Object> tacticasMap = new HashMap<>();
+        tacticasMap.put(tacticKey, intensityValue); // ej: "Agresividad" -> 4
+
+        // Mapa que contiene "tacticas" como subdocumento de la liga
+        Map<String, Object> ligaMap = new HashMap<>();
+        ligaMap.put("tacticas", tacticasMap);
+
+        // Mapa final que contiene la liga (ej: "yh") como clave
+        Map<String, Object> update = new HashMap<>();
+        update.put(ligaIdHash, ligaMap);
+
+        userDocRef.set(update, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Táctica guardada correctamente"))
+                .addOnFailureListener(e -> Log.e("Firestore", "Error al guardar táctica: " + e.getMessage()));
+    }
+
+
+
 
 }

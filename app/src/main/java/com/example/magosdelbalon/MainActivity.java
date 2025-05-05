@@ -13,6 +13,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.magosdelbalon.alineacion.AlineacionFragment;
+import com.example.magosdelbalon.alineacion.AlineacionMainFragment;
 import com.example.magosdelbalon.mercado.MercadoFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -151,9 +153,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }else if (item.getItemId() == R.id.navigation_alineacion) {
                 if (ligaName != null) {
-                    selectedFragment = crearAlineacionFragmentConLiga();
+                    selectedFragment = crearAlineacionMainFragmentConLiga();
                 } else {
-                    selectedFragment = new AlineacionFragment();
+                    selectedFragment = new AlineacionMainFragment();
                 }
             }
 
@@ -197,13 +199,16 @@ public class MainActivity extends AppCompatActivity {
         fragment.setArguments(bundle);
         return fragment;
     }
-    private AlineacionFragment crearAlineacionFragmentConLiga() {
-        AlineacionFragment fragment = new AlineacionFragment();
+
+    private AlineacionMainFragment crearAlineacionMainFragmentConLiga() {
+        AlineacionMainFragment fragment = new AlineacionMainFragment();
         Bundle bundle = new Bundle();
         bundle.putString("leagueName", ligaName);
         fragment.setArguments(bundle);
         return fragment;
     }
+
+
     private void obtenerDatosLiga(String ligaName) {
         FireStoreHelper helper = new FireStoreHelper();
 
