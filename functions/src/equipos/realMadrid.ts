@@ -112,7 +112,9 @@ export const getMadridPlayers = functions.https.onRequest(
         precio: 6474000,
       },
     ];
+    const totalOverall = madridPlayers.reduce((acc, player) => acc + player.overall, 0);
+    const averageOverall = totalOverall / madridPlayers.length;
 
-    response.json({data: {players: madridPlayers}});
+    response.json({data: {players: madridPlayers, averageOverall}});
   }
 );

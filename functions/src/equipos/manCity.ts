@@ -179,6 +179,9 @@ export const getManCityPlayers = functions.https.onRequest(
       },
     ];
 
-    response.json({data: {players: manCityPlayers}});
+    const totalOverall = manCityPlayers.reduce((acc, player) => acc + player.overall, 0);
+    const averageOverall = totalOverall / manCityPlayers.length;
+
+    response.json({data: {players: manCityPlayers, averageOverall}});
   }
 );

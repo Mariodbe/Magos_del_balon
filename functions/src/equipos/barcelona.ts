@@ -154,7 +154,9 @@ export const getBarcelonaPlayers = functions.https.onRequest(
         precio: 6400000,
       },
     ];
+    const totalOverall = barcelonaPlayers.reduce((acc, player) => acc + player.overall, 0);
+    const averageOverall = totalOverall / barcelonaPlayers.length;
 
-    response.json({data: {players: barcelonaPlayers}});
+    response.json({data: {players: barcelonaPlayers, averageOverall}});
   }
 );

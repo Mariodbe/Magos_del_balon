@@ -226,7 +226,9 @@ export const getChelseaPlayers = functions.https.onRequest(
         precio: 6724000,
       },
     ];
+    const totalOverall = chelseaPlayers.reduce((acc, player) => acc + player.overall, 0);
+    const averageOverall = totalOverall / chelseaPlayers.length;
 
-    response.json({data: {players: chelseaPlayers}});
+    response.json({data: {players: chelseaPlayers, averageOverall}});
   }
 );

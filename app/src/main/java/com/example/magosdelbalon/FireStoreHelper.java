@@ -21,6 +21,7 @@ import com.google.firebase.functions.FirebaseFunctions;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -183,12 +184,42 @@ public class FireStoreHelper {
                         estadio.put("nivel_ciudad_deportiva", 0);
                         estadio.put("nivel_centro_medico", 0);
                         ligaData.put("estadio", estadio);
+
                         Map<String, Integer> tacticas = new HashMap<>();
                         tacticas.put("Agresividad", 3);
                         tacticas.put("Contraataques", 3);
                         tacticas.put("Posesión", 3);
                         tacticas.put("Presión", 3);
                         ligaData.put("tacticas", tacticas);
+
+                        // Lista dinámica de equipos según la liga
+                        List<String> todosLosEquipos;
+                        if (tipoLiga.equalsIgnoreCase("La Liga")) {
+                            todosLosEquipos = Arrays.asList("Atlético de Madrid", "Barcelona", "Real Madrid");
+                        } else {
+                            todosLosEquipos = Arrays.asList("Manchester City", "Liverpool", "Chelsea");
+                        }
+
+                        // Crear lista de rivales pendientes quitando el equipo elegido (comparando *directamente*)
+                        List<String> pendientesJugar = new ArrayList<>();
+                        for (String equipo : todosLosEquipos) {
+                            if (!equipo.equalsIgnoreCase(equipoName.trim())) {
+                                pendientesJugar.add(equipo);
+                            }
+                        }
+
+
+
+                        // Crear el mapa de progreso de liga
+                        Map<String, Object> progresoLiga = new HashMap<>();
+                        progresoLiga.put("rivalesJugados", new ArrayList<String>());
+                        progresoLiga.put("pendientesJugar", pendientesJugar);
+                        progresoLiga.put("partidosGanados", 0);
+                        progresoLiga.put("partidosPerdidos", 0);
+
+                        // Añadir al mapa principal
+                        ligaData.put("progresoLiga", progresoLiga);
+
 
                         // Aquí cambiamos la función para obtener jugadores dependiendo del equipo seleccionado
                         fetchPlayersForTeam(equipoName, new FireStoreHelper.PlayersCallback() {
@@ -1376,7 +1407,104 @@ public class FireStoreHelper {
         void onFailure(String errorMessage);
     }
 
+    public void calcularMediaEquipo(String userId, String ligaName, TextView textViewMedia) {
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Map<String, Object> ligas = (Map<String, Object>) documentSnapshot.get(ligaIdHash);
+                if (ligas != null) {
+                    Map<String, Object> alineacion = (Map<String, Object>) ligas.get("alineacion");
+                    List<Map<String, Object>> jugadores = (List<Map<String, Object>>) ligas.get("jugadores");
+
+                    if (alineacion != null && jugadores != null) {
+                        int sumaOveralls = 0;
+
+                        for (Object jugadorNombreObj : alineacion.values()) {
+                            String jugadorNombre = (String) jugadorNombreObj;
+
+                            for (Map<String, Object> jugador : jugadores) {
+                                String nombre = (String) jugador.get("nombre");
+                                if (nombre.equals(jugadorNombre)) {
+                                    Long overall = (Long) jugador.get("overall"); // Firestore devuelve números como Long
+                                    sumaOveralls += overall.intValue();
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Castigo por no alinear los 11 jugadores: se divide siempre entre 11
+                        int media = Math.round((float) sumaOveralls / 11);
+                        textViewMedia.setText("Media: " + media);
+                    } else {
+                        textViewMedia.setText("Media: 0");
+                    }
+                } else {
+                    textViewMedia.setText("Media: 0");
+                }
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("Firestore", "Error al calcular media: " + e.getMessage());
+            textViewMedia.setText("Media: 0");
+        });
+    }
+
+    public void fetchRivalAverageByTeamName(String rivalName, AverageCallback callback) {
+        if (rivalName == null || rivalName.isEmpty()) {
+            callback.onError("Nombre del rival vacío");
+            return;
+        }
+
+        // Mapeo de nombres a funciones Firebase
+        Map<String, String> teamFunctionMap = new HashMap<>();
+        teamFunctionMap.put("Barcelona", "getBarcelonaPlayers");
+        teamFunctionMap.put("Real Madrid", "getMadridPlayers");
+        teamFunctionMap.put("Atlético", "getAtleticoPlayers");
+        teamFunctionMap.put("Atlético de Madrid", "getAtleticoPlayers");
+        teamFunctionMap.put("Liverpool", "getLiverpoolPlayers");
+        teamFunctionMap.put("Chelsea", "getChelseaPlayers");
+        teamFunctionMap.put("Man City", "getManCityPlayers");
+        teamFunctionMap.put("Manchester City", "getManCityPlayers");
+
+        String functionName = teamFunctionMap.get(rivalName);
+
+        if (functionName == null) {
+            callback.onError("No se encontró función para el rival: " + rivalName);
+            return;
+        }
+
+        FirebaseFunctions functions = FirebaseFunctions.getInstance();
+
+        functions.getHttpsCallable(functionName)
+                .call()
+                .addOnSuccessListener(result -> {
+                    if (result.getData() instanceof Map) {
+                        Map<String, Object> responseMap = (Map<String, Object>) result.getData();
+                        if (responseMap.containsKey("averageOverall")) {
+                            double average = ((Number) responseMap.get("averageOverall")).doubleValue();
+                            callback.onAverageLoaded(average);
+                        } else {
+                            callback.onError("No se encontró 'averageOverall'");
+                        }
+                    } else {
+                        callback.onError("Respuesta inválida");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FireStoreHelper", "Error al obtener media del rival: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
+    }
+
+
+
+    public interface AverageCallback {
+        void onAverageLoaded(double average);
+        void onError(String error);
+    }
 
 
 }

@@ -172,7 +172,9 @@ export const getLiverpoolPlayers = functions.https.onRequest(
         precio: 5644000,
       },
     ];
+    const totalOverall = liverpoolPlayers.reduce((acc, player) => acc + player.overall, 0);
+    const averageOverall = totalOverall / liverpoolPlayers.length;
 
-    response.json({data: {players: liverpoolPlayers}});
+    response.json({data: {players: liverpoolPlayers, averageOverall}});
   }
 );

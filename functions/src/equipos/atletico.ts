@@ -113,6 +113,9 @@ export const getAtleticoPlayers = functions.https.onRequest(
       },
     ];
 
-    response.json({data: {players: atleticoPlayers}});
+    const totalOverall = atleticoPlayers.reduce((acc, player) => acc + player.overall, 0);
+    const averageOverall = totalOverall / atleticoPlayers.length;
+
+    response.json({data: {players: atleticoPlayers, averageOverall}});
   }
 );

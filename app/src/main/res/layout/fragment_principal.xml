@@ -1,38 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
     tools:context=".PrincipalFragment">
 
-    <!-- Nombre de la Liga -->
-    <TextView
-        android:id="@+id/leagueNameTextView"
+    <!-- Match-up Display -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="40dp">
+
+        <!-- Home Team -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/text_view_home_team_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tu Equipo"
+                android:textSize="20sp"/>
+            <TextView
+                android:id="@+id/text_view_home_team_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Media: 0"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
+        <!-- VS text -->
+        <TextView
+            android:id="@+id/text_view_vs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VS"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"/>
+
+        <!-- Away Team -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/text_view_away_team_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Equipo Contrario"
+                android:textSize="20sp"/>
+            <TextView
+                android:id="@+id/text_view_away_team_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Media: 0"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_start_match"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="100dp"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        android:text="Iniciar Partido"/>
 
-    <!-- Nombre del Equipo -->
-    <TextView
-        android:id="@+id/teamNameTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="140dp"
-        android:textSize="20sp" />
-
-    <!-- Dinero Inicial -->
-    <TextView
-        android:id="@+id/dineroInicialTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="180dp"
-        android:textSize="18sp" />
-
-
-</FrameLayout>
+</LinearLayout>
