@@ -56,21 +56,33 @@ public class TacticasFragment extends Fragment {
 
     private void openTacticIntensityDialog(String userId, String leagueName, String tacticKey) {
         String[] niveles = {"Muy Baja", "Baja", "Media", "Alta", "Muy Alta"};
-        final int[] seleccion = {2}; // Por defecto "Media" (índice 2 = intensidad 3)
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Selecciona intensidad de " + tacticKey);
-        builder.setSingleChoiceItems(niveles, seleccion[0], (dialog, which) -> {
-            seleccion[0] = which;
+        firestoreHelper.getTactic(userId, leagueName, tacticKey, new FireStoreHelper.FirestoreCallbackWithInt() {
+            @Override
+            public void onSuccess(int currentIntensity) {
+                int checkedIndex = currentIntensity - 1; // intensidad va de 1 a 5, índice de 0 a 4
+
+                final int[] seleccion = {checkedIndex};
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Selecciona intensidad de " + tacticKey);
+                builder.setSingleChoiceItems(niveles, checkedIndex, (dialog, which) -> seleccion[0] = which);
+
+                builder.setPositiveButton("Aceptar", (dialog, which) -> {
+                    int intensidad = seleccion[0] + 1;
+                    firestoreHelper.saveTactic(userId, leagueName, tacticKey, intensidad);
+                    Toast.makeText(getContext(), tacticKey + ": " + niveles[seleccion[0]], Toast.LENGTH_SHORT).show();
+                });
+
+                builder.setNegativeButton("Cancelar", null);
+                builder.show();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(getContext(), "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
         });
-
-        builder.setPositiveButton("Aceptar", (dialog, which) -> {
-            int intensidad = seleccion[0] + 1; // Convertimos índice a 1–5
-            firestoreHelper.saveTacticIntensity(userId, leagueName, tacticKey, intensidad);
-            Toast.makeText(getContext(), tacticKey + ": " + niveles[seleccion[0]], Toast.LENGTH_SHORT).show();
-        });
-
-        builder.setNegativeButton("Cancelar", null);
-        builder.show();
     }
+
 }

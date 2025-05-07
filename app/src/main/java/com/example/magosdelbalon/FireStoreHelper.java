@@ -15,11 +15,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
 
 
 import java.util.ArrayList;
@@ -185,6 +183,13 @@ public class FireStoreHelper {
                         estadio.put("nivel_ciudad_deportiva", 0);
                         estadio.put("nivel_centro_medico", 0);
                         ligaData.put("estadio", estadio);
+                        Map<String, Integer> tacticas = new HashMap<>();
+                        tacticas.put("Agresividad", 3);
+                        tacticas.put("Contraataques", 3);
+                        tacticas.put("Posesión", 3);
+                        tacticas.put("Presión", 3);
+                        ligaData.put("tacticas", tacticas);
+
                         // Aquí cambiamos la función para obtener jugadores dependiendo del equipo seleccionado
                         fetchPlayersForTeam(equipoName, new FireStoreHelper.PlayersCallback() {
                             @Override
@@ -1224,6 +1229,7 @@ public class FireStoreHelper {
                     Object rawLigaData = userData.get(ligaId);
                     if (rawLigaData instanceof Map) {
                         Map<String, Object> ligaData = (Map<String, Object>) rawLigaData;
+
                         long dinero = ((Number) ligaData.get("dinero")).longValue();
 
                         List<Map<String, Object>> jugadores = (List<Map<String, Object>>) ligaData.get("jugadores");
@@ -1249,8 +1255,24 @@ public class FireStoreHelper {
                             return;
                         }
 
+                        // Actualizar lista de jugadores y dinero
                         ligaData.put("jugadores", jugadores);
                         ligaData.put("dinero", dinero);
+
+                        // Eliminar jugador de la alineación si está
+                        if (ligaData.containsKey("alineacion")) {
+                            Map<String, Object> alineacion = (Map<String, Object>) ligaData.get("alineacion");
+                            boolean modificado = false;
+                            for (Map.Entry<String, Object> entry : alineacion.entrySet()) {
+                                if (jugador.getNombre().equals(entry.getValue())) {
+                                    entry.setValue(null); // Borrar posición
+                                    modificado = true;
+                                }
+                            }
+                            if (modificado) {
+                                ligaData.put("alineacion", alineacion); // volver a guardar alineación limpia
+                            }
+                        }
 
                         userRef.update(ligaId, ligaData)
                                 .addOnSuccessListener(aVoid -> callback.onSuccess("Has vendido a " + jugador.getNombre()))
@@ -1308,7 +1330,7 @@ public class FireStoreHelper {
         void onFailure(String errorMessage);
     }
 
-    public void saveTacticIntensity(String userId, String ligaName, String tacticKey, int intensityValue) {
+    public void saveTactic(String userId, String ligaName, String tacticKey, int intensityValue) {
         String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
         DocumentReference userDocRef = db.collection("users").document(userId);
 
@@ -1327,6 +1349,31 @@ public class FireStoreHelper {
         userDocRef.set(update, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Táctica guardada correctamente"))
                 .addOnFailureListener(e -> Log.e("Firestore", "Error al guardar táctica: " + e.getMessage()));
+    }
+    public void getTactic(String userId, String ligaName, String tacticKey, FirestoreCallbackWithInt callback) {
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+
+        db.collection("users").document(userId).get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                Map<String, Object> ligaData = (Map<String, Object>) doc.get(ligaIdHash);
+                if (ligaData != null && ligaData.containsKey("tacticas")) {
+                    Map<String, Object> tacticas = (Map<String, Object>) ligaData.get("tacticas");
+                    Number intensidad = (Number) tacticas.get(tacticKey);
+                    if (intensidad != null) {
+                        callback.onSuccess(intensidad.intValue());
+                        return;
+                    }
+                }
+            }
+            // Si no se encuentra, usar valor por defecto (Media = 3)
+            callback.onSuccess(3);
+        }).addOnFailureListener(e -> callback.onFailure("Error al obtener intensidad: " + e.getMessage()));
+    }
+
+    // Interfaz para el callback
+    public interface FirestoreCallbackWithInt {
+        void onSuccess(int value);
+        void onFailure(String errorMessage);
     }
 
 
