@@ -31,7 +31,7 @@
                 android:id="@+id/text_view_home_team_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Media: 0"
+                android:text="Media: "
                 android:textSize="16sp"/>
         </LinearLayout>
 
@@ -52,20 +52,38 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center">
-            <TextView
-                android:id="@+id/text_view_away_team_name"
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Equipo Contrario"
-                android:textSize="20sp"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/text_view_away_team_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Equipo Contrario"
+                    android:textSize="20sp"/>
+
+                <ImageButton
+                    android:id="@+id/button_show_rival_media"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_search"
+                    android:contentDescription="Mostrar media rival"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/text_view_away_team_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Media: 0"
+                android:text="Media: "
                 android:textSize="16sp"/>
-
         </LinearLayout>
+
     </LinearLayout>
 
     <Button
@@ -73,5 +91,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Iniciar Partido"/>
+
+    <TextView
+        android:id="@+id/text_view_alerta_alineacion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alineación incompleta"
+        android:textColor="#FFA000"
+        android:visibility="gone"
+        android:textStyle="bold"
+        android:drawableStart="@android:drawable/ic_dialog_alert"
+        android:drawablePadding="8dp"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp"/>
+
 
 </LinearLayout>

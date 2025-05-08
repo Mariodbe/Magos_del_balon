@@ -1189,6 +1189,43 @@ public class FireStoreHelper {
                 });
     }
 
+    public void verificarAlineacionCompleta(String userId, String ligaName, AlineacionCallback callback) {
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> ligas = (Map<String, Object>) documentSnapshot.get(ligaIdHash);
+                        if (ligas != null && ligas.containsKey("alineacion")) {
+                            Map<String, Object> alineacion = (Map<String, Object>) ligas.get("alineacion");
+
+                            int jugadoresAsignados = 0;
+                            for (Object value : alineacion.values()) {
+                                if (value != null && !value.toString().isEmpty()) {
+                                    jugadoresAsignados++;
+                                }
+                            }
+
+                            callback.onCheckCompleted(jugadoresAsignados >= 11);
+                        } else {
+                            callback.onCheckCompleted(false);
+                        }
+                    } else {
+                        callback.onCheckCompleted(false);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    callback.onError("Error al verificar alineación: " + e.getMessage());
+                });
+    }
+
+    public interface AlineacionCallback {
+        void onCheckCompleted(boolean alineacionCompleta);
+        void onError(String error);
+    }
 
     public void comprarJugador(String ligaId, Map<String, Object> jugador, final FireStoreCallback callback) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -1499,11 +1536,54 @@ public class FireStoreHelper {
                 });
     }
 
-
-
     public interface AverageCallback {
         void onAverageLoaded(double average);
         void onError(String error);
+    }
+
+    public void descontarMillonPorInspeccion(String ligaId, InspeccionCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onFailure("Usuario no autenticado");
+            return;
+        }
+
+        String userId = user.getUid();
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            try {
+                Map<String, Object> userData = documentSnapshot.getData();
+                if (userData != null && userData.containsKey(ligaId)) {
+                    Object rawLigaData = userData.get(ligaId);
+                    if (rawLigaData instanceof Map) {
+                        Map<String, Object> ligaData = (Map<String, Object>) rawLigaData;
+                        long dinero = ((Number) ligaData.get("dinero")).longValue();
+
+                        if (dinero < 1_000_000) {
+                            callback.onFailure("No tienes suficiente dinero");
+                            return;
+                        }
+
+                        ligaData.put("dinero", dinero - 1_000_000);
+
+                        userRef.update(ligaId, ligaData)
+                                .addOnSuccessListener(aVoid -> callback.onSuccess("Inspección realizada"))
+                                .addOnFailureListener(e -> callback.onFailure("Error al descontar dinero: " + e.getMessage()));
+                    } else {
+                        callback.onFailure("Formato de liga incorrecto");
+                    }
+                } else {
+                    callback.onFailure("Liga no encontrada");
+                }
+            } catch (Exception e) {
+                callback.onFailure("Error procesando datos: " + e.getMessage());
+            }
+        });
+    }
+    public interface InspeccionCallback {
+        void onSuccess(String message);
+        void onFailure(String error);
     }
 
 

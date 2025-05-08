@@ -1,22 +1,22 @@
 package com.example.magosdelbalon;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import org.json.JSONException;
-
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class PrincipalFragment extends Fragment {
@@ -48,10 +48,76 @@ public class PrincipalFragment extends Fragment {
     private void cargarDatosLiga(View rootView, String ligaName) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        SharedPreferences prefs = requireContext().getSharedPreferences("MagosPrefs", Context.MODE_PRIVATE);
+        boolean mediaVisible = prefs.getBoolean("mediaVisible_" + ligaName, false);
+
         TextView mediaTextView = rootView.findViewById(R.id.text_view_home_team_rating);
         TextView teamTextView = rootView.findViewById(R.id.text_view_home_team_name);
         TextView rivalTextView = rootView.findViewById(R.id.text_view_away_team_name);
         TextView rivalMediaTextView = rootView.findViewById(R.id.text_view_away_team_rating);  // TextView para la media del rival
+        TextView alertaAlineacion = rootView.findViewById(R.id.text_view_alerta_alineacion);
+        ImageButton botonLupa = rootView.findViewById(R.id.button_show_rival_media);
+
+        // Si ya se vio la media, ocultamos la lupa y mostramos la media directamente
+        if (mediaVisible) {
+            botonLupa.setVisibility(View.GONE);
+            rivalMediaTextView.setVisibility(View.VISIBLE);
+        } else {
+            botonLupa.setVisibility(View.VISIBLE);
+            rivalMediaTextView.setVisibility(View.GONE);
+        }
+        // Lógica al pulsar la lupa
+        botonLupa.setOnClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Inspeccionar rival")
+                    .setMessage("¿Quieres pagar 1 millón para ver la media del rival?")
+                    .setPositiveButton("Aceptar", (dialog, which) -> {
+                        fireStoreHelper.descontarMillonPorInspeccion(ligaName, new FireStoreHelper.InspeccionCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+                                if (getActivity() instanceof MainActivity) {
+                                    ((MainActivity) getActivity()).refrescarDatosLiga();
+                                }
+                                rivalMediaTextView.setVisibility(View.VISIBLE);
+                                botonLupa.setVisibility(View.GONE);
+                                prefs.edit().putBoolean("mediaVisible_" + ligaName, true).apply();
+                            }
+
+                            @Override
+                            public void onFailure(String error) {
+                                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                                        .setTitle("Error")
+                                        .setMessage(error)
+                                        .setPositiveButton("OK", null)
+                                        .show();
+                            }
+                        });
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        });
+
+
+        Map<String, TextView> textViewsAlineacion = new HashMap<>();
+        fireStoreHelper.cargarAlineacion(userId, ligaName, textViewsAlineacion);
+
+        fireStoreHelper.verificarAlineacionCompleta(userId, ligaName, new FireStoreHelper.AlineacionCallback() {
+            @Override
+            public void onCheckCompleted(boolean alineacionCompleta) {
+                if (!alineacionCompleta) {
+                    alertaAlineacion.setVisibility(View.VISIBLE);
+                } else {
+                    alertaAlineacion.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                alertaAlineacion.setText("Error al cargar alineación");
+                alertaAlineacion.setVisibility(View.VISIBLE);
+                Log.e("PrincipalFragment", error);
+            }
+        });
 
         fireStoreHelper.obtenerDatosLigaPorId(ligaName, new FireStoreHelper.FirestoreCallback1() {
             @Override
