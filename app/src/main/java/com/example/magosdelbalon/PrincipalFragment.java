@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -18,10 +19,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class PrincipalFragment extends Fragment {
 
     private FireStoreHelper fireStoreHelper = new FireStoreHelper();
+    private double mediaEquipo;
+    private double mediaRival;
 
     public PrincipalFragment() {
         // Constructor vacío requerido
@@ -41,6 +45,12 @@ public class PrincipalFragment extends Fragment {
         if (!TextUtils.isEmpty(ligaName)) {
             cargarDatosLiga(rootView, ligaName);
         }
+
+        // Configurar el botón para iniciar el partido
+        Button buttonStartMatch = rootView.findViewById(R.id.button_start_match);
+        buttonStartMatch.setOnClickListener(v -> {
+            simularPartido(mediaEquipo, mediaRival);
+        });
 
         return rootView;
     }
@@ -135,6 +145,10 @@ public class PrincipalFragment extends Fragment {
                 teamTextView.setText("Error al cargar equipo");
             }
         });
+
+
+         mediaEquipo = getMediaFromTextView(mediaTextView);
+         mediaRival = getMediaFromTextView(rivalMediaTextView);
     }
 
 
@@ -212,4 +226,50 @@ public class PrincipalFragment extends Fragment {
             rivalTextView.setText("Progreso no disponible");
         }
     }
+
+    private int getMediaFromTextView(TextView textView) {
+        try {
+            String mediaText = textView.getText().toString().replace("Media: ", "").trim();
+            return Integer.parseInt(mediaText);
+        } catch (NumberFormatException e) {
+            Log.e("PrincipalFragment", "Error al obtener media: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    private void simularPartido(double mediaEquipo, double mediaRival) {
+        // Calcular la probabilidad de victoria
+        double probabilidadVictoria = calcularProbabilidadVictoria(mediaEquipo, mediaRival);
+
+        // Simular el resultado del partido
+        Random random = new Random();
+        double resultado = random.nextDouble(); // Genera un número aleatorio entre 0 y 1
+
+        TextView matchResultTextView = getView().findViewById(R.id.text_view_match_result);
+        if (resultado < probabilidadVictoria) {
+            matchResultTextView.setText("¡Tu equipo ha ganado el partido!");
+            Log.d("PrincipalFragment", "¡Tu equipo ha ganado el partido!");
+        } else {
+            matchResultTextView.setText("Tu equipo ha perdido el partido.");
+            Log.d("PrincipalFragment", "Tu equipo ha perdido el partido.");
+        }
+    }
+
+    private double calcularProbabilidadVictoria(double mediaEquipo, double mediaRival) {
+        // Fórmula simple para calcular la probabilidad de victoria
+        // Puedes ajustar esta fórmula según tus necesidades
+        double diferencia = mediaEquipo - mediaRival;
+        double probabilidadBase = 0.5; // Probabilidad base del 50%
+
+        // Ajustar la probabilidad en función de la diferencia de medias
+        double ajuste = diferencia * 0.05; // Ajuste del 5% por cada punto de diferencia
+        double probabilidadVictoria = probabilidadBase + ajuste;
+
+        // Asegurarse de que la probabilidad esté entre 0 y 1
+        probabilidadVictoria = Math.max(0, Math.min(1, probabilidadVictoria));
+
+        return probabilidadVictoria;
+    }
+
+
 }

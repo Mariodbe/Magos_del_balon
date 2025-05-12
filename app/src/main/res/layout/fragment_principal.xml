@@ -82,6 +82,8 @@
                 android:layout_height="wrap_content"
                 android:text="Media: "
                 android:textSize="16sp"/>
+
+
         </LinearLayout>
 
     </LinearLayout>
@@ -91,6 +93,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Iniciar Partido"/>
+    <TextView
+        android:id="@+id/text_view_match_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="18sp"
+        android:layout_marginTop="16dp"/>
+
 
     <TextView
         android:id="@+id/text_view_alerta_alineacion"
