@@ -7,6 +7,8 @@ import android.widget.Toast;
 import android.widget.ImageView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -1444,9 +1446,8 @@ public class FireStoreHelper {
         void onFailure(String errorMessage);
     }
 
-    public void calcularMediaEquipo(String userId, String ligaName, TextView textViewMedia) {
+    public void calcularMediaEquipo(String userId, String ligaName, MediaCallback callback) {
         String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference userRef = db.collection("users").document(userId);
 
@@ -1466,28 +1467,33 @@ public class FireStoreHelper {
                             for (Map<String, Object> jugador : jugadores) {
                                 String nombre = (String) jugador.get("nombre");
                                 if (nombre.equals(jugadorNombre)) {
-                                    Long overall = (Long) jugador.get("overall"); // Firestore devuelve números como Long
+                                    Long overall = (Long) jugador.get("overall");
                                     sumaOveralls += overall.intValue();
                                     break;
                                 }
                             }
                         }
 
-                        // Castigo por no alinear los 11 jugadores: se divide siempre entre 11
                         int media = Math.round((float) sumaOveralls / 11);
-                        textViewMedia.setText("Media: " + media);
+                        callback.onMediaCalculated(media);
+
                     } else {
-                        textViewMedia.setText("Media: 0");
+                        callback.onMediaCalculated(0);
                     }
                 } else {
-                    textViewMedia.setText("Media: 0");
+                    callback.onMediaCalculated(0);
                 }
             }
         }).addOnFailureListener(e -> {
-            Log.e("Firestore", "Error al calcular media: " + e.getMessage());
-            textViewMedia.setText("Media: 0");
+            callback.onError(e.getMessage());
         });
     }
+    public interface MediaCallback {
+        void onMediaCalculated(int media);
+        void onError(String error);
+    }
+
+
 
     public void fetchRivalAverageByTeamName(String rivalName, AverageCallback callback) {
         if (rivalName == null || rivalName.isEmpty()) {
@@ -1535,6 +1541,7 @@ public class FireStoreHelper {
                     callback.onError(e.getMessage());
                 });
     }
+
 
     public interface AverageCallback {
         void onAverageLoaded(double average);
@@ -1585,6 +1592,51 @@ public class FireStoreHelper {
         void onSuccess(String message);
         void onFailure(String error);
     }
+
+    public interface EstadioCallback {
+        void onEstadioDataLoaded(int nivelCentroMedico, int nivelCiudadDeportiva, int nivelEstadio);
+        void onError(String error);
+    }
+
+    public void getEstadioData(String userId, String ligaName, EstadioCallback callback) {
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                DocumentSnapshot document = task.getResult();
+
+                if (document.exists()) {
+                    String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+                    Map<String, Object> ligaData = (Map<String, Object>) document.get(ligaIdHash);
+
+                    if (ligaData != null && ligaData.containsKey("estadio")) {
+                        Map<String, Object> estadio = (Map<String, Object>) ligaData.get("estadio");
+
+                        int nivelCentroMedico = estadio.containsKey("nivel_centro_medico")
+                                ? ((Long) estadio.get("nivel_centro_medico")).intValue() : 0;
+
+                        int nivelCiudadDeportiva = estadio.containsKey("nivel_ciudad_deportiva")
+                                ? ((Long) estadio.get("nivel_ciudad_deportiva")).intValue() : 0;
+
+                        int nivelEstadio = estadio.containsKey("nivel_estadio")
+                                ? ((Long) estadio.get("nivel_estadio")).intValue() : 0;
+
+                        callback.onEstadioDataLoaded(nivelCentroMedico, nivelCiudadDeportiva, nivelEstadio);
+                    } else {
+                        callback.onError("El campo 'estadio' no existe en la liga especificada.");
+                    }
+                } else {
+                    callback.onError("Documento del usuario no encontrado.");
+                }
+            } else {
+                callback.onError("Error al obtener el documento: " + task.getException());
+            }
+        });
+    }
+
+
+
+
 
 
 }

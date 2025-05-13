@@ -26,6 +26,9 @@ public class PrincipalFragment extends Fragment {
     private FireStoreHelper fireStoreHelper = new FireStoreHelper();
     private double mediaEquipo;
     private double mediaRival;
+    private int nivelCentroMedico;
+    private int nivelCiudadDeportiva;
+    private int nivelEstadio;
 
     public PrincipalFragment() {
         // Constructor vacío requerido
@@ -64,7 +67,7 @@ public class PrincipalFragment extends Fragment {
         TextView mediaTextView = rootView.findViewById(R.id.text_view_home_team_rating);
         TextView teamTextView = rootView.findViewById(R.id.text_view_home_team_name);
         TextView rivalTextView = rootView.findViewById(R.id.text_view_away_team_name);
-        TextView rivalMediaTextView = rootView.findViewById(R.id.text_view_away_team_rating);  // TextView para la media del rival
+        TextView rivalMediaTextView = rootView.findViewById(R.id.text_view_away_team_rating);
         TextView alertaAlineacion = rootView.findViewById(R.id.text_view_alerta_alineacion);
         ImageButton botonLupa = rootView.findViewById(R.id.button_show_rival_media);
 
@@ -76,6 +79,7 @@ public class PrincipalFragment extends Fragment {
             botonLupa.setVisibility(View.VISIBLE);
             rivalMediaTextView.setVisibility(View.GONE);
         }
+
         // Lógica al pulsar la lupa
         botonLupa.setOnClickListener(v -> {
             new androidx.appcompat.app.AlertDialog.Builder(requireContext())
@@ -106,7 +110,6 @@ public class PrincipalFragment extends Fragment {
                     .setNegativeButton("Cancelar", null)
                     .show();
         });
-
 
         Map<String, TextView> textViewsAlineacion = new HashMap<>();
         fireStoreHelper.cargarAlineacion(userId, ligaName, textViewsAlineacion);
@@ -146,10 +149,28 @@ public class PrincipalFragment extends Fragment {
             }
         });
 
+        // Llamar al método para obtener los niveles del estadio
+        // Llamar al método para obtener los niveles del estadio
+        fireStoreHelper.getEstadioData(userId, ligaName, new FireStoreHelper.EstadioCallback() {
+            @Override
+            public void onEstadioDataLoaded(int centroMedico, int ciudadDeportiva, int estadio) {
+                nivelCentroMedico = centroMedico;
+                nivelCiudadDeportiva = ciudadDeportiva;
+                nivelEstadio = estadio;
 
-         mediaEquipo = getMediaFromTextView(mediaTextView);
-         mediaRival = getMediaFromTextView(rivalMediaTextView);
+                Log.d("PrincipalFragment", "Centro Médico: " + nivelCentroMedico);
+                Log.d("PrincipalFragment", "Ciudad Deportiva: " + nivelCiudadDeportiva);
+                Log.d("PrincipalFragment", "Estadio: " + nivelEstadio);
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("PrincipalFragment", "Error al obtener datos del estadio: " + error);
+            }
+        });
+
     }
+
 
 
     private void actualizarEquipo(Map<String, Object> ligaData, TextView teamTextView) {
@@ -174,31 +195,50 @@ public class PrincipalFragment extends Fragment {
                     fireStoreHelper.fetchRivalAverageByTeamName(proximoRival, new FireStoreHelper.AverageCallback() {
                         @Override
                         public void onAverageLoaded(double average) {
+                            if (Double.isNaN(average) || Double.isInfinite(average)) {
+                                Log.e("PrincipalFragment", "El valor de la media no es válido: " + average);
+                                average = 0; // o algún valor por defecto que tenga sentido en tu contexto
+                            }
                             rivalMediaTextView.setText("Media: " + Math.round(average));
+                            mediaRival = getMediaFromTextView(rivalMediaTextView);
                         }
 
                         @Override
                         public void onError(String error) {
-                            rivalMediaTextView.setText("Error");
                             Log.e("PrincipalFragment", "Error obteniendo media rival: " + error);
+                            rivalMediaTextView.setText("Media: 0"); // Establecer un valor predeterminado en caso de error
                         }
                     });
 
-
                 } else {
-                    rivalMediaTextView.setText("No quedan rivales");
+                    rivalMediaTextView.setText("Media: 0"); // Establecer un valor predeterminado si no hay rivales pendientes
                 }
             } else {
-                rivalMediaTextView.setText("Sin rivales pendientes");
+                rivalMediaTextView.setText("Media: 0"); // Establecer un valor predeterminado si no hay rivales pendientes
             }
         } else {
-            rivalMediaTextView.setText("Progreso no disponible");
+            rivalMediaTextView.setText("Media: 0"); // Establecer un valor predeterminado si el progreso de la liga no está disponible
         }
     }
 
+
     private void calcularMediaEquipo(String userId, String ligaName, TextView mediaTextView) {
-        fireStoreHelper.calcularMediaEquipo(userId, ligaName, mediaTextView);
+        fireStoreHelper.calcularMediaEquipo(userId, ligaName, new FireStoreHelper.MediaCallback() {
+            @Override
+            public void onMediaCalculated(int media) {
+                mediaTextView.setText("Media: " + media);
+                mediaEquipo = media;  // Actualizamos la variable `mediaEquipo` solo después de que se establece el texto
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("PrincipalFragment", "Error al calcular media del equipo: " + error);
+                mediaTextView.setText("Media: 0");
+                mediaEquipo = 0;
+            }
+        });
     }
+
 
     private void actualizarRivalPendiente(Map<String, Object> ligaData, TextView rivalTextView) {
         if (ligaData.containsKey("progresoLiga")) {
@@ -229,47 +269,91 @@ public class PrincipalFragment extends Fragment {
 
     private int getMediaFromTextView(TextView textView) {
         try {
-            String mediaText = textView.getText().toString().replace("Media: ", "").trim();
-            return Integer.parseInt(mediaText);
+            String mediaText = textView.getText().toString().trim();
+            if (mediaText.isEmpty() || !mediaText.startsWith("Media: ")) {
+                Log.e("PrincipalFragment", "El texto de la media no está en el formato esperado: " + mediaText);
+                return 0; // o algún valor por defecto que tenga sentido en tu contexto
+            }
+            String mediaValue = mediaText.substring("Media: ".length()).trim();
+            if (mediaValue.isEmpty()) {
+                Log.e("PrincipalFragment", "El valor de la media está vacío.");
+                return 0; // o algún valor por defecto que tenga sentido en tu contexto
+            }
+            return Integer.parseInt(mediaValue);
         } catch (NumberFormatException e) {
             Log.e("PrincipalFragment", "Error al obtener media: " + e.getMessage());
-            return 0;
+            return 0; // o algún valor por defecto que tenga sentido en tu contexto
         }
+
+
     }
+
+
+
 
     private void simularPartido(double mediaEquipo, double mediaRival) {
         // Calcular la probabilidad de victoria
         double probabilidadVictoria = calcularProbabilidadVictoria(mediaEquipo, mediaRival);
 
+        // Convertir a porcentaje y redondear
+        int porcentajeVictoria = (int) Math.round(probabilidadVictoria * 100);
+
         // Simular el resultado del partido
         Random random = new Random();
         double resultado = random.nextDouble(); // Genera un número aleatorio entre 0 y 1
 
+        // Aquí deberías tener una referencia a tu TextView y contexto adecuado
         TextView matchResultTextView = getView().findViewById(R.id.text_view_match_result);
+
         if (resultado < probabilidadVictoria) {
-            matchResultTextView.setText("¡Tu equipo ha ganado el partido!");
-            Log.d("PrincipalFragment", "¡Tu equipo ha ganado el partido!");
+             matchResultTextView.setText("¡Has ganado el partido! Porcentaje de victoria: " + porcentajeVictoria + "%");
+            System.out.println("¡Has ganado el partido! Porcentaje de victoria: " + porcentajeVictoria + "%");
         } else {
-            matchResultTextView.setText("Tu equipo ha perdido el partido.");
-            Log.d("PrincipalFragment", "Tu equipo ha perdido el partido.");
+             matchResultTextView.setText("Has perdido el partido. Porcentaje de victoria: " + porcentajeVictoria + "%");
+            System.out.println("Has perdido el partido. Porcentaje de victoria: " + porcentajeVictoria + "%");
         }
     }
 
     private double calcularProbabilidadVictoria(double mediaEquipo, double mediaRival) {
-        // Fórmula simple para calcular la probabilidad de victoria
-        // Puedes ajustar esta fórmula según tus necesidades
-        double diferencia = mediaEquipo - mediaRival;
-        double probabilidadBase = 0.5; // Probabilidad base del 50%
+        double probabilidadBase = 0.5; // 50% base
 
-        // Ajustar la probabilidad en función de la diferencia de medias
-        double ajuste = diferencia * 0.05; // Ajuste del 5% por cada punto de diferencia
-        double probabilidadVictoria = probabilidadBase + ajuste;
+        // Generar niveles aleatorios para el rival (1 a 10)
+        Random random = new Random();
+        int nivelCentroMedicoRival = random.nextInt(10) + 1;
+        int nivelCiudadDeportivaRival = random.nextInt(10) + 1;
+        int nivelEstadioRival = random.nextInt(10) + 1;
 
-        // Asegurarse de que la probabilidad esté entre 0 y 1
-        probabilidadVictoria = Math.max(0, Math.min(1, probabilidadVictoria));
+        Log.d("PrincipalFragment", "Niveles rival - Centro Médico: " + nivelCentroMedicoRival +
+                ", Ciudad Deportiva: " + nivelCiudadDeportivaRival +
+                ", Estadio: " + nivelEstadioRival);
+
+        Log.d("PrincipalFragment", "Media equipo: " + mediaEquipo);
+        Log.d("PrincipalFragment", "Media rival: " + mediaRival);
+
+        // Ajuste por media
+        double diferenciaMedia = mediaEquipo - mediaRival;
+        double ajusteMedia = diferenciaMedia * 0.02; // 2% por punto de diferencia
+
+        // Suma de niveles del usuario y del rival
+        int totalNivelesUsuario = nivelCentroMedico + nivelCiudadDeportiva + nivelEstadio;
+        int totalNivelesRival = nivelCentroMedicoRival + nivelCiudadDeportivaRival + nivelEstadioRival;
+
+        Log.d("PrincipalFragment", "Niveles usuario - Total: " + totalNivelesUsuario +
+                ", Niveles rival - Total: " + totalNivelesRival);
+
+        // Ajuste por instalaciones
+        int diferenciaNiveles = totalNivelesUsuario - totalNivelesRival;
+        double ajusteInstalaciones = diferenciaNiveles * 0.01; // 1% por punto de diferencia
+
+        // Sumar los ajustes
+        double probabilidadVictoria = probabilidadBase + ajusteMedia + ajusteInstalaciones;
+
+        // Limitar la probabilidad entre 10% y 90%
+        probabilidadVictoria = Math.max(0.1, Math.min(0.9, probabilidadVictoria));
+
+        Log.d("PrincipalFragment", "Probabilidad de victoria calculada: " + (probabilidadVictoria * 100) + "%");
 
         return probabilidadVictoria;
     }
-
 
 }
