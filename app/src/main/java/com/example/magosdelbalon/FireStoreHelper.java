@@ -1634,7 +1634,50 @@ public class FireStoreHelper {
         });
     }
 
+    public void getTacticaData(String userId, String ligaName, TacticasCallback callback){
+        DocumentReference userRef = db.collection("users").document(userId);
 
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                DocumentSnapshot document = task.getResult();
+
+                if (document.exists()) {
+                    String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+                    Map<String, Object> ligaData = (Map<String, Object>) document.get(ligaIdHash);
+
+                    if (ligaData != null && ligaData.containsKey("tacticas")) {
+                        Map<String, Object> estadio = (Map<String, Object>) ligaData.get("tacticas");
+
+                        int agresividad = estadio.containsKey("Agresividad")
+                                ? ((Long) estadio.get("Agresividad")).intValue() : 0;
+
+                        int contraataques = estadio.containsKey("Contraataques")
+                                ? ((Long) estadio.get("Contraataques")).intValue() : 0;
+
+                        int posesion = estadio.containsKey("Posesión")
+                                ? ((Long) estadio.get("Posesión")).intValue() : 0;
+
+                        int presion = estadio.containsKey("Presión")
+                                ? ((Long) estadio.get("Presión")).intValue() : 0;
+
+                       callback.onTacticasDataLoaded(agresividad, contraataques, posesion,presion);
+                    } else {
+                        callback.onError("El campo 'estadio' no existe en la liga especificada.");
+                    }
+                } else {
+                    callback.onError("Documento del usuario no encontrado.");
+                }
+            } else {
+                callback.onError("Error al obtener el documento: " + task.getException());
+            }
+        });
+
+    }
+
+    public interface TacticasCallback {
+        void onTacticasDataLoaded(int agresividad, int contraataques, int posesion,int presion);
+        void onError(String error);
+    }
 
 
 

@@ -29,6 +29,10 @@ public class PrincipalFragment extends Fragment {
     private int nivelCentroMedico;
     private int nivelCiudadDeportiva;
     private int nivelEstadio;
+    private int intensidadAgresividad;
+    private int intensidadContraataques;
+    private int intensidadPosesion;
+    private int intensidadPresion;
 
     public PrincipalFragment() {
         // Constructor vacío requerido
@@ -169,6 +173,28 @@ public class PrincipalFragment extends Fragment {
             }
         });
 
+
+        fireStoreHelper.getTacticaData(userId, ligaName, new FireStoreHelper.TacticasCallback() {
+            @Override
+            public void onTacticasDataLoaded(int agresividad, int contraataques, int posesion, int presion) {
+                intensidadAgresividad=agresividad;
+                intensidadContraataques=contraataques;
+                intensidadPosesion=posesion;
+                intensidadPresion=presion;
+
+
+                Log.d("PrincipalFragment", "agresividad: " + intensidadAgresividad);
+                Log.d("PrincipalFragment", "contraataques: " + intensidadContraataques);
+                Log.d("PrincipalFragment", "posesion: " + intensidadPosesion);
+                Log.d("PrincipalFragment", "presion: " + intensidadPresion);
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("PrincipalFragment", "Error al obtener datos de las tacticas: " + error);
+            }
+        });
+
     }
 
 
@@ -293,13 +319,14 @@ public class PrincipalFragment extends Fragment {
 
     private void simularPartido(double mediaEquipo, double mediaRival) {
         // Calcular la probabilidad de victoria
-        double probabilidadVictoria = calcularProbabilidadVictoria(mediaEquipo, mediaRival);
+        Random random = new Random();
+        int arbitro = random.nextInt(5) + 1;
+        double probabilidadVictoria = calcularProbabilidadVictoria(mediaEquipo, mediaRival,arbitro);
 
         // Convertir a porcentaje y redondear
         int porcentajeVictoria = (int) Math.round(probabilidadVictoria * 100);
 
         // Simular el resultado del partido
-        Random random = new Random();
         double resultado = random.nextDouble(); // Genera un número aleatorio entre 0 y 1
 
         // Aquí deberías tener una referencia a tu TextView y contexto adecuado
@@ -314,7 +341,7 @@ public class PrincipalFragment extends Fragment {
         }
     }
 
-    private double calcularProbabilidadVictoria(double mediaEquipo, double mediaRival) {
+    private double calcularProbabilidadVictoria(double mediaEquipo, double mediaRival, int arbitroPermisividad) {
         double probabilidadBase = 0.5; // 50% base
 
         // Generar niveles aleatorios para el rival (1 a 10)
@@ -345,8 +372,29 @@ public class PrincipalFragment extends Fragment {
         int diferenciaNiveles = totalNivelesUsuario - totalNivelesRival;
         double ajusteInstalaciones = diferenciaNiveles * 0.01; // 1% por punto de diferencia
 
+        // Ajuste por arbitraje
+        // Ajuste por arbitraje
+        double ajusteArbitraje = 0;
+        if (arbitroPermisividad < 3) {
+            ajusteArbitraje -= (intensidadAgresividad - 3) * 0.04;
+            ajusteArbitraje += (intensidadContraataques - 3) * 0.02;
+            ajusteArbitraje += (intensidadPresion - 3) * 0.03;
+            ajusteArbitraje -= (intensidadPosesion - 3) * 0.02;
+        } else if (arbitroPermisividad == 3) {
+            ajusteArbitraje += (intensidadContraataques - 3) * 0.02;
+            ajusteArbitraje += (intensidadPresion - 3) * 0.03;
+        } else {
+            ajusteArbitraje += (intensidadAgresividad - 3) * 0.04;
+            ajusteArbitraje += (intensidadContraataques - 3) * 0.02;
+            ajusteArbitraje += (intensidadPresion - 3) * 0.03;
+            ajusteArbitraje += (intensidadPosesion - 3) * 0.02;
+        }
+
+        Log.d("PrincipalFragment", "Arbitro: " + arbitroPermisividad);
+        Log.d("PrincipalFragment", "Ajuste por arbitraje: " + ajusteArbitraje);
+
         // Sumar los ajustes
-        double probabilidadVictoria = probabilidadBase + ajusteMedia + ajusteInstalaciones;
+        double probabilidadVictoria = probabilidadBase + ajusteMedia + ajusteInstalaciones + ajusteArbitraje;
 
         // Limitar la probabilidad entre 10% y 90%
         probabilidadVictoria = Math.max(0.1, Math.min(0.9, probabilidadVictoria));
@@ -355,5 +403,6 @@ public class PrincipalFragment extends Fragment {
 
         return probabilidadVictoria;
     }
+
 
 }
