@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Estado normal -->
-    <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="8dp"/>
-            <solid android:color="#4CAF50"/>
-            <stroke android:width="1dp" android:color="#388E3C"/>
-        </shape>
-    </item>
-    
+
     <!-- Estado presionado -->
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <corners android:radius="8dp"/>
-            <solid android:color="#388E3C"/>
-            <stroke android:width="1dp" android:color="#2E7D32"/>
+            <solid android:color="#66000000" /> <!-- negro con más opacidad -->
+            <corners android:radius="12dp" />
+            <stroke
+                android:width="2dp"
+                android:color="#FFFFFFFF" /> <!-- borde blanco al presionar -->
         </shape>
     </item>
-</selector> 
+
+    <!-- Estado normal -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#33000000" /> <!-- negro con baja opacidad -->
+            <corners android:radius="12dp" />
+            <stroke
+                android:width="2dp"
+                android:color="#AAFFFFFF" /> <!-- borde blanco translúcido -->
+        </shape>
+    </item>
+
+</selector>
