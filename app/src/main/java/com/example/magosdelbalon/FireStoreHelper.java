@@ -203,10 +203,10 @@ public class FireStoreHelper {
                         }
 
                         // Crear lista de rivales pendientes quitando el equipo elegido (comparando *directamente*)
-                        List<String> pendientesJugar = new ArrayList<>();
+                        HashMap<String, Integer> pendientesJugar = new HashMap<>();
                         for (String equipo : todosLosEquipos) {
                             if (!equipo.equalsIgnoreCase(equipoName.trim())) {
-                                pendientesJugar.add(equipo);
+                                pendientesJugar.put(equipo,2);
                             }
                         }
 
@@ -1677,6 +1677,47 @@ public class FireStoreHelper {
     public interface TacticasCallback {
         void onTacticasDataLoaded(int agresividad, int contraataques, int posesion,int presion);
         void onError(String error);
+    }
+
+
+    public void actualizarProgresoLiga(String ligaName, Map<String, Object> nuevosDatos, FirestoreUpdateCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Map<String, Object> userData = documentSnapshot.getData();
+
+                if (userData != null && userData.containsKey(ligaIdHash)) {
+                    Map<String, Object> ligaData = (Map<String, Object>) userData.get(ligaIdHash);
+
+                    if (ligaData != null) {
+                        Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+                        if (progresoLiga == null) progresoLiga = new HashMap<>();
+
+                        progresoLiga.putAll(nuevosDatos); // Actualiza solo lo que llega
+                        ligaData.put("progresoLiga", progresoLiga);
+                        userData.put(ligaIdHash, ligaData);
+
+                        userRef.set(userData, SetOptions.merge())
+                                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                                .addOnFailureListener(e -> callback.onFailure("Error al actualizar progresoLiga: " + e.getMessage()));
+                    } else {
+                        callback.onFailure("Datos de liga no encontrados.");
+                    }
+                } else {
+                    callback.onFailure("Liga no encontrada para el usuario.");
+                }
+            } else {
+                callback.onFailure("Usuario no encontrado.");
+            }
+        }).addOnFailureListener(e -> callback.onFailure("Error al acceder a Firestore: " + e.getMessage()));
+    }
+    public interface FirestoreUpdateCallback {
+        void onSuccess();
+        void onFailure(String errorMessage);
     }
 
 

@@ -13,9 +13,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +52,18 @@ public class PrincipalFragment extends Fragment {
         String ligaName = getArguments() != null ? getArguments().getString("leagueName") : null;
         Log.d("PrincipalFragment", "Liga recibida en fragment: " + ligaName);
 
+        SharedPreferences prefs = requireContext().getSharedPreferences("MagosPrefs", Context.MODE_PRIVATE);
+        String claveArbitro = "arbitroPermisividad_" + ligaName;
+        int permisividadArbitro = prefs.getInt(claveArbitro, -1);
+
+        // Si no hay valor guardado, generamos uno y lo guardamos
+        if (permisividadArbitro == -1) {
+            permisividadArbitro = new Random().nextInt(5) + 1;
+            prefs.edit().putInt(claveArbitro, permisividadArbitro).apply();
+        }
+        TextView textViewPermisividad = rootView.findViewById(R.id.text_view_arbitro_permisividad);
+        textViewPermisividad.setText("Permisividad árbitro: " + permisividadArbitro);
+
         if (!TextUtils.isEmpty(ligaName)) {
             cargarDatosLiga(rootView, ligaName);
         }
@@ -74,6 +89,7 @@ public class PrincipalFragment extends Fragment {
         TextView rivalMediaTextView = rootView.findViewById(R.id.text_view_away_team_rating);
         TextView alertaAlineacion = rootView.findViewById(R.id.text_view_alerta_alineacion);
         ImageButton botonLupa = rootView.findViewById(R.id.button_show_rival_media);
+
 
         // Si ya se vio la media, ocultamos la lupa y mostramos la media directamente
         if (mediaVisible) {
@@ -212,40 +228,45 @@ public class PrincipalFragment extends Fragment {
             Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
 
             if (progresoLiga.containsKey("pendientesJugar")) {
-                List<String> pendientes = (List<String>) progresoLiga.get("pendientesJugar");
+                Object pendientesObj = progresoLiga.get("pendientesJugar");
+                if (pendientesObj instanceof Map) {
+                    Map<String, Object> pendientesMap = (Map<String, Object>) pendientesObj;
 
-                if (!pendientes.isEmpty()) {
-                    String proximoRival = pendientes.get(0);
+                    if (!pendientesMap.isEmpty()) {
+                        String proximoRival = pendientesMap.keySet().iterator().next();
 
-                    // Construye el nombre de la función a partir del rival (opcional, si usas nombres dinámicos)
-                    fireStoreHelper.fetchRivalAverageByTeamName(proximoRival, new FireStoreHelper.AverageCallback() {
-                        @Override
-                        public void onAverageLoaded(double average) {
-                            if (Double.isNaN(average) || Double.isInfinite(average)) {
-                                Log.e("PrincipalFragment", "El valor de la media no es válido: " + average);
-                                average = 0; // o algún valor por defecto que tenga sentido en tu contexto
+                        fireStoreHelper.fetchRivalAverageByTeamName(proximoRival, new FireStoreHelper.AverageCallback() {
+                            @Override
+                            public void onAverageLoaded(double average) {
+                                if (Double.isNaN(average) || Double.isInfinite(average)) {
+                                    Log.e("PrincipalFragment", "El valor de la media no es válido: " + average);
+                                    average = 0;
+                                }
+                                rivalMediaTextView.setText("Media: " + Math.round(average));
+                                mediaRival = getMediaFromTextView(rivalMediaTextView);
                             }
-                            rivalMediaTextView.setText("Media: " + Math.round(average));
-                            mediaRival = getMediaFromTextView(rivalMediaTextView);
-                        }
 
-                        @Override
-                        public void onError(String error) {
-                            Log.e("PrincipalFragment", "Error obteniendo media rival: " + error);
-                            rivalMediaTextView.setText("Media: 0"); // Establecer un valor predeterminado en caso de error
-                        }
-                    });
-
+                            @Override
+                            public void onError(String error) {
+                                Log.e("PrincipalFragment", "Error obteniendo media rival: " + error);
+                                rivalMediaTextView.setText("Media: 0");
+                            }
+                        });
+                    } else {
+                        rivalMediaTextView.setText("Media: 0");
+                    }
                 } else {
-                    rivalMediaTextView.setText("Media: 0"); // Establecer un valor predeterminado si no hay rivales pendientes
+                    rivalMediaTextView.setText("Media: 0");
+                    Log.e("PrincipalFragment", "pendientesJugar no es un Map");
                 }
             } else {
-                rivalMediaTextView.setText("Media: 0"); // Establecer un valor predeterminado si no hay rivales pendientes
+                rivalMediaTextView.setText("Media: 0");
             }
         } else {
-            rivalMediaTextView.setText("Media: 0"); // Establecer un valor predeterminado si el progreso de la liga no está disponible
+            rivalMediaTextView.setText("Media: 0");
         }
     }
+
 
 
     private void calcularMediaEquipo(String userId, String ligaName, TextView mediaTextView) {
@@ -269,17 +290,33 @@ public class PrincipalFragment extends Fragment {
     private void actualizarRivalPendiente(Map<String, Object> ligaData, TextView rivalTextView) {
         if (ligaData.containsKey("progresoLiga")) {
             Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+
             if (progresoLiga.containsKey("pendientesJugar")) {
                 try {
                     Object pendientesObj = progresoLiga.get("pendientesJugar");
-                    if (pendientesObj instanceof java.util.List) {
-                        java.util.List<String> pendientes = (java.util.List<String>) pendientesObj;
-                        if (!pendientes.isEmpty()) {
-                            String proximoRival = pendientes.get(0);  // Primer equipo pendiente
+                    if (pendientesObj instanceof Map) {
+                        Map<String, Object> pendientesMapRaw = (Map<String, Object>) pendientesObj;
+                        Map<String, Integer> pendientesMap = new HashMap<>();
+
+                        // Convertir los valores a Integer
+                        for (Map.Entry<String, Object> entry : pendientesMapRaw.entrySet()) {
+                            try {
+                                pendientesMap.put(entry.getKey(), ((Number) entry.getValue()).intValue());
+                            } catch (Exception e) {
+                                Log.e("PrincipalFragment", "Valor inválido para rival: " + entry.getKey());
+                            }
+                        }
+
+                        if (!pendientesMap.isEmpty()) {
+                            // Obtener el rival con el valor más alto
+                            String proximoRival = Collections.max(pendientesMap.entrySet(), Map.Entry.comparingByValue()).getKey();
                             rivalTextView.setText(proximoRival);
                         } else {
                             rivalTextView.setText("No quedan rivales");
                         }
+                    } else {
+                        rivalTextView.setText("Formato incorrecto de pendientes");
+                        Log.e("PrincipalFragment", "pendientesJugar no es un Map");
                     }
                 } catch (Exception e) {
                     Log.e("PrincipalFragment", "Error al obtener rival: " + e.getMessage());
@@ -292,6 +329,8 @@ public class PrincipalFragment extends Fragment {
             rivalTextView.setText("Progreso no disponible");
         }
     }
+
+
 
     private int getMediaFromTextView(TextView textView) {
         try {
@@ -318,28 +357,99 @@ public class PrincipalFragment extends Fragment {
 
 
     private void simularPartido(double mediaEquipo, double mediaRival) {
-        // Calcular la probabilidad de victoria
-        Random random = new Random();
-        int arbitro = random.nextInt(5) + 1;
-        double probabilidadVictoria = calcularProbabilidadVictoria(mediaEquipo, mediaRival,arbitro);
+        SharedPreferences prefs = requireContext().getSharedPreferences("MagosPrefs", Context.MODE_PRIVATE);
 
-        // Convertir a porcentaje y redondear
+        // Obtener liga actual
+        String ligaName = getArguments() != null ? getArguments().getString("leagueName") : null;
+        if (TextUtils.isEmpty(ligaName)) return;
+
+        String claveArbitro = "arbitroPermisividad_" + ligaName;
+        int arbitro = prefs.getInt(claveArbitro, 3); // valor por defecto si falla
+
+        double probabilidadVictoria = calcularProbabilidadVictoria(mediaEquipo, mediaRival, arbitro);
         int porcentajeVictoria = (int) Math.round(probabilidadVictoria * 100);
+        double resultado = new Random().nextDouble();
 
-        // Simular el resultado del partido
-        double resultado = random.nextDouble(); // Genera un número aleatorio entre 0 y 1
-
-        // Aquí deberías tener una referencia a tu TextView y contexto adecuado
-        TextView matchResultTextView = getView().findViewById(R.id.text_view_match_result);
-
+        String mensajeResultado;
         if (resultado < probabilidadVictoria) {
-             matchResultTextView.setText("¡Has ganado el partido! Porcentaje de victoria: " + porcentajeVictoria + "%");
-            System.out.println("¡Has ganado el partido! Porcentaje de victoria: " + porcentajeVictoria + "%");
+            mensajeResultado = "¡Has ganado el partido!\nPorcentaje de victoria: " + porcentajeVictoria + "%";
         } else {
-             matchResultTextView.setText("Has perdido el partido. Porcentaje de victoria: " + porcentajeVictoria + "%");
-            System.out.println("Has perdido el partido. Porcentaje de victoria: " + porcentajeVictoria + "%");
+            mensajeResultado = "Has perdido el partido.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
         }
+
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Resultado del Partido")
+                .setMessage(mensajeResultado)
+                .setPositiveButton("Aceptar", (dialog, which) -> {
+                    FragmentManager fragmentManager = getParentFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                    PrincipalFragment nuevoFragment = new PrincipalFragment();
+                    nuevoFragment.setArguments(getArguments()); // para mantener parámetros que tengas
+
+                    transaction.replace(R.id.fragment_container, nuevoFragment);
+                    transaction.commit();
+                })
+                .show();
+
+        // Restar 1 partido pendiente al rival actual
+        fireStoreHelper.obtenerDatosLigaPorId(ligaName, new FireStoreHelper.FirestoreCallback1() {
+            @Override
+            public void onSuccess(Map<String, Object> ligaData) {
+                if (ligaData.containsKey("progresoLiga")) {
+                    Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+                    if (progresoLiga.containsKey("pendientesJugar")) {
+                        Map<String, Object> pendientesMapRaw = (Map<String, Object>) progresoLiga.get("pendientesJugar");
+                        Map<String, Integer> pendientesMap = new HashMap<>();
+                        for (Map.Entry<String, Object> entry : pendientesMapRaw.entrySet()) {
+                            try {
+                                pendientesMap.put(entry.getKey(), ((Number) entry.getValue()).intValue());
+                            } catch (Exception e) {
+                                Log.e("PrincipalFragment", "Valor inválido para partido pendiente: " + entry.getKey());
+                            }
+                        }
+
+                        if (!pendientesMap.isEmpty()) {
+                            // Rival actual es el que más valor tenga (último de la jornada)
+                            String rivalActual = Collections.max(pendientesMap.entrySet(), Map.Entry.comparingByValue()).getKey();
+                            int partidosRestantes = pendientesMap.getOrDefault(rivalActual, 0);
+
+                            if (partidosRestantes > 0) {
+                                pendientesMap.put(rivalActual, partidosRestantes - 1);
+                            }
+
+                            // Subir cambios a Firestore
+                            Map<String, Object> nuevosDatos = new HashMap<>();
+                            nuevosDatos.put("pendientesJugar", pendientesMap);
+                            fireStoreHelper.actualizarProgresoLiga(ligaName, nuevosDatos, new FireStoreHelper.FirestoreUpdateCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    Log.d("PrincipalFragment", "Partido pendiente actualizado correctamente.");
+
+                                }
+
+                                @Override
+                                public void onFailure(String errorMessage) {
+                                    Log.e("PrincipalFragment", "Error al actualizar partidos pendientes: " + errorMessage);
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e("PrincipalFragment", "Error al obtener datos para restar partido pendiente: " + errorMessage);
+            }
+        });
+
+        // Generar nuevo árbitro y guardar
+        int nuevoArbitro = new Random().nextInt(5) + 1;
+        prefs.edit().putInt(claveArbitro, nuevoArbitro).apply();
+
     }
+
 
     private double calcularProbabilidadVictoria(double mediaEquipo, double mediaRival, int arbitroPermisividad) {
         double probabilidadBase = 0.5; // 50% base
@@ -372,7 +482,6 @@ public class PrincipalFragment extends Fragment {
         int diferenciaNiveles = totalNivelesUsuario - totalNivelesRival;
         double ajusteInstalaciones = diferenciaNiveles * 0.01; // 1% por punto de diferencia
 
-        // Ajuste por arbitraje
         // Ajuste por arbitraje
         double ajusteArbitraje = 0;
         if (arbitroPermisividad < 3) {

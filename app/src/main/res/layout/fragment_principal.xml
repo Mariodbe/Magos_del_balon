@@ -88,6 +88,31 @@
         </LinearLayout>
 
     </LinearLayout>
+    <!-- Árbitro y Permisividad -->
+    <LinearLayout
+        android:id="@+id/layout_arbitro_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/text_view_arbitro_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Árbitro:"
+            android:textSize="18sp"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/text_view_arbitro_permisividad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Permisividad: -"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
 
     <Button
         android:id="@+id/button_start_match"
@@ -98,14 +123,6 @@
         android:textColor="#FFFFFF"
 
         android:text="Iniciar Partido"/>
-    <TextView
-        android:id="@+id/text_view_match_result"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18sp"
-        android:layout_marginTop="16dp"/>
-
 
     <TextView
         android:id="@+id/text_view_alerta_alineacion"
