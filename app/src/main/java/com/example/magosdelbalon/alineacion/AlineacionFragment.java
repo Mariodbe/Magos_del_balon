@@ -10,17 +10,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.magosdelbalon.FireStoreHelper;
+import com.example.magosdelbalon.Jugador;
 import com.example.magosdelbalon.PlayerSelectionDialog;
 import com.example.magosdelbalon.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AlineacionFragment extends Fragment {
 
     private FireStoreHelper firestoreHelper;
+    private Map<String, TextView> textViews = new HashMap<>();
 
     public AlineacionFragment() {
         // Required empty public constructor
@@ -64,7 +68,6 @@ public class AlineacionFragment extends Fragment {
         TextView txtFw2 = view.findViewById(R.id.txt_fw2);
 
         // Asociar cada posición con su TextView
-        Map<String, TextView> textViews = new HashMap<>();
         textViews.put("Goalkeeper", txtPortero);
         textViews.put("Def1", txtDef1);
         textViews.put("Def2", txtDef2);
@@ -102,18 +105,43 @@ public class AlineacionFragment extends Fragment {
 
 
     private void openPlayerSelectionDialog(String userId, String leagueName, String positionKey) {
-        String playerPosition = getGeneralPosition(positionKey); // traduce Fw1 → Forward
+        String playerPosition = getGeneralPosition(positionKey); // ej: Fw1 → Forward
 
-        firestoreHelper.getPlayersByPosition(userId, leagueName, playerPosition, players -> {
-            if (getActivity() != null) {
-                PlayerSelectionDialog.show(getContext(), players, selectedPlayer -> {
-                    // Guardar la alineación con la posición específica
+        firestoreHelper.cargarJugadoresDelUsuario(leagueName, new FireStoreHelper.JugadorListCallback() {
+            @Override
+            public void onSuccess(List<Jugador> jugadores) {
+                // Filtra por posición si quieres
+                List<Jugador> filtrados = new ArrayList<>();
+                for (Jugador j : jugadores) {
+                    if (j.getPosicion().equalsIgnoreCase(playerPosition)) {
+                        filtrados.add(j);
+                    }
+                }
+
+                PlayerSelectionDialog.show(getContext(), filtrados, selectedPlayer -> {
+                    // Aquí lo demás sigue igual
+                    for (Map.Entry<String, TextView> entry : textViews.entrySet()) {
+                        if (!entry.getKey().equals(positionKey) &&
+                                entry.getValue().getText().toString().equalsIgnoreCase(selectedPlayer)) {
+                            Toast.makeText(getContext(), "Ese jugador ya está en otra posición", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+
                     firestoreHelper.saveLineup(userId, leagueName, positionKey, selectedPlayer);
+                    textViews.get(positionKey).setText(selectedPlayer);
                     Toast.makeText(getContext(), "Jugador seleccionado: " + selectedPlayer, Toast.LENGTH_SHORT).show();
                 });
             }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(getContext(), "Error cargando jugadores: " + error, Toast.LENGTH_SHORT).show();
+            }
         });
+
     }
+
 
     // Traduce Fw1, Fw2 → Forward, Mid1 → Midfielder, etc.
     private String getGeneralPosition(String key) {

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerSelectionDialog {
@@ -16,14 +17,21 @@ public class PlayerSelectionDialog {
         void onPlayerSelected(String player);
     }
 
-    public static void show(Context context, List<String> players, OnPlayerSelectedListener listener) {
+    public static void show(Context context, List<Jugador> jugadores, OnPlayerSelectedListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = LayoutInflater.from(context);
         View dialogView = inflater.inflate(R.layout.dialog_player_selection, null);
         builder.setView(dialogView);
 
         ListView listView = dialogView.findViewById(R.id.listViewPlayers);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, players);
+
+        // Mostrar nombre + media
+        List<String> displayList = new ArrayList<>();
+        for (Jugador jugador : jugadores) {
+            displayList.add(jugador.getNombre() + " - Media: " + jugador.getOverall());
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, displayList);
         listView.setAdapter(adapter);
 
         builder.setTitle("Selecciona un jugador");
@@ -31,8 +39,8 @@ public class PlayerSelectionDialog {
 
         final AlertDialog dialog = builder.create();
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedPlayer = players.get(position);
-            listener.onPlayerSelected(selectedPlayer);
+            String selectedPlayerName = jugadores.get(position).getNombre();
+            listener.onPlayerSelected(selectedPlayerName);
             dialog.dismiss();
         });
 

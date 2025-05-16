@@ -37,7 +37,7 @@
                 android:id="@+id/btn_laliga"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:src="@drawable/ic_liga"
+                android:src="@drawable/laliga"
                 android:background="@android:color/transparent"
                 android:contentDescription="Seleccionar La Liga"
                 android:layout_marginEnd="16dp" />
@@ -47,7 +47,7 @@
                 android:id="@+id/btn_premier"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:src="@drawable/ic_premier"
+                android:src="@drawable/premierleague"
                 android:background="@android:color/transparent"
                 android:contentDescription="Seleccionar Premier" />
         </LinearLayout>

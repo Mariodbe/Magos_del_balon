@@ -1,6 +1,7 @@
 package com.example.magosdelbalon;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
@@ -18,6 +19,8 @@ import com.example.magosdelbalon.alineacion.AlineacionMainFragment;
 import com.example.magosdelbalon.mercado.MercadoFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.text.Normalizer;
+import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private String ligaName; // <- esta será la liga activa durante toda la actividad
     FireStoreHelper fireStoreHelper = new FireStoreHelper();
     private TextView ligaNombreTextView;
-    private TextView equipoTextView;
+    private ImageView equipoLogoImageView;
+    ImageView leagueLogoImageView;
     private TextView dineroInicialTextView;
 
     @Override
@@ -89,8 +93,9 @@ public class MainActivity extends AppCompatActivity {
         ligaName = getIntent().getStringExtra("ligaName"); // <- guardar en variable de clase
 
         ligaNombreTextView = findViewById(R.id.leagueNameTextView);
-        equipoTextView = findViewById(R.id.teamNameTextView);
+        equipoLogoImageView = findViewById(R.id.teamLogoImageView);
         dineroInicialTextView = findViewById(R.id.dineroInicialTextView);
+        leagueLogoImageView = findViewById(R.id.leagueLogoImageView);
 
 
         if (ligaName != null) {
@@ -208,6 +213,25 @@ public class MainActivity extends AppCompatActivity {
         return fragment;
     }
 
+    public static String formatearDinero(int cantidad) {
+        if (cantidad >= 1_000_000) {
+            double millones = cantidad / 1_000_000.0;
+            return String.format(Locale.getDefault(), "%.1f M", millones).replace('.', ',');
+        } else if (cantidad >= 1_000) {
+            double miles = cantidad / 1_000.0;
+            return String.format(Locale.getDefault(), "%.1f mil", miles).replace('.', ',');
+        } else {
+            return String.valueOf(cantidad);
+        }
+    }
+
+    private String limpiarNombreParaDrawable(String nombre) {
+        // Quita tildes
+        String sinTildes = Normalizer.normalize(nombre, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        // Quita espacios y pasa a minúsculas
+        return sinTildes.replaceAll("\\s+", "").toLowerCase();
+    }
 
     private void obtenerDatosLiga(String ligaName) {
         FireStoreHelper helper = new FireStoreHelper();
@@ -225,22 +249,38 @@ public class MainActivity extends AppCompatActivity {
                 Object dineroInicialObject = ligaData.get("dinero");
                 String dineroInicialText = null;
                 if (dineroInicialObject instanceof Number) {
-                    dineroInicialText = String.valueOf(((Number) dineroInicialObject).intValue());
+                    int dinero = ((Number) dineroInicialObject).intValue();
+                    dineroInicialText = formatearDinero(dinero);
                 }
 
-                if(dineroInicialText == null){
+                if (dineroInicialText == null) {
                     dineroInicialText = "N/A";
                 }
 
-                // Asegúrate de que los TextView no sean null
-                if (ligaNombreTextView != null && equipoTextView != null && dineroInicialTextView != null) {
+                if (ligaNombreTextView != null && equipoLogoImageView != null && dineroInicialTextView != null && leagueLogoImageView != null) {
                     ligaNombreTextView.setText("Liga: " + ligaName);
-                    equipoTextView.setText("Equipo: " + equipo);
-                    dineroInicialTextView.setText("Dinero inicial: " + dineroInicialText);
+                    dineroInicialTextView.setText("Dinero: " + dineroInicialText);
 
-                    Log.d("MainActivity", "TextViews actualizados correctamente");
+                    // Cargar imagen del equipo
+                    String nombreEquipoDrawable = limpiarNombreParaDrawable(equipo);
+                    int resIdEquipo = getResources().getIdentifier(nombreEquipoDrawable, "drawable", getPackageName());
+
+                    if (resIdEquipo != 0) {
+                        equipoLogoImageView.setImageResource(resIdEquipo);
+                    }
+
+                    // Cargar imagen de la liga
+                    String tipoLiga = (String) ligaData.get("tipoLiga");
+                    String nombreLigaDrawable = limpiarNombreParaDrawable(tipoLiga);
+                    int resIdLiga = getResources().getIdentifier(nombreLigaDrawable, "drawable", getPackageName());
+
+                    if (resIdLiga != 0) {
+                        leagueLogoImageView.setImageResource(resIdLiga);
+                    }
+
+                    Log.d("MainActivity", "Vistas actualizadas con logos equipo y liga");
                 } else {
-                    Log.e("MainActivity", "TextViews son null al intentar actualizar");
+                    Log.e("MainActivity", "Views son null al actualizar datos liga");
                 }
             }
 
@@ -251,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     public void refrescarDatosLiga() {
         if (ligaName != null) {
             obtenerDatosLiga(ligaName);

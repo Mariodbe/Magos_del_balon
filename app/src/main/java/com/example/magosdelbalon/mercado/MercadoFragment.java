@@ -19,9 +19,6 @@ import java.util.List;
 
 public class MercadoFragment extends Fragment {
 
-    private RecyclerView recyclerView;
-    private JugadorAdapter adapter;
-    private List<Jugador> listaJugadores = new ArrayList<>();
     private String ligaName;
 
     private static final String TAG = "MercadoFragment";

@@ -410,6 +410,8 @@ public class PrincipalFragment extends Fragment {
         // Generar nuevo árbitro
         int nuevoArbitro = new Random().nextInt(5) + 1;
         prefs.edit().putInt(claveArbitro, nuevoArbitro).apply();
+        prefs.edit().putBoolean("mediaVisible_" + ligaName, false).apply();
+
     }
 
 

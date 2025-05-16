@@ -13,35 +13,37 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center">
-        <!-- Match-up Display -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
+            android:gravity="center_vertical"
             android:layout_marginBottom="40dp">
 
-            <!-- Home Team -->
+            <!-- Home Team - ocupa peso 1 -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center">
+
                 <TextView
                     android:id="@+id/text_view_home_team_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Tu Equipo"
-                    android:textSize="20sp"/>
+                    android:textSize="20sp" />
+
                 <TextView
                     android:id="@+id/text_view_home_team_rating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Media: "
-                    android:textSize="16sp"/>
+                    android:textSize="16sp" />
             </LinearLayout>
 
-            <!-- VS text -->
+            <!-- VS text - ancho fijo para centrar -->
             <TextView
                 android:id="@+id/text_view_vs"
                 android:layout_width="wrap_content"
@@ -49,13 +51,14 @@
                 android:text="VS"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"/>
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp" />
 
-            <!-- Away Team -->
+            <!-- Away Team - ocupa peso 1 -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center">
 
@@ -70,7 +73,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Equipo Contrario"
-                        android:textSize="20sp"/>
+                        android:textSize="20sp" />
 
                     <ImageButton
                         android:id="@+id/button_show_rival_media"
@@ -79,7 +82,7 @@
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@android:drawable/ic_menu_search"
                         android:contentDescription="Mostrar media rival"
-                        android:layout_marginStart="8dp"/>
+                        android:layout_marginStart="8dp" />
                 </LinearLayout>
 
                 <TextView
@@ -87,12 +90,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Media: "
-                    android:textSize="16sp"/>
-
-
+                    android:textSize="16sp" />
             </LinearLayout>
 
         </LinearLayout>
+
         <!-- Árbitro y Permisividad -->
         <LinearLayout
             android:id="@+id/layout_arbitro_info"

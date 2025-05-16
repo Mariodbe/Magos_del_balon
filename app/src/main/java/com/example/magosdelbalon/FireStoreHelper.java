@@ -179,6 +179,7 @@ public class FireStoreHelper {
                         // Crear/Actualizar la estructura deseada dentro de users
                         Map<String, Object> ligaData = new HashMap<>();
                         ligaData.put("equipo", equipoName);
+                        ligaData.put("tipoLiga",tipoLiga);
                         //Añadimos dinero inicial para el equipo cuando se crea la liga.
                         ligaData.put("dinero", 10000000);
                         // Crear el mapa de estadios

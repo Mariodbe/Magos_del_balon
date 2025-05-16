@@ -216,14 +216,22 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         imgPremier.setOnClickListener(v -> {
-            ligaSeleccionada[0] = "Premier";
+            ligaSeleccionada[0] = "Premier League";
             setSpinnerEquipos(spinnerEquipos, equiposPremier);
             imgLiga.setAlpha(0.3f);
             imgPremier.setAlpha(1f);
         });
 
         builder.setPositiveButton("Crear", (dialog, which) -> {
-            String ligaName = etLigaName.getText().toString().trim();
+            String rawLigaName = etLigaName.getText().toString().trim();
+
+            if (rawLigaName.length() > 10) {
+                Toast.makeText(HomeActivity.this, "El nombre de la liga no puede tener más de 10 caracteres", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Convertir a minúsculas, eliminar espacios y limpiar caracteres
+            String ligaName = rawLigaName.toLowerCase().replaceAll("\\s+", "").replaceAll("[^a-z0-9]", "");
             String equipoName = spinnerEquipos.getSelectedItem() != null ? spinnerEquipos.getSelectedItem().toString() : "";
 
             if (ligaName.isEmpty() || equipoName.isEmpty() || ligaSeleccionada[0].isEmpty()) {
@@ -234,7 +242,7 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(String message) {
                         Toast.makeText(HomeActivity.this, message, Toast.LENGTH_SHORT).show();
-                        loadUserLigas(); // Recargar ligas después de crear una
+                        loadUserLigas();
                     }
 
                     @Override
@@ -244,6 +252,7 @@ public class HomeActivity extends AppCompatActivity {
                 });
             }
         });
+
 
         builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss());
         builder.show();
