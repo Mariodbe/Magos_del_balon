@@ -16,6 +16,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -1680,7 +1681,7 @@ public class FireStoreHelper {
     }
 
 
-    public void actualizarProgresoLiga(String ligaName, Map<String, Object> nuevosDatos, FirestoreUpdateCallback callback) {
+    public void actualizarProgresoLiga(String ligaName, FirestoreUpdateCallback callback) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
 
@@ -1697,13 +1698,52 @@ public class FireStoreHelper {
                         Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
                         if (progresoLiga == null) progresoLiga = new HashMap<>();
 
-                        progresoLiga.putAll(nuevosDatos); // Actualiza solo lo que llega
-                        ligaData.put("progresoLiga", progresoLiga);
-                        userData.put(ligaIdHash, ligaData);
+                        Map<String, Object> pendientesMapRaw = (Map<String, Object>) progresoLiga.get("pendientesJugar");
+                        if (pendientesMapRaw == null || pendientesMapRaw.isEmpty()) {
+                            callback.onFailure("No hay partidos pendientes.");
+                            return;
+                        }
 
-                        userRef.set(userData, SetOptions.merge())
-                                .addOnSuccessListener(aVoid -> callback.onSuccess())
-                                .addOnFailureListener(e -> callback.onFailure("Error al actualizar progresoLiga: " + e.getMessage()));
+                        Map<String, Integer> pendientesMap = new HashMap<>();
+                        for (Map.Entry<String, Object> entry : pendientesMapRaw.entrySet()) {
+                            try {
+                                pendientesMap.put(entry.getKey(), ((Number) entry.getValue()).intValue());
+                            } catch (Exception e) {
+                                Log.e("FirestoreHelper", "Valor inválido para partido pendiente: " + entry.getKey());
+                            }
+                        }
+
+                        if (pendientesMap.isEmpty()) {
+                            callback.onFailure("No hay partidos pendientes válidos.");
+                            return;
+                        }
+
+                        String rivalActual = Collections.max(pendientesMap.entrySet(), Map.Entry.comparingByValue()).getKey();
+                        int partidosRestantes = pendientesMap.getOrDefault(rivalActual, 0);
+
+                        Log.d("FirestoreHelper", "Rival actual: " + rivalActual + " - Partidos antes: " + partidosRestantes);
+
+                        String rutaPendientes = ligaIdHash + ".progresoLiga.pendientesJugar." + rivalActual;
+
+                        Map<String, Object> updateMap = new HashMap<>();
+                        if (partidosRestantes > 1) {
+                            updateMap.put(rutaPendientes, partidosRestantes - 1);
+                            Log.d("FirestoreHelper", "Actualizando a: " + (partidosRestantes - 1));
+                        } else {
+                            updateMap.put(rutaPendientes, FieldValue.delete());
+                            Log.d("FirestoreHelper", "Eliminando rival: " + rivalActual + " (último partido jugado)");
+                        }
+
+                        userRef.update(updateMap)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("FirestoreHelper", "Actualización exitosa en Firestore (update)");
+                                    callback.onSuccess();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("FirestoreHelper", "Error al actualizar partidos pendientes: " + e.getMessage());
+                                    callback.onFailure("Error al actualizar partidos pendientes: " + e.getMessage());
+                                });
+
                     } else {
                         callback.onFailure("Datos de liga no encontrados.");
                     }
@@ -1715,6 +1755,9 @@ public class FireStoreHelper {
             }
         }).addOnFailureListener(e -> callback.onFailure("Error al acceder a Firestore: " + e.getMessage()));
     }
+
+
+
     public interface FirestoreUpdateCallback {
         void onSuccess();
         void onFailure(String errorMessage);

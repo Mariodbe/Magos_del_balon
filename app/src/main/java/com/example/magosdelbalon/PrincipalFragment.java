@@ -157,7 +157,8 @@ public class PrincipalFragment extends Fragment {
             public void onSuccess(Map<String, Object> ligaData) {
                 actualizarEquipo(ligaData, teamTextView);
                 calcularMediaEquipo(userId, ligaName, mediaTextView);
-                actualizarRivalPendiente(ligaData, rivalTextView);
+                actualizarRivalPendiente(ligaData, rivalTextView, getView().findViewById(R.id.layout_contenido_liga),
+                        getView().findViewById(R.id.text_view_liga_finalizada));
                 // Calcular la media del equipo rival
                 calcularMediaRival(ligaData, rivalMediaTextView);
             }
@@ -169,7 +170,6 @@ public class PrincipalFragment extends Fragment {
             }
         });
 
-        // Llamar al método para obtener los niveles del estadio
         // Llamar al método para obtener los niveles del estadio
         fireStoreHelper.getEstadioData(userId, ligaName, new FireStoreHelper.EstadioCallback() {
             @Override
@@ -287,7 +287,7 @@ public class PrincipalFragment extends Fragment {
     }
 
 
-    private void actualizarRivalPendiente(Map<String, Object> ligaData, TextView rivalTextView) {
+    private void actualizarRivalPendiente(Map<String, Object> ligaData, TextView rivalTextView, View contenidoLigaLayout, TextView ligaFinalizadaTextView) {
         if (ligaData.containsKey("progresoLiga")) {
             Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
 
@@ -298,7 +298,6 @@ public class PrincipalFragment extends Fragment {
                         Map<String, Object> pendientesMapRaw = (Map<String, Object>) pendientesObj;
                         Map<String, Integer> pendientesMap = new HashMap<>();
 
-                        // Convertir los valores a Integer
                         for (Map.Entry<String, Object> entry : pendientesMapRaw.entrySet()) {
                             try {
                                 pendientesMap.put(entry.getKey(), ((Number) entry.getValue()).intValue());
@@ -308,11 +307,16 @@ public class PrincipalFragment extends Fragment {
                         }
 
                         if (!pendientesMap.isEmpty()) {
-                            // Obtener el rival con el valor más alto
                             String proximoRival = Collections.max(pendientesMap.entrySet(), Map.Entry.comparingByValue()).getKey();
                             rivalTextView.setText(proximoRival);
+
+                            // Mostrar contenido normal
+                            contenidoLigaLayout.setVisibility(View.VISIBLE);
+                            ligaFinalizadaTextView.setVisibility(View.GONE);
                         } else {
-                            rivalTextView.setText("No quedan rivales");
+                            // Ocultar todo y mostrar solo mensaje de liga terminada
+                            contenidoLigaLayout.setVisibility(View.GONE);
+                            ligaFinalizadaTextView.setVisibility(View.VISIBLE);
                         }
                     } else {
                         rivalTextView.setText("Formato incorrecto de pendientes");
@@ -329,6 +333,7 @@ public class PrincipalFragment extends Fragment {
             rivalTextView.setText("Progreso no disponible");
         }
     }
+
 
 
 
@@ -364,18 +369,15 @@ public class PrincipalFragment extends Fragment {
         if (TextUtils.isEmpty(ligaName)) return;
 
         String claveArbitro = "arbitroPermisividad_" + ligaName;
-        int arbitro = prefs.getInt(claveArbitro, 3); // valor por defecto si falla
+        int arbitro = prefs.getInt(claveArbitro, 3);
 
         double probabilidadVictoria = calcularProbabilidadVictoria(mediaEquipo, mediaRival, arbitro);
         int porcentajeVictoria = (int) Math.round(probabilidadVictoria * 100);
         double resultado = new Random().nextDouble();
 
-        String mensajeResultado;
-        if (resultado < probabilidadVictoria) {
-            mensajeResultado = "¡Has ganado el partido!\nPorcentaje de victoria: " + porcentajeVictoria + "%";
-        } else {
-            mensajeResultado = "Has perdido el partido.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
-        }
+        String mensajeResultado = resultado < probabilidadVictoria
+                ? "¡Has ganado el partido!\nPorcentaje de victoria: " + porcentajeVictoria + "%"
+                : "Has perdido el partido.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
 
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Resultado del Partido")
@@ -385,70 +387,31 @@ public class PrincipalFragment extends Fragment {
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
 
                     PrincipalFragment nuevoFragment = new PrincipalFragment();
-                    nuevoFragment.setArguments(getArguments()); // para mantener parámetros que tengas
+                    nuevoFragment.setArguments(getArguments());
 
                     transaction.replace(R.id.fragment_container, nuevoFragment);
                     transaction.commit();
                 })
                 .show();
 
-        // Restar 1 partido pendiente al rival actual
-        fireStoreHelper.obtenerDatosLigaPorId(ligaName, new FireStoreHelper.FirestoreCallback1() {
+        // Actualizar progreso liga directamente desde helper centralizado
+        fireStoreHelper.actualizarProgresoLiga(ligaName, new FireStoreHelper.FirestoreUpdateCallback() {
             @Override
-            public void onSuccess(Map<String, Object> ligaData) {
-                if (ligaData.containsKey("progresoLiga")) {
-                    Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
-                    if (progresoLiga.containsKey("pendientesJugar")) {
-                        Map<String, Object> pendientesMapRaw = (Map<String, Object>) progresoLiga.get("pendientesJugar");
-                        Map<String, Integer> pendientesMap = new HashMap<>();
-                        for (Map.Entry<String, Object> entry : pendientesMapRaw.entrySet()) {
-                            try {
-                                pendientesMap.put(entry.getKey(), ((Number) entry.getValue()).intValue());
-                            } catch (Exception e) {
-                                Log.e("PrincipalFragment", "Valor inválido para partido pendiente: " + entry.getKey());
-                            }
-                        }
-
-                        if (!pendientesMap.isEmpty()) {
-                            // Rival actual es el que más valor tenga (último de la jornada)
-                            String rivalActual = Collections.max(pendientesMap.entrySet(), Map.Entry.comparingByValue()).getKey();
-                            int partidosRestantes = pendientesMap.getOrDefault(rivalActual, 0);
-
-                            if (partidosRestantes > 0) {
-                                pendientesMap.put(rivalActual, partidosRestantes - 1);
-                            }
-
-                            // Subir cambios a Firestore
-                            Map<String, Object> nuevosDatos = new HashMap<>();
-                            nuevosDatos.put("pendientesJugar", pendientesMap);
-                            fireStoreHelper.actualizarProgresoLiga(ligaName, nuevosDatos, new FireStoreHelper.FirestoreUpdateCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    Log.d("PrincipalFragment", "Partido pendiente actualizado correctamente.");
-
-                                }
-
-                                @Override
-                                public void onFailure(String errorMessage) {
-                                    Log.e("PrincipalFragment", "Error al actualizar partidos pendientes: " + errorMessage);
-                                }
-                            });
-                        }
-                    }
-                }
+            public void onSuccess() {
+                Log.d("PrincipalFragment", "Partido pendiente actualizado correctamente.");
             }
 
             @Override
-            public void onError(String errorMessage) {
-                Log.e("PrincipalFragment", "Error al obtener datos para restar partido pendiente: " + errorMessage);
+            public void onFailure(String errorMessage) {
+                Log.e("PrincipalFragment", "Error al actualizar partidos pendientes: " + errorMessage);
             }
         });
 
-        // Generar nuevo árbitro y guardar
+        // Generar nuevo árbitro
         int nuevoArbitro = new Random().nextInt(5) + 1;
         prefs.edit().putInt(claveArbitro, nuevoArbitro).apply();
-
     }
+
 
 
     private double calcularProbabilidadVictoria(double mediaEquipo, double mediaRival, int arbitroPermisividad) {
