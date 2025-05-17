@@ -201,7 +201,7 @@ public class FireStoreHelper {
                         if (tipoLiga.equalsIgnoreCase("La Liga")) {
                             todosLosEquipos = Arrays.asList("Atlético de Madrid", "Barcelona", "Real Madrid");
                         } else {
-                            todosLosEquipos = Arrays.asList("Manchester City", "Liverpool", "Chelsea");
+                            todosLosEquipos = Arrays.asList("Manchester City", "Liverpool", "Chelsea", "Barcelona");
                         }
 
                         // Crear lista de rivales pendientes quitando el equipo elegido (comparando *directamente*)
@@ -218,8 +218,23 @@ public class FireStoreHelper {
                         Map<String, Object> progresoLiga = new HashMap<>();
                         progresoLiga.put("rivalesJugados", new ArrayList<String>());
                         progresoLiga.put("pendientesJugar", pendientesJugar);
-                        progresoLiga.put("partidosGanados", 0);
-                        progresoLiga.put("partidosPerdidos", 0);
+                        progresoLiga.put("MIpartidosGanados", 0);
+                        progresoLiga.put("MIpartidosEmpatados", 0);
+                        progresoLiga.put("MIpartidosPerdidos", 0);
+
+                        // Crear lista de clasificación inicial
+                        List<Map<String, Object>> clasificacion = new ArrayList<>();
+                        for (String equipo : pendientesJugar.keySet()) {
+                            Map<String, Object> equipoStats = new HashMap<>();
+                            equipoStats.put("equipo", equipo);
+                            equipoStats.put("partidosGanados", 0);
+                            equipoStats.put("partidosEmpatados", 0);
+                            equipoStats.put("partidosPerdidos", 0);
+                            clasificacion.add(equipoStats);
+                        }
+
+                        // Añadir la clasificación dentro del progresoLiga
+                        progresoLiga.put("clasificacion", clasificacion);
 
                         // Añadir al mapa principal
                         ligaData.put("progresoLiga", progresoLiga);
@@ -1764,7 +1779,121 @@ public class FireStoreHelper {
         void onFailure(String errorMessage);
     }
 
+    public void actualizarEstadisticasPartido(String ligaName, String resultado, FirestoreUpdateCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+
+        DocumentReference userLigaRef = db.collection("users").document(userId);
+
+        userLigaRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Map<String, Object> ligaData = (Map<String, Object>) documentSnapshot.get(ligaIdHash);
+                if (ligaData == null) {
+                    callback.onFailure("No se encontró la liga en el usuario.");
+                    return;
+                }
+
+                Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+                if (progresoLiga == null) progresoLiga = new HashMap<>();
+
+                String campo = "";
+                switch (resultado) {
+                    case "ganado": campo = "MIpartidosGanados"; break;
+                    case "empatado": campo = "MIpartidosEmpatados"; break;
+                    case "perdido": campo = "MIpartidosPerdidos"; break;
+                    default: callback.onFailure("Resultado no válido"); return;
+                }
+
+                Long valorActual = progresoLiga.get(campo) instanceof Long ? (Long) progresoLiga.get(campo) : 0L;
+                progresoLiga.put(campo, valorActual + 1);
+                ligaData.put("progresoLiga", progresoLiga);
+
+                Map<String, Object> updateMap = new HashMap<>();
+                updateMap.put(ligaIdHash, ligaData);
+
+                userLigaRef.set(updateMap, SetOptions.merge())
+                        .addOnSuccessListener(aVoid -> callback.onSuccess())
+                        .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+            } else {
+                callback.onFailure("No se encontró el documento del usuario.");
+            }
+        }).addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public interface ClasificacionCallback {
+        void onSuccess(Map<String, Object> equipoPropio);
+        void onFailure(String errorMessage);
+    }
+
+    public void obtenerEstadisticasClasificacion(String ligaName, ClasificacionCallback callback) {
+        obtenerDatosLigaPorId(ligaName, new FirestoreCallback1() {
+            @Override
+            public void onSuccess(Map<String, Object> ligaData) {
+                if (ligaData == null) {
+                    callback.onFailure("Datos de la liga no encontrados.");
+                    return;
+                }
+
+                Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+                if (progresoLiga == null) {
+                    callback.onFailure("Progreso de liga no encontrado.");
+                    return;
+                }
+
+                int ganados = ((Long) progresoLiga.getOrDefault("MIpartidosGanados", 0L)).intValue();
+                int empatados = ((Long) progresoLiga.getOrDefault("MIpartidosEmpatados", 0L)).intValue();
+                int perdidos = ((Long) progresoLiga.getOrDefault("MIpartidosPerdidos", 0L)).intValue();
+                int puntos = (ganados * 3) + (empatados);
+
+                // Aquí recuperas el nombre del equipo
+                String nombreEquipo = (String) ligaData.get("equipo");
+                if (nombreEquipo == null) nombreEquipo = "Equipo desconocido";
+
+                Map<String, Object> equipoPropio = new HashMap<>();
+                equipoPropio.put("equipo", nombreEquipo);
+                equipoPropio.put("partidosGanados", ganados);
+                equipoPropio.put("partidosEmpatados", empatados);
+                equipoPropio.put("partidosPerdidos", perdidos);
+                equipoPropio.put("puntos", puntos);
+
+                callback.onSuccess(equipoPropio);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                callback.onFailure(errorMessage);
+            }
+        });
+    }
 
 
+
+    public void obtenerClasificacionCompleta(String ligaName, ListaClasificacionCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        FirebaseFirestore.getInstance().collection("users").document(userId)
+                .get().addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> userData = documentSnapshot.getData();
+                        if (userData != null && userData.containsKey(ligaName)) {
+                            Map<String, Object> ligaData = (Map<String, Object>) userData.get(ligaName);
+                            Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+
+                            List<Map<String, Object>> clasificacion = (List<Map<String, Object>>) progresoLiga.get("clasificacion");
+                            callback.onSuccess(clasificacion);
+                        } else {
+                            callback.onFailure("Liga no encontrada.");
+                        }
+                    } else {
+                        callback.onFailure("Documento de usuario no encontrado.");
+                    }
+                })
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public interface ListaClasificacionCallback {
+        void onSuccess(List<Map<String, Object>> clasificacion);
+        void onFailure(String errorMessage);
+    }
 
 }

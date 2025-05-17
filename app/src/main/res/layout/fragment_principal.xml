@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".PrincipalFragment">
+    tools:context=".principal.PrincipalFragment">
     <LinearLayout
         android:id="@+id/layout_contenido_liga"
         android:layout_width="match_parent"

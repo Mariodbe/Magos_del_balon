@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="#FFF0E0">
+
+    <TextView
+        android:id="@+id/txt_equipo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:text="Equipo"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txt_puntos"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="0 pts" />
+
+    <TextView
+        android:id="@+id/txt_ganados"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="G: 0" />
+
+    <TextView
+        android:id="@+id/txt_empatados"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="E: 0" />
+
+    <TextView
+        android:id="@+id/txt_perdidos"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="P: 0" />
+</LinearLayout>

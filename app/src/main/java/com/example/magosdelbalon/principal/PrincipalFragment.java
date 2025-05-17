@@ -1,4 +1,4 @@
-package com.example.magosdelbalon;
+package com.example.magosdelbalon.principal;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,11 +16,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.magosdelbalon.FireStoreHelper;
+import com.example.magosdelbalon.MainActivity;
+import com.example.magosdelbalon.R;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -364,29 +366,66 @@ public class PrincipalFragment extends Fragment {
     private void simularPartido(double mediaEquipo, double mediaRival) {
         SharedPreferences prefs = requireContext().getSharedPreferences("MagosPrefs", Context.MODE_PRIVATE);
 
-        // Obtener liga actual
         String ligaName = getArguments() != null ? getArguments().getString("leagueName") : null;
         if (TextUtils.isEmpty(ligaName)) return;
 
         String claveArbitro = "arbitroPermisividad_" + ligaName;
         int arbitro = prefs.getInt(claveArbitro, 3);
 
-        double probabilidadVictoria = calcularProbabilidadVictoria(mediaEquipo, mediaRival, arbitro);
-        int porcentajeVictoria = (int) Math.round(probabilidadVictoria * 100);
+        double probVictoriaBase = calcularProbabilidadVictoria(mediaEquipo, mediaRival, arbitro);
+
+        // Calcular diferencia de medias (valor absoluto)
+        double diferenciaMedias = Math.abs(mediaEquipo - mediaRival);
+
+        // Cuanto más parejos, mayor probabilidad de empate (máx 30%, mín 5%)
+        double probEmpate = 0.3 - Math.min(0.25, diferenciaMedias * 0.025); // lineal
+        probEmpate += new Random().nextDouble() * 0.05 - 0.025; // +/- 2.5% aleatorio
+        probEmpate = Math.max(0.05, Math.min(0.3, probEmpate)); // límites
+
+        // Ajustar victoria y derrota proporcional al restante (1 - empate)
+        double factor = 1.0 - probEmpate;
+        double probVictoria = probVictoriaBase * factor;
+        //double probDerrota = 1.0 - probVictoria - probEmpate;
+
+        int porcentajeVictoria = (int) Math.round(probVictoria * 100);
         double resultado = new Random().nextDouble();
 
-        String mensajeResultado = resultado < probabilidadVictoria
-                ? "¡Has ganado el partido!\nPorcentaje de victoria: " + porcentajeVictoria + "%"
-                : "Has perdido el partido.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
+        String mensajeResultado;
+        String resultadoPartido;
+
+        if (resultado < probVictoria) {
+            mensajeResultado = "¡Has ganado el partido!\nPorcentaje de victoria: " + porcentajeVictoria + "%";
+            resultadoPartido = "ganado";
+        } else if (resultado < probVictoria + probEmpate) {
+            mensajeResultado = "El partido terminó en empate.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
+            resultadoPartido = "empatado";
+        } else {
+            mensajeResultado = "Has perdido el partido.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
+            resultadoPartido = "perdido";
+        }
+
+        // Actualizar estadísticas del usuario en Firestore
+        fireStoreHelper.actualizarEstadisticasPartido(ligaName, resultadoPartido, new FireStoreHelper.FirestoreUpdateCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d("Estadísticas", "Estadísticas de partido actualizadas correctamente.");
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Log.e("Estadísticas", "Error al actualizar estadísticas: " + errorMessage);
+            }
+        });
+
 
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Resultado del Partido")
                 .setMessage(mensajeResultado)
                 .setPositiveButton("Aceptar", (dialog, which) -> {
-                    FragmentManager fragmentManager = getParentFragmentManager();
+                    FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-                    PrincipalFragment nuevoFragment = new PrincipalFragment();
+                    PrincipalMainFragment nuevoFragment = new PrincipalMainFragment();
                     nuevoFragment.setArguments(getArguments());
 
                     transaction.replace(R.id.fragment_container, nuevoFragment);
@@ -394,7 +433,6 @@ public class PrincipalFragment extends Fragment {
                 })
                 .show();
 
-        // Actualizar progreso liga directamente desde helper centralizado
         fireStoreHelper.actualizarProgresoLiga(ligaName, new FireStoreHelper.FirestoreUpdateCallback() {
             @Override
             public void onSuccess() {
@@ -407,11 +445,9 @@ public class PrincipalFragment extends Fragment {
             }
         });
 
-        // Generar nuevo árbitro
         int nuevoArbitro = new Random().nextInt(5) + 1;
         prefs.edit().putInt(claveArbitro, nuevoArbitro).apply();
         prefs.edit().putBoolean("mediaVisible_" + ligaName, false).apply();
-
     }
 
 
