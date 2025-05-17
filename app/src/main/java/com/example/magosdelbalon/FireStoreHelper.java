@@ -239,6 +239,7 @@ public class FireStoreHelper {
                                         playerMap.put("posicion", jugador.getPosicion());
                                         playerMap.put("overall", jugador.getOverall());
                                         playerMap.put("precio", jugador.getPrecio());
+                                        playerMap.put("url",jugador.getImageUrl());
                                         playersMapList.add(playerMap);
                                     }
 
@@ -266,6 +267,7 @@ public class FireStoreHelper {
                                             map.put("posicion", jugador.getPosicion());
                                             map.put("overall", jugador.getOverall());
                                             map.put("precio",jugador.getPrecio());
+                                            map.put("url",jugador.getImageUrl());
                                             mercadoMapList.add(map);
                                         }
 
@@ -400,9 +402,8 @@ public class FireStoreHelper {
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
                                             ((Number) playerData.get("overall")).intValue(),
-                                            ((Number) playerData.get("precio")).intValue()
-
-
+                                            ((Number) playerData.get("precio")).intValue(),
+                                            (String) playerData.get("url")
                                     );
                                     players.add(jugador);
                                 }
@@ -1762,6 +1763,123 @@ public class FireStoreHelper {
     public interface FirestoreUpdateCallback {
         void onSuccess();
         void onFailure(String errorMessage);
+    }
+
+
+    public void cargarAlineacionConImagenes(String userId, String ligaName, Map<String, ImageView> imageViews) {
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> ligas = (Map<String, Object>) documentSnapshot.get(ligaIdHash);
+                        if (ligas != null && ligas.containsKey("alineacion")) {
+                            Map<String, Object> alineacion = (Map<String, Object>) ligas.get("alineacion");
+                            for (String posicion : imageViews.keySet()) {
+                                String imageUrl = (String) alineacion.get(posicion);
+                                ImageView imageView = imageViews.get(posicion);
+                                if (imageUrl != null && !imageUrl.isEmpty()) {
+                                    Glide.with(imageView.getContext()).load(imageUrl).into(imageView);
+                                } else {
+                                    imageView.setImageResource(R.drawable.defaultplayer); // Imagen por defecto
+                                }
+                            }
+                        }
+                    }
+                });
+    }
+
+    public void guardarAlineacionConImagenes(String userId, String ligaName, String posicionClave, String imageUrl, Runnable onSuccess) {
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+        DocumentReference userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId);
+
+        Map<String, Object> alineacionMap = new HashMap<>();
+        alineacionMap.put(posicionClave, imageUrl);
+
+        Map<String, Object> ligaMap = new HashMap<>();
+        ligaMap.put("alineacionImg", alineacionMap);
+
+        Map<String, Object> update = new HashMap<>();
+        update.put(ligaIdHash, ligaMap);
+
+        userDocRef.set(update, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "Alineación guardada correctamente con imagen");
+                    if (onSuccess != null) {
+                        onSuccess.run();
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "Error al guardar alineación con imagen: " + e.getMessage()));
+    }
+
+
+    public interface JugadorImgListCallback {
+        void onSuccess(List<Jugador> jugadores);
+        void onFailure(String error);
+    }
+
+    public void cargarJugadoresConImagenes(String ligaId, final JugadorImgListCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onFailure("Usuario no autenticado");
+            return;
+        }
+
+        DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(user.getUid());
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            try {
+                Log.d("Firestore", "DocumentSnapshot data: " + documentSnapshot.getData());
+
+                if (documentSnapshot.exists()) {
+                    Map<String, Object> data = (Map<String, Object>) documentSnapshot.get(ligaId);
+                    Log.d("Firestore", "Liga data: " + data);
+
+                    if (data != null && data.containsKey("jugadores")) {
+                        List<Map<String, Object>> jugadoresMap = (List<Map<String, Object>>) data.get("jugadores");
+                        List<Jugador> jugadores = new ArrayList<>();
+
+                        for (Map<String, Object> j : jugadoresMap) {
+                            Log.d("Firestore", "Jugador data: " + j.toString());
+
+                            if (j.containsKey("nombre") && j.containsKey("posicion") && j.containsKey("overall") && j.containsKey("precio") && j.containsKey("url")) {
+                                String nombre = (String) j.get("nombre");
+                                String posicion = (String) j.get("posicion");
+                                int overall = ((Number) j.get("overall")).intValue();
+                                int precio = ((Number) j.get("precio")).intValue();
+                                String imageUrl = (String) j.get("url");
+
+                                if (imageUrl == null || imageUrl.isEmpty()) {
+                                    Log.e("Firestore", "URL de imagen no válida para el jugador: " + nombre);
+                                    continue;
+                                }
+
+                                Jugador jugador = new Jugador(nombre, posicion, overall, precio, imageUrl);
+                                jugadores.add(jugador);
+                            } else {
+                                Log.e("Firestore", "Faltan campos en el jugador: " + j.toString());
+                            }
+                        }
+                        callback.onSuccess(jugadores);
+                    } else {
+                        Log.d("Firestore", "No se encontraron jugadores en la liga: " + ligaId);
+                        callback.onSuccess(new ArrayList<>());
+                    }
+                } else {
+                    Log.d("Firestore", "No se encontró el documento del usuario");
+                    callback.onSuccess(new ArrayList<>());
+                }
+            } catch (Exception e) {
+                Log.e("Firestore", "Error procesando los datos: " + e.getMessage(), e);
+                callback.onFailure("Error procesando los datos: " + e.getMessage());
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("Firestore", "Error de base de datos: " + e.getMessage(), e);
+            callback.onFailure("Error de base de datos: " + e.getMessage());
+        });
     }
 
 
