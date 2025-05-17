@@ -1,28 +1,24 @@
 package com.example.magosdelbalon.alineacion;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
-
 
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.example.magosdelbalon.FireStoreHelper;
 import com.example.magosdelbalon.Jugador;
-import com.example.magosdelbalon.PlayerSelectionDialog;
 import com.example.magosdelbalon.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,11 +28,10 @@ import java.util.Map;
 public class AlineacionFragment extends Fragment {
 
     private FireStoreHelper firestoreHelper;
-    private Map<String, TextView> textViews = new HashMap<>();
     private Map<String, ImageView> imageViews = new HashMap<>();
 
     public AlineacionFragment() {
-        // Required empty public constructor
+        // Constructor vacío requerido
     }
 
     @Override
@@ -45,10 +40,14 @@ public class AlineacionFragment extends Fragment {
 
         firestoreHelper = new FireStoreHelper();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Log.e("AlineacionFragment", "Usuario no autenticado");
+            return view;
+        }
         String userId = user.getUid();
         String ligaName = getArguments().getString("leagueName");
 
-        // ImageViews
+        // Asignar ImageViews
         imageViews.put("Goalkeeper", view.findViewById(R.id.img_portero));
         imageViews.put("Def1", view.findViewById(R.id.img_def1));
         imageViews.put("Def2", view.findViewById(R.id.img_def2));
@@ -61,10 +60,10 @@ public class AlineacionFragment extends Fragment {
         imageViews.put("Fw1", view.findViewById(R.id.img_fw1));
         imageViews.put("Fw2", view.findViewById(R.id.img_fw2));
 
-        // Cargar alineación con imágenes
+        // Cargar alineación guardada
         firestoreHelper.cargarAlineacionConImagenes(userId, ligaName, imageViews);
 
-        // Botones
+        // Asignar listeners a los botones
         view.findViewById(R.id.btn_portero).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Goalkeeper"));
         view.findViewById(R.id.btn_def1).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def1"));
         view.findViewById(R.id.btn_def2).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def2"));
@@ -93,53 +92,41 @@ public class AlineacionFragment extends Fragment {
                     }
                 }
 
-                // Crear un array de nombres de jugadores para el diálogo
                 String[] playerNames = new String[filtrados.size()];
                 for (int i = 0; i < filtrados.size(); i++) {
                     playerNames[i] = filtrados.get(i).getNombre();
                 }
 
-                // Mostrar el diálogo de selección de jugador
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Selecciona un jugador");
-                builder.setItems(playerNames, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Jugador selectedPlayer = filtrados.get(which);
-                        final String imageUrl = selectedPlayer.getImageUrl();
-                        firestoreHelper.guardarAlineacionConImagenes(userId, leagueName, positionKey, imageUrl, new Runnable() {
-                            @Override
-                            public void run() {
-                                ImageView imageView = imageViews.get(positionKey);
-                                if (imageUrl != null && !imageUrl.isEmpty()) {
-                                    Glide.with(getContext()).load(imageUrl).into(imageView);
-                                } else {
-                                    imageView.setImageResource(R.drawable.defaultplayer);
-                                }
-                                Toast.makeText(getContext(), "Jugador seleccionado: " + selectedPlayer.getNombre(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                builder.setItems(playerNames, (dialog, which) -> {
+                    Jugador selectedPlayer = filtrados.get(which);
+                    String imageUrl = selectedPlayer.getImageUrl();
 
-                        firestoreHelper.saveLineup(userId, leagueName, positionKey, selectedPlayer.getNombre());
-                    }
+                    Log.d("PlayerSelection", "Jugador seleccionado: " + selectedPlayer.getNombre());
+                    Log.d("PlayerSelection", "URL original de imagen: " + imageUrl);
+
+                    // Usa directamente Glide con la URL HTTP
+                    Glide.with(getContext())
+                            .load(imageUrl)
+                            .into(imageViews.get(positionKey));
+
+                    // Guarda la alineación con la URL directa
+                    firestoreHelper.guardarAlineacionConImagenes(userId, leagueName, positionKey, imageUrl, () ->
+                            Toast.makeText(getContext(), "Jugador seleccionado: " + selectedPlayer.getNombre(), Toast.LENGTH_SHORT).show());
+
+                    firestoreHelper.saveLineup(userId, leagueName, positionKey, selectedPlayer.getNombre());
                 });
                 builder.show();
             }
 
             @Override
             public void onFailure(String error) {
+                Log.e("FirestoreHelper", "Error al cargar jugadores: " + error);
                 Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-
-
-
-
-
-
-
 
     private String getGeneralPosition(String key) {
         if (key.startsWith("Def")) return "Defender";

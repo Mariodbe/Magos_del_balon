@@ -1776,15 +1776,15 @@ public class FireStoreHelper {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         Map<String, Object> ligas = (Map<String, Object>) documentSnapshot.get(ligaIdHash);
-                        if (ligas != null && ligas.containsKey("alineacion")) {
-                            Map<String, Object> alineacion = (Map<String, Object>) ligas.get("alineacion");
+                        if (ligas != null && ligas.containsKey("alineacionImg")) {
+                            Map<String, Object> alineacion = (Map<String, Object>) ligas.get("alineacionImg");
                             for (String posicion : imageViews.keySet()) {
                                 String imageUrl = (String) alineacion.get(posicion);
                                 ImageView imageView = imageViews.get(posicion);
                                 if (imageUrl != null && !imageUrl.isEmpty()) {
                                     Glide.with(imageView.getContext()).load(imageUrl).into(imageView);
                                 } else {
-                                    imageView.setImageResource(R.drawable.defaultplayer); // Imagen por defecto
+                                    imageView.setImageResource(R.drawable.defaultplayer);
                                 }
                             }
                         }
@@ -1832,52 +1832,43 @@ public class FireStoreHelper {
 
         userRef.get().addOnSuccessListener(documentSnapshot -> {
             try {
-                Log.d("Firestore", "DocumentSnapshot data: " + documentSnapshot.getData());
-
                 if (documentSnapshot.exists()) {
-                    Map<String, Object> data = (Map<String, Object>) documentSnapshot.get(ligaId);
-                    Log.d("Firestore", "Liga data: " + data);
+                    Map<String, Object> allData = documentSnapshot.getData();
+                    String ligaIdHash = ligaId.toLowerCase().replaceAll("[^a-z0-9]", "_");
 
-                    if (data != null && data.containsKey("jugadores")) {
-                        List<Map<String, Object>> jugadoresMap = (List<Map<String, Object>>) data.get("jugadores");
+                    Map<String, Object> ligaData = (Map<String, Object>) allData.get(ligaIdHash);
+                    if (ligaData != null && ligaData.containsKey("jugadores")) {
+                        List<Map<String, Object>> jugadoresMap = (List<Map<String, Object>>) ligaData.get("jugadores");
                         List<Jugador> jugadores = new ArrayList<>();
 
                         for (Map<String, Object> j : jugadoresMap) {
-                            Log.d("Firestore", "Jugador data: " + j.toString());
+                            if (j.containsKey("nombre") && j.containsKey("posicion") && j.containsKey("overall") &&
+                                    j.containsKey("precio") && j.containsKey("url")) {
 
-                            if (j.containsKey("nombre") && j.containsKey("posicion") && j.containsKey("overall") && j.containsKey("precio") && j.containsKey("url")) {
                                 String nombre = (String) j.get("nombre");
                                 String posicion = (String) j.get("posicion");
                                 int overall = ((Number) j.get("overall")).intValue();
                                 int precio = ((Number) j.get("precio")).intValue();
                                 String imageUrl = (String) j.get("url");
 
-                                if (imageUrl == null || imageUrl.isEmpty()) {
-                                    Log.e("Firestore", "URL de imagen no válida para el jugador: " + nombre);
-                                    continue;
-                                }
+                                if (imageUrl == null || imageUrl.isEmpty()) continue;
 
                                 Jugador jugador = new Jugador(nombre, posicion, overall, precio, imageUrl);
                                 jugadores.add(jugador);
-                            } else {
-                                Log.e("Firestore", "Faltan campos en el jugador: " + j.toString());
                             }
                         }
+
                         callback.onSuccess(jugadores);
                     } else {
-                        Log.d("Firestore", "No se encontraron jugadores en la liga: " + ligaId);
                         callback.onSuccess(new ArrayList<>());
                     }
                 } else {
-                    Log.d("Firestore", "No se encontró el documento del usuario");
                     callback.onSuccess(new ArrayList<>());
                 }
             } catch (Exception e) {
-                Log.e("Firestore", "Error procesando los datos: " + e.getMessage(), e);
                 callback.onFailure("Error procesando los datos: " + e.getMessage());
             }
         }).addOnFailureListener(e -> {
-            Log.e("Firestore", "Error de base de datos: " + e.getMessage(), e);
             callback.onFailure("Error de base de datos: " + e.getMessage());
         });
     }
