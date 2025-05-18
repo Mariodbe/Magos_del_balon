@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.storage.StorageReference;
@@ -1779,7 +1780,7 @@ public class FireStoreHelper {
         void onFailure(String errorMessage);
     }
 
-    public void actualizarEstadisticasPartido(String ligaName, String resultado, FirestoreUpdateCallback callback) {
+    public void actualizarEstadisticasPartido(String ligaName, String equipoActual, String equipoRival, String resultado, FirestoreUpdateCallback callback) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
 
@@ -1796,6 +1797,7 @@ public class FireStoreHelper {
                 Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
                 if (progresoLiga == null) progresoLiga = new HashMap<>();
 
+                // Actualizar conteo global (ganados, empatados, perdidos) para MI equipo
                 String campo = "";
                 switch (resultado) {
                     case "ganado": campo = "MIpartidosGanados"; break;
@@ -1806,6 +1808,51 @@ public class FireStoreHelper {
 
                 Long valorActual = progresoLiga.get(campo) instanceof Long ? (Long) progresoLiga.get(campo) : 0L;
                 progresoLiga.put(campo, valorActual + 1);
+
+                // Actualizar la clasificación (lista)
+                List<Map<String, Object>> clasificacion = (List<Map<String, Object>>) progresoLiga.get("clasificacion");
+                if (clasificacion == null) {
+                    callback.onFailure("No se encontró la clasificación.");
+                    return;
+                }
+
+                // Función helper para actualizar stats del equipo en la clasificación
+                BiConsumer<String, String> actualizarEquipo = (equipo, res) -> {
+                    for (Map<String, Object> equipoStats : clasificacion) {
+                        if (equipo.equalsIgnoreCase((String) equipoStats.get("equipo"))) {
+                            // Obtener actuales
+                            int ganados = ((Long) equipoStats.getOrDefault("partidosGanados", 0L)).intValue();
+                            int empatados = ((Long) equipoStats.getOrDefault("partidosEmpatados", 0L)).intValue();
+                            int perdidos = ((Long) equipoStats.getOrDefault("partidosPerdidos", 0L)).intValue();
+
+                            switch (res) {
+                                case "ganado": ganados++; break;
+                                case "empatado": empatados++; break;
+                                case "perdido": perdidos++; break;
+                            }
+
+                            equipoStats.put("partidosGanados", ganados);
+                            equipoStats.put("partidosEmpatados", empatados);
+                            equipoStats.put("partidosPerdidos", perdidos);
+                            break;
+                        }
+                    }
+                };
+
+                // Actualizamos el equipo actual según resultado
+                actualizarEquipo.accept(equipoActual, resultado);
+
+                // Para el equipo rival, el resultado es inverso:
+                String resultadoRival = "";
+                switch (resultado) {
+                    case "ganado": resultadoRival = "perdido"; break;
+                    case "empatado": resultadoRival = "empatado"; break;
+                    case "perdido": resultadoRival = "ganado"; break;
+                }
+                actualizarEquipo.accept(equipoRival, resultadoRival);
+
+                // Guardar actualización en Firestore
+                progresoLiga.put("clasificacion", clasificacion);
                 ligaData.put("progresoLiga", progresoLiga);
 
                 Map<String, Object> updateMap = new HashMap<>();
@@ -1814,6 +1861,7 @@ public class FireStoreHelper {
                 userLigaRef.set(updateMap, SetOptions.merge())
                         .addOnSuccessListener(aVoid -> callback.onSuccess())
                         .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+
             } else {
                 callback.onFailure("No se encontró el documento del usuario.");
             }
@@ -1895,5 +1943,76 @@ public class FireStoreHelper {
         void onSuccess(List<Map<String, Object>> clasificacion);
         void onFailure(String errorMessage);
     }
+    public void actualizarClasificacionEnFirestore(String ligaName,String equipoA, String equipoB, String resultado) {
+        // Ejemplo para obtener y actualizar en Firestore la clasificación de la liga
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+        DocumentReference ligaRef = db.collection("users").document(userId);
 
+        ligaRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (!documentSnapshot.exists()) {
+                Log.e("ACTUALIZAR_CLASIFICACION", "No existe el documento del usuario");
+                return;
+            }
+
+            Map<String, Object> userData = documentSnapshot.getData();
+            if (userData == null || !userData.containsKey(ligaIdHash)) {
+                Log.e("ACTUALIZAR_CLASIFICACION", "No existe la liga en el documento");
+                return;
+            }
+
+            Map<String, Object> ligaData = (Map<String, Object>) userData.get(ligaIdHash);
+            if (ligaData == null || !ligaData.containsKey("progresoLiga")) {
+                Log.e("ACTUALIZAR_CLASIFICACION", "No existe progresoLiga");
+                return;
+            }
+
+            Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+            if (progresoLiga == null || !progresoLiga.containsKey("clasificacion")) {
+                Log.e("ACTUALIZAR_CLASIFICACION", "No existe la clasificación");
+                return;
+            }
+
+            List<Map<String, Object>> clasificacion = (List<Map<String, Object>>) progresoLiga.get("clasificacion");
+            if (clasificacion == null) return;
+
+            // Buscar y actualizar estadísticas para equipoA y equipoB
+            for (Map<String, Object> equipoStats : clasificacion) {
+                String equipoNombre = (String) equipoStats.get("equipo");
+                if (equipoNombre.equalsIgnoreCase(equipoA)) {
+                    if ("A".equals(resultado)) { // equipoA gana
+                        int ganados = ((Long) equipoStats.getOrDefault("partidosGanados", 0L)).intValue();
+                        equipoStats.put("partidosGanados", ganados + 1);
+                    } else if ("E".equals(resultado)) { // empate
+                        int empatados = ((Long) equipoStats.getOrDefault("partidosEmpatados", 0L)).intValue();
+                        equipoStats.put("partidosEmpatados", empatados + 1);
+                    } else { // pierde
+                        int perdidos = ((Long) equipoStats.getOrDefault("partidosPerdidos", 0L)).intValue();
+                        equipoStats.put("partidosPerdidos", perdidos + 1);
+                    }
+                } else if (equipoNombre.equalsIgnoreCase(equipoB)) {
+                    if ("B".equals(resultado)) { // equipoB gana
+                        int ganados = ((Long) equipoStats.getOrDefault("partidosGanados", 0L)).intValue();
+                        equipoStats.put("partidosGanados", ganados + 1);
+                    } else if ("E".equals(resultado)) { // empate
+                        int empatados = ((Long) equipoStats.getOrDefault("partidosEmpatados", 0L)).intValue();
+                        equipoStats.put("partidosEmpatados", empatados + 1);
+                    } else { // pierde
+                        int perdidos = ((Long) equipoStats.getOrDefault("partidosPerdidos", 0L)).intValue();
+                        equipoStats.put("partidosPerdidos", perdidos + 1);
+                    }
+                }
+            }
+
+            // Guardar de nuevo la clasificación actualizada
+            progresoLiga.put("clasificacion", clasificacion);
+            ligaData.put("progresoLiga", progresoLiga);
+            userData.put(ligaIdHash, ligaData);
+
+            ligaRef.set(userData, SetOptions.merge())
+                    .addOnSuccessListener(aVoid -> Log.d("ACTUALIZAR_CLASIFICACION", "Clasificación actualizada correctamente"))
+                    .addOnFailureListener(e -> Log.e("ACTUALIZAR_CLASIFICACION", "Error actualizando clasificación: " + e.getMessage()));
+
+        }).addOnFailureListener(e -> Log.e("ACTUALIZAR_CLASIFICACION", "Error obteniendo usuario: " + e.getMessage()));
+    }
 }

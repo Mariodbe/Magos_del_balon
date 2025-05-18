@@ -20,9 +20,13 @@ import com.example.magosdelbalon.FireStoreHelper;
 import com.example.magosdelbalon.MainActivity;
 import com.example.magosdelbalon.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -38,6 +42,9 @@ public class PrincipalFragment extends Fragment {
     private int intensidadContraataques;
     private int intensidadPosesion;
     private int intensidadPresion;
+    private String equipoActual;
+    private String equipoRival;
+
 
     public PrincipalFragment() {
         // Constructor vacío requerido
@@ -221,10 +228,13 @@ public class PrincipalFragment extends Fragment {
         if (ligaData != null && ligaData.containsKey("equipo")) {
             String equipo = (String) ligaData.get("equipo");
             teamTextView.setText(equipo);
+            equipoActual = equipo;  // <-- Guardamos el nombre
         } else {
             teamTextView.setText("Desconocido");
+            equipoActual = "Desconocido";
         }
     }
+
     private void calcularMediaRival(Map<String, Object> ligaData, TextView rivalMediaTextView) {
         if (ligaData.containsKey("progresoLiga")) {
             Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
@@ -311,7 +321,7 @@ public class PrincipalFragment extends Fragment {
                         if (!pendientesMap.isEmpty()) {
                             String proximoRival = Collections.max(pendientesMap.entrySet(), Map.Entry.comparingByValue()).getKey();
                             rivalTextView.setText(proximoRival);
-
+                            equipoRival = proximoRival; // Añade esta línea dentro del if que detecta el rival
                             // Mostrar contenido normal
                             contenidoLigaLayout.setVisibility(View.VISIBLE);
                             ligaFinalizadaTextView.setVisibility(View.GONE);
@@ -405,7 +415,7 @@ public class PrincipalFragment extends Fragment {
         }
 
         // Actualizar estadísticas del usuario en Firestore
-        fireStoreHelper.actualizarEstadisticasPartido(ligaName, resultadoPartido, new FireStoreHelper.FirestoreUpdateCallback() {
+        fireStoreHelper.actualizarEstadisticasPartido(ligaName, equipoActual, equipoRival, resultadoPartido, new FireStoreHelper.FirestoreUpdateCallback() {
             @Override
             public void onSuccess() {
                 Log.d("Estadísticas", "Estadísticas de partido actualizadas correctamente.");
@@ -417,6 +427,47 @@ public class PrincipalFragment extends Fragment {
             }
         });
 
+
+        // Obtener y mostrar grupos de 2 equipos en consola
+        fireStoreHelper.obtenerDatosLigaPorId(ligaName, new FireStoreHelper.FirestoreCallback1() {
+            @Override
+            public void onSuccess(Map<String, Object> ligaData) {
+                if (ligaData != null && ligaData.containsKey("progresoLiga")) {
+
+                    Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+
+                    Map<String, Integer> pendientes = (Map<String, Integer>) progresoLiga.get("pendientesJugar");
+                    if (pendientes != null && !pendientes.isEmpty()) {
+                        String proximoRival = Collections.max(pendientes.entrySet(), Map.Entry.comparingByValue()).getKey();
+
+                        List<List<Map<String, Object>>> grupos = obtenerGruposDeClasificacionSinRival(ligaData, proximoRival);
+
+                        for (int i = 0; i < grupos.size(); i++) {
+                            List<Map<String, Object>> grupo = grupos.get(i);
+                            StringBuilder sb = new StringBuilder("Grupo " + (i + 1) + ": ");
+                            for (Map<String, Object> equipo : grupo) {
+                                sb.append(equipo.get("equipo")).append(" ");
+                            }
+                            Log.d("GRUPOS_CLASIFICACION", sb.toString().trim());
+
+                            // Llamada para simular el grupo
+                            simularGrupoDeDos(grupo, ligaName);
+                        }
+
+                    } else {
+                        Log.d("GRUPOS_CLASIFICACION", "No hay rivales pendientes");
+                    }
+
+                } else {
+                    Log.d("GRUPOS_CLASIFICACION", "Datos de liga o progresoLiga no disponibles");
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e("GRUPOS_CLASIFICACION", "Error al obtener ligaData: " + errorMessage);
+            }
+        });
 
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Resultado del Partido")
@@ -513,6 +564,100 @@ public class PrincipalFragment extends Fragment {
 
         return probabilidadVictoria;
     }
+
+    private List<List<Map<String, Object>>> obtenerGruposDeClasificacionSinRival(Map<String, Object> ligaData, String proximoRival) {
+        List<Map<String, Object>> clasificacion = (List<Map<String, Object>>)
+                ((Map<String, Object>) ligaData.get("progresoLiga")).get("clasificacion");
+
+        List<Map<String, Object>> clasificacionFiltrada = new ArrayList<>();
+        for (Map<String, Object> equipo : clasificacion) {
+            String nombreEquipo = (String) equipo.get("equipo");
+            if (!nombreEquipo.equalsIgnoreCase(proximoRival)) {
+                clasificacionFiltrada.add(equipo);
+            }
+        }
+
+        List<List<Map<String, Object>>> gruposDeDos = new ArrayList<>();
+        for (int i = 0; i < clasificacionFiltrada.size(); i += 2) {
+            List<Map<String, Object>> grupo = new ArrayList<>();
+            grupo.add(clasificacionFiltrada.get(i));
+            if (i + 1 < clasificacionFiltrada.size()) {
+                grupo.add(clasificacionFiltrada.get(i + 1));
+            }
+            gruposDeDos.add(grupo);
+        }
+
+        return gruposDeDos;
+    }
+
+
+    private void simularGrupoDeDos(List<Map<String, Object>> grupo, String ligaName) {
+        if (grupo.size() != 2) {
+            Log.e("SIMULACION_GRUPO", "El grupo no tiene exactamente dos equipos.");
+            return;
+        }
+
+        String equipoA = (String) grupo.get(0).get("equipo");
+        String equipoB = (String) grupo.get(1).get("equipo");
+
+        fireStoreHelper.fetchRivalAverageByTeamName(equipoA, new FireStoreHelper.AverageCallback() {
+            @Override
+            public void onAverageLoaded(double mediaA) {
+                fireStoreHelper.fetchRivalAverageByTeamName(equipoB, new FireStoreHelper.AverageCallback() {
+                    @Override
+                    public void onAverageLoaded(double mediaB) {
+                        int arbitro = new Random().nextInt(5) + 1; // árbitro aleatorio para la simulación
+
+                        double probVictoriaA = calcularProbabilidadVictoria(mediaA, mediaB, arbitro);
+
+                        double diferenciaMedias = Math.abs(mediaA - mediaB);
+                        double probEmpate = 0.3 - Math.min(0.25, diferenciaMedias * 0.025);
+                        probEmpate += new Random().nextDouble() * 0.05 - 0.025;
+                        probEmpate = Math.max(0.05, Math.min(0.3, probEmpate));
+
+                        double factor = 1.0 - probEmpate;
+                        probVictoriaA *= factor;
+                        double probVictoriaB = 1.0 - probEmpate - probVictoriaA;
+
+                        double resultado = new Random().nextDouble();
+                        String resultadoTexto;
+
+                        String resultadoFinal; // para almacenar el resultado simple: "A", "B" o "E" (empate)
+
+                        if (resultado < probVictoriaA) {
+                            resultadoTexto = equipoA + " gana (" + (int)(probVictoriaA * 100) + "%) vs " + equipoB + " (" + (int)(probVictoriaB * 100) + "%)";
+                            resultadoFinal = "A";
+                        } else if (resultado < probVictoriaA + probEmpate) {
+                            resultadoTexto = equipoA + " empata con " + equipoB + " (" + (int)(probEmpate * 100) + "% de empate)";
+                            resultadoFinal = "E";
+                        } else {
+                            resultadoTexto = equipoB + " gana (" + (int)(probVictoriaB * 100) + "%) vs " + equipoA + " (" + (int)(probVictoriaA * 100) + "%)";
+                            resultadoFinal = "B";
+                        }
+
+                        Log.d("SIMULACION_GRUPO", resultadoTexto);
+
+                        // Ahora actualizar Firestore con el resultado en la clasificación
+                        fireStoreHelper.actualizarClasificacionEnFirestore(ligaName, equipoA, equipoB, resultadoFinal);
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        Log.e("SIMULACION_GRUPO", "Error al obtener media de " + equipoB + ": " + error);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("SIMULACION_GRUPO", "Error al obtener media de " + equipoA + ": " + error);
+            }
+        });
+    }
+
+
+
+
 
 
 }

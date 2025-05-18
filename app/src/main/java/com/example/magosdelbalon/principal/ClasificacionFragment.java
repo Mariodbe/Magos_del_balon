@@ -62,9 +62,23 @@ public class ClasificacionFragment extends Fragment {
                             for (Map<String, Object> equipo : clasificacion) {
                                 String nombre = (String) equipo.get("equipo");
                                 if (!nombre.equals(nombreEquipoPropio)) {
+                                    // Calculamos y guardamos los puntos como campo temporal
+                                    int ganados = toInt(equipo.get("partidosGanados"));
+                                    int empatados = toInt(equipo.get("partidosEmpatados"));
+                                    int puntos = ganados * 3 + empatados;
+                                    equipo.put("puntos", puntos);
                                     rivales.add(equipo);
                                 }
                             }
+
+                            // Ordenamos de mayor a menor por puntos
+                            rivales.sort((e1, e2) -> {
+                                int puntos1 = toInt(e1.get("puntos"));
+                                int puntos2 = toInt(e2.get("puntos"));
+                                return Integer.compare(puntos2, puntos1); // Descendente
+                            });
+
+
                             ClasificacionAdapter adapter = new ClasificacionAdapter(rivales);
                             recyclerView.setAdapter(adapter);
                         }
