@@ -106,15 +106,35 @@ public class AlineacionFragment extends Fragment {
                     Log.d("PlayerSelection", "Jugador seleccionado: " + selectedPlayer.getNombre());
                     Log.d("PlayerSelection", "URL original de imagen: " + imageUrl);
 
-                    // Usa directamente Glide con la URL HTTP
-                    Glide.with(getContext())
-                            .load(imageUrl)
-                            .into(imageViews.get(positionKey));
+                    if (imageUrl.startsWith("gs://")) {
+                        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+                        storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String publicUrl = uri.toString();
+                            // Usa Glide con la URL pública
+                            Glide.with(getContext())
+                                    .load(publicUrl)
+                                    .into(imageViews.get(positionKey));
 
-                    // Guarda la alineación con la URL directa
-                    firestoreHelper.guardarAlineacionConImagenes(userId, leagueName, positionKey, imageUrl, () ->
-                            Toast.makeText(getContext(), "Jugador seleccionado: " + selectedPlayer.getNombre(), Toast.LENGTH_SHORT).show());
+                            // Guarda esta URL en Firestore
+                            firestoreHelper.guardarAlineacionConImagenes(userId, leagueName, positionKey, publicUrl, () -> {
+                                Toast.makeText(getContext(), "Jugador seleccionado: " + selectedPlayer.getNombre(), Toast.LENGTH_SHORT).show();
+                            });
 
+                        }).addOnFailureListener(e -> {
+                            Log.e("FirebaseStorage", "Error al obtener URL pública: " + e.getMessage());
+                            Toast.makeText(getContext(), "Error al cargar imagen", Toast.LENGTH_SHORT).show();
+                        });
+
+                    } else {
+                        // URL ya es pública
+                        Glide.with(getContext())
+                                .load(imageUrl)
+                                .into(imageViews.get(positionKey));
+
+                        firestoreHelper.guardarAlineacionConImagenes(userId, leagueName, positionKey, imageUrl, () -> {
+                            Toast.makeText(getContext(), "Jugador seleccionado: " + selectedPlayer.getNombre(), Toast.LENGTH_SHORT).show();
+                        });
+                    }
                     firestoreHelper.saveLineup(userId, leagueName, positionKey, selectedPlayer.getNombre());
                 });
                 builder.show();
