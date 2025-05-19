@@ -8,6 +8,7 @@ public class Jugador {
     private long tiempoFinalizacionEntrenamiento;
     private long timestampFinEntrenamiento; // en milisegundos
     private int precio;
+    private String url;
 
 
 
@@ -17,6 +18,15 @@ public class Jugador {
         this.posicion = posicion;
         this.overall = overall;
         this.precio = precio;
+    }
+
+    //Constructor alineacion
+    public Jugador(String nombre, String posicion, int overall, int precio,String url) {
+        this.nombre = nombre;
+        this.posicion = posicion;
+        this.overall = overall;
+        this.precio = precio;
+        this.url = url;
     }
 
     public void entrenar() {
@@ -49,6 +59,7 @@ public class Jugador {
     public String getPosicion() { return posicion; }
     public int getOverall() { return overall; }
     public int getPrecio() { return precio; }
+    public String getImageUrl(){return url; }
 
     @Override
     public String toString() {

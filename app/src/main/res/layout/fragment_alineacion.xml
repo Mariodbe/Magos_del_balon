@@ -41,6 +41,16 @@
         app:layout_constraintTop_toTopOf="@id/btn_portero"
         app:layout_constraintBottom_toBottomOf="@id/btn_portero" />
 
+    <ImageView
+        android:id="@+id/img_portero"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_portero"
+        app:layout_constraintTop_toTopOf="@id/btn_portero"
+        app:layout_constraintBottom_toBottomOf="@id/btn_portero" />
+
     <Button
         android:id="@+id/btn_fw1"
         style="@style/PlayerButton"
@@ -59,6 +69,15 @@
         android:layout_marginStart="8dp"
         app:layout_constraintTop_toTopOf="@id/btn_fw1"
         app:layout_constraintStart_toEndOf="@id/btn_fw1"
+        app:layout_constraintBottom_toBottomOf="@id/btn_fw1" />
+    <ImageView
+        android:id="@+id/img_fw1"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_fw1"
+        app:layout_constraintTop_toTopOf="@id/btn_fw1"
         app:layout_constraintBottom_toBottomOf="@id/btn_fw1" />
 
     <Button
@@ -79,6 +98,16 @@
         android:layout_marginStart="8dp"
         app:layout_constraintTop_toTopOf="@id/btn_fw2"
         app:layout_constraintStart_toEndOf="@id/btn_fw2"
+        app:layout_constraintBottom_toBottomOf="@id/btn_fw2" />
+
+    <ImageView
+        android:id="@+id/img_fw2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_fw2"
+        app:layout_constraintTop_toTopOf="@id/btn_fw2"
         app:layout_constraintBottom_toBottomOf="@id/btn_fw2" />
 
     <Button
@@ -102,6 +131,16 @@
         app:layout_constraintStart_toEndOf="@id/btn_def3"
         app:layout_constraintBottom_toBottomOf="@id/btn_def3" />
 
+    <ImageView
+        android:id="@+id/img_def3"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_def3"
+        app:layout_constraintTop_toTopOf="@id/btn_def3"
+        app:layout_constraintBottom_toBottomOf="@id/btn_def3" />
+
     <Button
         android:id="@+id/btn_def4"
         style="@style/PlayerButton"
@@ -122,6 +161,17 @@
         app:layout_constraintStart_toEndOf="@id/btn_def4"
         app:layout_constraintBottom_toBottomOf="@id/btn_def4" />
 
+    <ImageView
+        android:id="@+id/img_def4"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_def4"
+        app:layout_constraintTop_toTopOf="@id/btn_def4"
+        app:layout_constraintBottom_toBottomOf="@id/btn_def4" />
+
+
     <Button
         android:id="@+id/btn_def1"
         style="@style/PlayerButton"
@@ -141,6 +191,16 @@
         android:layout_marginStart="8dp"
         app:layout_constraintTop_toTopOf="@id/btn_def1"
         app:layout_constraintStart_toEndOf="@id/btn_def1"
+        app:layout_constraintBottom_toBottomOf="@id/btn_def1" />
+
+    <ImageView
+        android:id="@+id/img_def1"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_def1"
+        app:layout_constraintTop_toTopOf="@id/btn_def1"
         app:layout_constraintBottom_toBottomOf="@id/btn_def1" />
 
     <Button
@@ -164,6 +224,16 @@
         app:layout_constraintStart_toEndOf="@id/btn_def2"
         app:layout_constraintBottom_toBottomOf="@id/btn_def2" />
 
+    <ImageView
+        android:id="@+id/img_def2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_def2"
+        app:layout_constraintTop_toTopOf="@id/btn_def2"
+        app:layout_constraintBottom_toBottomOf="@id/btn_def2" />
+
     <Button
         android:id="@+id/btn_mid3"
         style="@style/PlayerButton"
@@ -182,6 +252,16 @@
         android:layout_marginStart="8dp"
         app:layout_constraintTop_toTopOf="@id/btn_mid3"
         app:layout_constraintStart_toEndOf="@id/btn_mid3"
+        app:layout_constraintBottom_toBottomOf="@id/btn_mid3" />
+
+    <ImageView
+        android:id="@+id/img_mid3"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_mid3"
+        app:layout_constraintTop_toTopOf="@id/btn_mid3"
         app:layout_constraintBottom_toBottomOf="@id/btn_mid3" />
 
     <Button
@@ -204,6 +284,16 @@
         app:layout_constraintStart_toEndOf="@id/btn_mid2"
         app:layout_constraintBottom_toBottomOf="@id/btn_mid2" />
 
+    <ImageView
+        android:id="@+id/img_mid2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_mid2"
+        app:layout_constraintTop_toTopOf="@id/btn_mid2"
+        app:layout_constraintBottom_toBottomOf="@id/btn_mid2" />
+
     <Button
         android:id="@+id/btn_mid4"
         style="@style/PlayerButton"
@@ -224,6 +314,16 @@
         app:layout_constraintStart_toEndOf="@id/btn_mid4"
         app:layout_constraintBottom_toBottomOf="@id/btn_mid4" />
 
+    <ImageView
+        android:id="@+id/img_mid4"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_mid4"
+        app:layout_constraintTop_toTopOf="@id/btn_mid4"
+        app:layout_constraintBottom_toBottomOf="@id/btn_mid4" />
+
     <Button
         android:id="@+id/btn_mid1"
         style="@style/PlayerButton"
@@ -242,6 +342,16 @@
         android:layout_marginStart="8dp"
         app:layout_constraintTop_toTopOf="@id/btn_mid1"
         app:layout_constraintStart_toEndOf="@id/btn_mid1"
+        app:layout_constraintBottom_toBottomOf="@id/btn_mid1" />
+
+    <ImageView
+        android:id="@+id/img_mid1"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/btn_mid1"
+        app:layout_constraintTop_toTopOf="@id/btn_mid1"
         app:layout_constraintBottom_toBottomOf="@id/btn_mid1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
