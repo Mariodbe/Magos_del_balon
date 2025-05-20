@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -29,6 +30,8 @@ public class AlineacionFragment extends Fragment {
 
     private FireStoreHelper firestoreHelper;
     private Map<String, ImageView> imageViews = new HashMap<>();
+    private Map<String, String> selectedPlayers = new HashMap<>(); // Para llevar un registro de los jugadores seleccionados
+    private Map<String, TextView> textViews = new HashMap<>(); // Para llevar un registro de los TextViews
 
     public AlineacionFragment() {
         // Constructor vacío requerido
@@ -60,21 +63,35 @@ public class AlineacionFragment extends Fragment {
         imageViews.put("Fw1", view.findViewById(R.id.img_fw1));
         imageViews.put("Fw2", view.findViewById(R.id.img_fw2));
 
-        // Cargar alineación guardada
+        // Asignar TextViews
+        textViews.put("Goalkeeper", view.findViewById(R.id.txt_portero));
+        textViews.put("Def1", view.findViewById(R.id.txt_def1));
+        textViews.put("Def2", view.findViewById(R.id.txt_def2));
+        textViews.put("Def3", view.findViewById(R.id.txt_def3));
+        textViews.put("Def4", view.findViewById(R.id.txt_def4));
+        textViews.put("Mid1", view.findViewById(R.id.txt_mid1));
+        textViews.put("Mid2", view.findViewById(R.id.txt_mid2));
+        textViews.put("Mid3", view.findViewById(R.id.txt_mid3));
+        textViews.put("Mid4", view.findViewById(R.id.txt_mid4));
+        textViews.put("Fw1", view.findViewById(R.id.txt_fw1));
+        textViews.put("Fw2", view.findViewById(R.id.txt_fw2));
+
+        // Cargar alineación guardada y actualizar selectedPlayers
+        firestoreHelper.cargarAlineacion(userId, ligaName, textViews, selectedPlayers);
         firestoreHelper.cargarAlineacionConImagenes(userId, ligaName, imageViews);
 
         // Asignar listeners a los botones
-        view.findViewById(R.id.btn_portero).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Goalkeeper"));
-        view.findViewById(R.id.btn_def1).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def1"));
-        view.findViewById(R.id.btn_def2).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def2"));
-        view.findViewById(R.id.btn_def3).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def3"));
-        view.findViewById(R.id.btn_def4).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def4"));
-        view.findViewById(R.id.btn_mid1).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid1"));
-        view.findViewById(R.id.btn_mid2).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid2"));
-        view.findViewById(R.id.btn_mid3).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid3"));
-        view.findViewById(R.id.btn_mid4).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid4"));
-        view.findViewById(R.id.btn_fw1).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Fw1"));
-        view.findViewById(R.id.btn_fw2).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Fw2"));
+        view.findViewById(R.id.img_portero).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Goalkeeper"));
+        view.findViewById(R.id.img_def1).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def1"));
+        view.findViewById(R.id.img_def2).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def2"));
+        view.findViewById(R.id.img_def3).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def3"));
+        view.findViewById(R.id.img_def4).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def4"));
+        view.findViewById(R.id.img_mid1).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid1"));
+        view.findViewById(R.id.img_mid2).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid2"));
+        view.findViewById(R.id.img_mid3).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid3"));
+        view.findViewById(R.id.img_mid4).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Mid4"));
+        view.findViewById(R.id.img_fw1).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Fw1"));
+        view.findViewById(R.id.img_fw2).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Fw2"));
 
         return view;
     }
@@ -94,7 +111,7 @@ public class AlineacionFragment extends Fragment {
 
                 String[] playerNames = new String[filtrados.size()];
                 for (int i = 0; i < filtrados.size(); i++) {
-                    playerNames[i] = filtrados.get(i).getNombre();
+                    playerNames[i] = filtrados.get(i).getNombre() + " - " + filtrados.get(i).getOverall(); // Nombre y overall separados por un guion
                 }
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -102,6 +119,15 @@ public class AlineacionFragment extends Fragment {
                 builder.setItems(playerNames, (dialog, which) -> {
                     Jugador selectedPlayer = filtrados.get(which);
                     String imageUrl = selectedPlayer.getImageUrl();
+
+                    // Validar que el jugador no esté ya seleccionado en otra posición
+                    for (Map.Entry<String, String> entry : selectedPlayers.entrySet()) {
+                        if (!entry.getKey().equals(positionKey) &&
+                                entry.getValue().equals(selectedPlayer.getNombre())) {
+                            Toast.makeText(getContext(), "Ese jugador ya está en otra posición", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
 
                     Log.d("PlayerSelection", "Jugador seleccionado: " + selectedPlayer.getNombre());
                     Log.d("PlayerSelection", "URL original de imagen: " + imageUrl);
@@ -114,6 +140,9 @@ public class AlineacionFragment extends Fragment {
                             Glide.with(getContext())
                                     .load(publicUrl)
                                     .into(imageViews.get(positionKey));
+
+                            // Actualizar el TextView con el nombre del jugador
+                            textViews.get(positionKey).setText(selectedPlayer.getNombre());
 
                             // Guarda esta URL en Firestore
                             firestoreHelper.guardarAlineacionConImagenes(userId, leagueName, positionKey, publicUrl, () -> {
@@ -131,10 +160,14 @@ public class AlineacionFragment extends Fragment {
                                 .load(imageUrl)
                                 .into(imageViews.get(positionKey));
 
+                        // Actualizar el TextView con el nombre del jugador
+                        textViews.get(positionKey).setText(selectedPlayer.getNombre());
+
                         firestoreHelper.guardarAlineacionConImagenes(userId, leagueName, positionKey, imageUrl, () -> {
                             Toast.makeText(getContext(), "Jugador seleccionado: " + selectedPlayer.getNombre(), Toast.LENGTH_SHORT).show();
                         });
                     }
+                    selectedPlayers.put(positionKey, selectedPlayer.getNombre()); // Registrar el jugador seleccionado
                     firestoreHelper.saveLineup(userId, leagueName, positionKey, selectedPlayer.getNombre());
                 });
                 builder.show();

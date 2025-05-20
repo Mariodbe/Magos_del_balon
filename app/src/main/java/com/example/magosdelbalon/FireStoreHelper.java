@@ -1211,6 +1211,29 @@ public class FireStoreHelper {
                     }
                 });
     }
+    public void cargarAlineacion(String userId, String ligaName, Map<String, TextView> textViews, Map<String, String> selectedPlayers) {
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> ligas = (Map<String, Object>) documentSnapshot.get(ligaIdHash);
+                        if (ligas != null && ligas.containsKey("alineacion")) {
+                            Map<String, Object> alineacion = (Map<String, Object>) ligas.get("alineacion");
+                            for (String posicion : textViews.keySet()) {
+                                String jugador = (String) alineacion.get(posicion);
+                                textViews.get(posicion).setText(jugador != null ? jugador : "");
+                                if (jugador != null) {
+                                    selectedPlayers.put(posicion, jugador);
+                                }
+                            }
+                        }
+                    }
+                });
+    }
 
     public void verificarAlineacionCompleta(String userId, String ligaName, AlineacionCallback callback) {
         String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
@@ -1920,6 +1943,14 @@ public class FireStoreHelper {
     public void cargarAlineacionConImagenes(String userId, String ligaName, Map<String, ImageView> imageViews) {
         String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
 
+        // Establecer imagen por defecto para todos los ImageView
+        for (ImageView imageView : imageViews.values()) {
+            Glide.with(imageView.getContext())
+                    .load(R.drawable.defaultplayer)
+                    .circleCrop()
+                    .into(imageView);
+        }
+
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(userId)
@@ -1934,14 +1965,13 @@ public class FireStoreHelper {
                                 ImageView imageView = imageViews.get(posicion);
                                 if (imageUrl != null && !imageUrl.isEmpty()) {
                                     Glide.with(imageView.getContext()).load(imageUrl).into(imageView);
-                                } else {
-                                    imageView.setImageResource(R.drawable.defaultplayer);
                                 }
                             }
                         }
                     }
                 });
     }
+
 
     public void guardarAlineacionConImagenes(String userId, String ligaName, String posicionClave, String imageUrl, Runnable onSuccess) {
         String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
