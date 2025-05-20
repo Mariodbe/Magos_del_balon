@@ -472,7 +472,8 @@ public class FireStoreHelper {
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
                                             ((Number) playerData.get("overall")).intValue(),
-                                            ((Number) playerData.get("precio")).intValue()
+                                            ((Number) playerData.get("precio")).intValue(),
+                                            (String) playerData.get("url")
 
                                     );
                                     players.add(jugador);
@@ -526,7 +527,8 @@ public class FireStoreHelper {
                                             (String) playerData.get("name"),
                                             (String) playerData.get("position"),
                                             ((Number) playerData.get("overall")).intValue(),
-                                            ((Number) playerData.get("precio")).intValue()
+                                            ((Number) playerData.get("precio")).intValue(),
+                                            (String) playerData.get("url")
 
                                     );
                                     players.add(jugador);
