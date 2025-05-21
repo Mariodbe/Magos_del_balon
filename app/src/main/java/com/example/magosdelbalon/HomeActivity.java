@@ -205,8 +205,8 @@ public class HomeActivity extends AppCompatActivity {
 
         final String[] ligaSeleccionada = {""};
 
-        String[] equiposLaLiga = {"Real Madrid", "Barcelona", "Atlético de Madrid"};
-        String[] equiposPremier = {"Manchester City", "Liverpool", "Chelsea"};
+        String[] equiposLaLiga = {"Real Madrid", "Barcelona", "Atlético de Madrid","Athletic Club"};
+        String[] equiposPremier = {"Manchester City", "Liverpool", "Chelsea","Arsenal"};
 
         imgLiga.setOnClickListener(v -> {
             ligaSeleccionada[0] = "La Liga";
