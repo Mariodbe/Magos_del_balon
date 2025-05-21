@@ -25,6 +25,7 @@ import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,10 +167,10 @@ public class PrincipalFragment extends Fragment {
             public void onSuccess(Map<String, Object> ligaData) {
                 actualizarEquipo(ligaData, teamTextView);
                 calcularMediaEquipo(userId, ligaName, mediaTextView);
-                actualizarRivalPendiente(ligaData, rivalTextView, getView().findViewById(R.id.layout_contenido_liga),
-                        getView().findViewById(R.id.text_view_liga_finalizada));
+                String proximorival = actualizarRivalPendiente(ligaData, rivalTextView, getView().findViewById(R.id.layout_contenido_liga),
+                        getView().findViewById(R.id.text_view_liga_finalizada), getView().findViewById(R.id.text_view_ganador));
                 // Calcular la media del equipo rival
-                calcularMediaRival(ligaData, rivalMediaTextView);
+                calcularMediaRival(proximorival, rivalMediaTextView);
             }
 
             @Override
@@ -235,49 +236,31 @@ public class PrincipalFragment extends Fragment {
         }
     }
 
-    private void calcularMediaRival(Map<String, Object> ligaData, TextView rivalMediaTextView) {
-        if (ligaData.containsKey("progresoLiga")) {
-            Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+    private void calcularMediaRival(String nombreRival, TextView rivalMediaTextView) {
+        if (nombreRival == null || nombreRival.isEmpty()) {
+            rivalMediaTextView.setText("Media: 0");
+            return;
+        }
 
-            if (progresoLiga.containsKey("pendientesJugar")) {
-                Object pendientesObj = progresoLiga.get("pendientesJugar");
-                if (pendientesObj instanceof Map) {
-                    Map<String, Object> pendientesMap = (Map<String, Object>) pendientesObj;
-
-                    if (!pendientesMap.isEmpty()) {
-                        String proximoRival = pendientesMap.keySet().iterator().next();
-
-                        fireStoreHelper.fetchRivalAverageByTeamName(proximoRival, new FireStoreHelper.AverageCallback() {
-                            @Override
-                            public void onAverageLoaded(double average) {
-                                if (Double.isNaN(average) || Double.isInfinite(average)) {
-                                    Log.e("PrincipalFragment", "El valor de la media no es válido: " + average);
-                                    average = 0;
-                                }
-                                rivalMediaTextView.setText("Media: " + Math.round(average));
-                                mediaRival = getMediaFromTextView(rivalMediaTextView);
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                Log.e("PrincipalFragment", "Error obteniendo media rival: " + error);
-                                rivalMediaTextView.setText("Media: 0");
-                            }
-                        });
-                    } else {
-                        rivalMediaTextView.setText("Media: 0");
-                    }
-                } else {
-                    rivalMediaTextView.setText("Media: 0");
-                    Log.e("PrincipalFragment", "pendientesJugar no es un Map");
+        fireStoreHelper.fetchRivalAverageByTeamName(nombreRival, new FireStoreHelper.AverageCallback() {
+            @Override
+            public void onAverageLoaded(double average) {
+                if (Double.isNaN(average) || Double.isInfinite(average)) {
+                    Log.e("PrincipalFragment", "El valor de la media no es válido: " + average);
+                    average = 0;
                 }
-            } else {
+                rivalMediaTextView.setText("Media: " + Math.round(average));
+                mediaRival = getMediaFromTextView(rivalMediaTextView);
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("PrincipalFragment", "Error obteniendo media rival: " + error);
                 rivalMediaTextView.setText("Media: 0");
             }
-        } else {
-            rivalMediaTextView.setText("Media: 0");
-        }
+        });
     }
+
 
 
 
@@ -299,7 +282,7 @@ public class PrincipalFragment extends Fragment {
     }
 
 
-    private void actualizarRivalPendiente(Map<String, Object> ligaData, TextView rivalTextView, View contenidoLigaLayout, TextView ligaFinalizadaTextView) {
+    private String actualizarRivalPendiente(Map<String, Object> ligaData, TextView rivalTextView, View contenidoLigaLayout, TextView ligaFinalizadaTextView, TextView textViewGanador) {
         if (ligaData.containsKey("progresoLiga")) {
             Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
 
@@ -321,31 +304,77 @@ public class PrincipalFragment extends Fragment {
                         if (!pendientesMap.isEmpty()) {
                             String proximoRival = Collections.max(pendientesMap.entrySet(), Map.Entry.comparingByValue()).getKey();
                             rivalTextView.setText(proximoRival);
-                            equipoRival = proximoRival; // Añade esta línea dentro del if que detecta el rival
-                            // Mostrar contenido normal
+                            equipoRival = proximoRival; // variable de clase
+
                             contenidoLigaLayout.setVisibility(View.VISIBLE);
                             ligaFinalizadaTextView.setVisibility(View.GONE);
+
+                            return proximoRival; // devolver el rival encontrado
                         } else {
-                            // Ocultar todo y mostrar solo mensaje de liga terminada
+                            // NO hay más partidos -> Buscar ganador
                             contenidoLigaLayout.setVisibility(View.GONE);
                             ligaFinalizadaTextView.setVisibility(View.VISIBLE);
+
+                            // Obtener clasificación
+                            List<Map<String, Object>> clasificacion = (List<Map<String, Object>>) progresoLiga.get("clasificacion");
+                            if (clasificacion != null && !clasificacion.isEmpty()) {
+                                // 1. Calcular puntos del equipo propio
+                                int misGanados = toInt(progresoLiga.get("MIpartidosGanados"));
+                                int misEmpatados = toInt(progresoLiga.get("MIpartidosEmpatados"));
+                                int misPuntos = misGanados * 3 + misEmpatados;
+
+                                // 2. Buscar el equipo con más puntos de la clasificación
+                                Map<String, Object> mejorEquipo = Collections.max(clasificacion, Comparator.comparingInt(equipo -> {
+                                    int ganados = toInt(equipo.get("partidosGanados"));
+                                    int empatados = toInt(equipo.get("partidosEmpatados"));
+                                    return ganados * 3 + empatados;
+                                }));
+
+                                int puntosGanador = toInt(mejorEquipo.get("partidosGanados")) * 3 + toInt(mejorEquipo.get("partidosEmpatados"));
+
+                                // 3. Comparar con mi equipo
+                                if (puntosGanador > misPuntos) {
+                                    String nombreGanador = (String) mejorEquipo.get("equipo");
+                                    textViewGanador.setText("El ganador de la liga es: " + nombreGanador);
+                                    textViewGanador.setVisibility(View.VISIBLE);
+                                } else {
+                                    textViewGanador.setText("¡Has ganado la liga!");
+                                    textViewGanador.setVisibility(View.VISIBLE);
+                                }
+
+                            } else {
+                                textViewGanador.setText("No hay datos de clasificación.");
+                                textViewGanador.setVisibility(View.VISIBLE);
+                            }
+
+                            return null;
                         }
+
                     } else {
                         rivalTextView.setText("Formato incorrecto de pendientes");
                         Log.e("PrincipalFragment", "pendientesJugar no es un Map");
+                        return null;
                     }
                 } catch (Exception e) {
                     Log.e("PrincipalFragment", "Error al obtener rival: " + e.getMessage());
                     rivalTextView.setText("Error al obtener rival");
+                    return null;
                 }
             } else {
                 rivalTextView.setText("Sin rivales pendientes");
+                return null;
             }
         } else {
             rivalTextView.setText("Progreso no disponible");
+            return null;
         }
     }
 
+    private int toInt(Object value) {
+        if (value instanceof Long) return ((Long) value).intValue();
+        if (value instanceof Integer) return (Integer) value;
+        return 0;
+    }
 
 
 

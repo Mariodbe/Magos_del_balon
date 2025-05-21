@@ -148,13 +148,24 @@
     <TextView
         android:id="@+id/text_view_liga_finalizada"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:text="¡La liga ha terminado!"
         android:textSize="28sp"
         android:textStyle="bold"
         android:gravity="center"
         android:visibility="gone"
-        android:textColor="#FF0000"/>
+        android:textColor="#FF0000" />
+
+    <TextView
+        android:id="@+id/text_view_ganador"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="El ganador de la liga es: "
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:visibility="gone"
+        android:textColor="#FF0000" />
 
 
 </LinearLayout>

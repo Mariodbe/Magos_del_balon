@@ -1664,6 +1664,8 @@ public class FireStoreHelper {
         teamFunctionMap.put("Chelsea", "getChelseaPlayers");
         teamFunctionMap.put("Man City", "getManCityPlayers");
         teamFunctionMap.put("Manchester City", "getManCityPlayers");
+        teamFunctionMap.put("Athletic Club", "getAthleticClubPlayers");
+        teamFunctionMap.put("Arsenal", "getArsenalPlayers");
 
         String functionName = teamFunctionMap.get(rivalName);
 
@@ -1681,6 +1683,7 @@ public class FireStoreHelper {
                         Map<String, Object> responseMap = (Map<String, Object>) result.getData();
                         if (responseMap.containsKey("averageOverall")) {
                             double average = ((Number) responseMap.get("averageOverall")).doubleValue();
+                            Log.d("FireStoreHelper", "Media del rival " + rivalName + " cargada: " + average); // Log añadido
                             callback.onAverageLoaded(average);
                         } else {
                             callback.onError("No se encontró 'averageOverall'");
@@ -1694,6 +1697,7 @@ public class FireStoreHelper {
                     callback.onError(e.getMessage());
                 });
     }
+
 
 
     public interface AverageCallback {
