@@ -10,6 +10,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -17,6 +18,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "UserPreferences";
     private static final String KEY_BRIGHTNESS = "brightness";
+    private static final String KEY_DARK_MODE = "dark_mode";
 
     private Switch switchDarkMode;
     private SeekBar seekBarBrightness;
@@ -26,6 +28,8 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        applyThemeFromPreferences(); // Aplicar modo oscuro/claro antes de cargar layout
+
         // Ocultar la barra de acción (ActionBar)
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
@@ -33,9 +37,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Configurar la ventana para un diseño de pantalla completa
         getWindow().setFlags(
-                android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         );
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -50,10 +55,13 @@ public class SettingsActivity extends AppCompatActivity {
         // Cargar preferencias guardadas
         loadPreferences();
 
+        // Guardar configuración
         btnSaveSettings.setOnClickListener(v -> savePreferences());
 
+        // Cerrar sesión
         btnLogout.setOnClickListener(v -> logout());
 
+        // Cambiar brillo
         seekBarBrightness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -68,11 +76,32 @@ public class SettingsActivity extends AppCompatActivity {
                 saveBrightnessPreference(seekBar.getProgress());
             }
         });
+
+        // Cambiar modo oscuro
+        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+            editor.putBoolean(KEY_DARK_MODE, isChecked);
+            editor.apply();
+
+            // Reiniciar para aplicar el tema
+            recreate();
+        });
+    }
+
+    private void applyThemeFromPreferences() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean darkMode = prefs.getBoolean(KEY_DARK_MODE, false);
+        if (darkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
     }
 
     private void loadPreferences() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         seekBarBrightness.setProgress(prefs.getInt(KEY_BRIGHTNESS, 50));
+        switchDarkMode.setChecked(prefs.getBoolean(KEY_DARK_MODE, false));
     }
 
     private void savePreferences() {
@@ -81,7 +110,8 @@ public class SettingsActivity extends AppCompatActivity {
         Toast.makeText(this, "Preferencias guardadas", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(SettingsActivity.this, HomeActivity.class);
         startActivity(intent);
-        finish();    }
+        finish();
+    }
 
     private void saveBrightnessPreference(int brightness) {
         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
