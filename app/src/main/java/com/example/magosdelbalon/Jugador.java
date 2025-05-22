@@ -10,18 +10,8 @@ public class Jugador {
     private int precio;
     private String url;
 
-
-
-    //Constructor mercado
-    public Jugador(String nombre, String posicion, int overall, int precio) {
-        this.nombre = nombre;
-        this.posicion = posicion;
-        this.overall = overall;
-        this.precio = precio;
-    }
-
     //Constructor alineacion
-    public Jugador(String nombre, String posicion, int overall, int precio,String url) {
+    public Jugador(String nombre, String posicion, int overall, int precio, String url) {
         this.nombre = nombre;
         this.posicion = posicion;
         this.overall = overall;

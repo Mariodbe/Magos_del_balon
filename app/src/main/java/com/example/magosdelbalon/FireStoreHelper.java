@@ -349,52 +349,74 @@ public class FireStoreHelper {
         }
     }
 
-    public void fetchMercadoPlayers(String tipoLiga, FireStoreHelper.PlayersCallback callback) {
-        FirebaseFunctions functions = FirebaseFunctions.getInstance();
+    public void fetchMercadoPlayers(String tipoLiga, PlayersCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onError("Usuario no autenticado");
+            return;
+        }
 
-        functions.getHttpsCallable("getMercadoPlayers")
-                .call(Collections.singletonMap("tipoLiga", tipoLiga))
-                .addOnSuccessListener(result -> {
-                    Log.d("Mercado", "Response: " + result.getData());
+        String userId = user.getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("users").document(userId);
 
-                    if (result.getData() instanceof Map) {
-                        Map<String, Object> responseMap = (Map<String, Object>) result.getData();
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            Map<String, Object> userData = documentSnapshot.getData();
+            List<String> nombresJugadoresEquipo = new ArrayList<>();
 
-                        if (responseMap.containsKey("players")) {
-                            List<Map<String, Object>> playersData = (List<Map<String, Object>>) responseMap.get("players");
+            if (userData != null && userData.containsKey(tipoLiga)) {
+                Map<String, Object> ligaData = (Map<String, Object>) userData.get(tipoLiga);
+                List<Map<String, Object>> jugadoresEquipo = (List<Map<String, Object>>) ligaData.get("jugadores");
+                if (jugadoresEquipo != null) {
+                    for (Map<String, Object> jugador : jugadoresEquipo) {
+                        nombresJugadoresEquipo.add((String) jugador.get("nombre"));
+                    }
+                }
+            }
 
-                            if (playersData != null) {
+            // Ya que tenemos los jugadores del equipo, obtenemos el mercado
+            FirebaseFunctions functions = FirebaseFunctions.getInstance();
+
+            functions.getHttpsCallable("getMercadoPlayers")
+                    .call(Collections.singletonMap("tipoLiga", tipoLiga))
+                    .addOnSuccessListener(result -> {
+                        if (result.getData() instanceof Map) {
+                            Map<String, Object> responseMap = (Map<String, Object>) result.getData();
+
+                            if (responseMap.containsKey("players")) {
+                                List<Map<String, Object>> playersData = (List<Map<String, Object>>) responseMap.get("players");
                                 List<Jugador> players = new ArrayList<>();
 
                                 for (Map<String, Object> playerData : playersData) {
-                                    Jugador jugador = new Jugador(
-                                            (String) playerData.get("name"),
-                                            (String) playerData.get("position"),
-                                            ((Number) playerData.get("overall")).intValue(),
-                                            ((Number) playerData.get("precio")).intValue()
-                                    );
-                                    players.add(jugador);
+                                    String nombre = (String) playerData.get("name");
+
+                                    if (!nombresJugadoresEquipo.contains(nombre)) {
+                                        Jugador jugador = new Jugador(
+                                                nombre,
+                                                (String) playerData.get("position"),
+                                                ((Number) playerData.get("overall")).intValue(),
+                                                ((Number) playerData.get("precio")).intValue(),
+                                                (String) playerData.get("url")
+                                        );
+                                        players.add(jugador);
+                                    }
                                 }
 
-                                if (!players.isEmpty()) {
-                                    callback.onPlayersLoaded(players);
-                                } else {
-                                    callback.onError("No se encontraron jugadores en el mercado.");
-                                }
+                                callback.onPlayersLoaded(players);
                             } else {
-                                callback.onError("La lista de jugadores del mercado es nula.");
+                                callback.onError("El campo 'players' no existe en la respuesta del mercado.");
                             }
                         } else {
-                            callback.onError("El campo 'players' no existe en la respuesta del mercado.");
+                            callback.onError("La respuesta del mercado no es válida.");
                         }
-                    } else {
-                        callback.onError("La respuesta de mercado no es un objeto válido.");
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Mercado", "Error al obtener jugadores del mercado: " + e.getMessage());
-                    callback.onError(e.getMessage());
-                });
+                    })
+                    .addOnFailureListener(e -> {
+                        callback.onError("Error al obtener jugadores del mercado: " + e.getMessage());
+                    });
+
+        }).addOnFailureListener(e -> {
+            callback.onError("Error al obtener datos del usuario: " + e.getMessage());
+        });
     }
 
 
@@ -1156,7 +1178,9 @@ public class FireStoreHelper {
                                             (String) jugadorMap.get("nombre"),
                                             (String) jugadorMap.get("posicion"),
                                             ((Long) jugadorMap.get("overall")).intValue(),
-                                            ((Long) jugadorMap.get("precio")).intValue()
+                                            ((Long) jugadorMap.get("precio")).intValue(),
+                                            (String) jugadorMap.get("url")
+
                                     );
                                     jugadores.add(jugador);
                                 }
@@ -1534,7 +1558,9 @@ public class FireStoreHelper {
                                 (String) j.get("nombre"),
                                 (String) j.get("posicion"),
                                 ((Number) j.get("overall")).intValue(),
-                                ((Number) j.get("precio")).intValue()
+                                ((Number) j.get("precio")).intValue(),
+                                (String) j.get("url")
+
                         ));
                     }
 

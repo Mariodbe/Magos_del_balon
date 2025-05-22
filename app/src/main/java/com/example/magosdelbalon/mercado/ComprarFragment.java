@@ -43,6 +43,7 @@ public class ComprarFragment extends Fragment {
             jugadorMap.put("posicion", jugador.getPosicion());
             jugadorMap.put("overall", jugador.getOverall());
             jugadorMap.put("precio", jugador.getPrecio());
+            jugadorMap.put("url", jugador.getImageUrl());
 
             new FireStoreHelper().comprarJugador(ligaName, jugadorMap, new FireStoreHelper.FireStoreCallback() {
                 @Override
