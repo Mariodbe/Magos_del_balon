@@ -51,6 +51,10 @@ public class Jugador {
     public int getPrecio() { return precio; }
     public String getImageUrl(){return url; }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     @Override
     public String toString() {
         return nombre + ": "+ overall;

@@ -6,42 +6,61 @@
     android:elevation="4dp">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"> <!-- Esta línea centra verticalmente -->
 
-        <TextView
-            android:id="@+id/textNombre"
-            android:layout_width="wrap_content"
+        <!-- Parte izquierda: textos y botón -->
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Nombre"
-            android:textStyle="bold"
-            android:textSize="18sp" />
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textPosicion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Posición" />
+            <TextView
+                android:id="@+id/textNombre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre"
+                android:textStyle="bold"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/textOverall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OVR: 80" />
+            <TextView
+                android:id="@+id/textPosicion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Posición" />
 
-        <TextView
-            android:id="@+id/textPrecio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Precio: 100€" />
+            <TextView
+                android:id="@+id/textOverall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OVR: 80" />
 
-        <Button
-            android:id="@+id/btnComprar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Comprar"
-            android:layout_marginTop="8dp"/>
+            <TextView
+                android:id="@+id/textPrecio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Precio: 100€" />
+
+            <Button
+                android:id="@+id/btnComprar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Comprar"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <!-- Parte derecha: imagen del jugador -->
+        <ImageView
+            android:id="@+id/imageJugador"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="16dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Imagen del jugador"
+            android:src="@drawable/defaultplayer" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

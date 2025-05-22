@@ -1,13 +1,18 @@
 package com.example.magosdelbalon;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.List;
 import java.util.Locale;
@@ -49,6 +54,7 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
 
     class JugadorViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvPosicion, tvOverall, tvPrecio;
+        ImageView imageJugador;
         Button btnAccion;
 
         public JugadorViewHolder(@NonNull View itemView) {
@@ -58,6 +64,7 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
             tvOverall = itemView.findViewById(R.id.textOverall);
             tvPrecio = itemView.findViewById(R.id.textPrecio);
             btnAccion = itemView.findViewById(R.id.btnComprar);
+            imageJugador = itemView.findViewById(R.id.imageJugador);
         }
 
         public void bind(Jugador jugador) {
@@ -65,15 +72,25 @@ public class JugadorAdapter extends RecyclerView.Adapter<JugadorAdapter.JugadorV
             tvPosicion.setText(jugador.getPosicion());
             tvOverall.setText("OVR: " + jugador.getOverall());
 
-            // Formateamos el precio antes de mostrarlo
+            String gsUrl = jugador.getImageUrl();
+
+            FirebaseStorage.getInstance()
+                    .getReferenceFromUrl(gsUrl)
+                    .getDownloadUrl()
+                    .addOnSuccessListener(uri -> {
+                        Glide.with(itemView.getContext())
+                                .load(uri.toString())
+                                .error(R.drawable.defaultplayer)
+                                .into(imageJugador);
+                    })
+                    .addOnFailureListener(e -> {
+                        imageJugador.setImageResource(R.drawable.defaultplayer);
+                    });
+
             String precioFormateado = MainActivity.formatearDinero(jugador.getPrecio());
             tvPrecio.setText("Precio: " + precioFormateado);
 
-            if (modo == Modo.COMPRAR) {
-                btnAccion.setText("Comprar");
-            } else {
-                btnAccion.setText("Vender");
-            }
+            btnAccion.setText(modo == Modo.COMPRAR ? "Comprar" : "Vender");
 
             btnAccion.setOnClickListener(v -> {
                 if (listener != null) {
