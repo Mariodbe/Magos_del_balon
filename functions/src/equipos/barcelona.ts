@@ -155,7 +155,7 @@ export const getBarcelonaPlayers = functions.https.onRequest(
       {
         name: "Yamal",
         position: "Forward",
-        overall: 80,
+        overall: 90,
         precio: 6400000,
         url: `${storageBaseUrl}Yamal.webp`,
       },
