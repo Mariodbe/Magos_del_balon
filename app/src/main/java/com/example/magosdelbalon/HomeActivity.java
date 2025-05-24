@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,6 +29,7 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private ImageView profileImage;
+    private TextView txtUser;
     private ImageButton btnSettings;
 
     // ActivityResultLauncher para la selección de imagen
@@ -96,7 +98,9 @@ public class HomeActivity extends AppCompatActivity {
         if(FirebaseAuth.getInstance().getCurrentUser() != null){
             loadUserLigas();
         }
+        txtUser = findViewById(R.id.txt_user);
 
+        fetchAndSetUsername();
 
         // Configurar los botones de ligas
         setUpCreateLigaButton(findViewById(R.id.btn_create_liga_1), 1);
@@ -262,5 +266,33 @@ public class HomeActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, equipos);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+    }
+
+    private void fetchAndSetUsername() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String username = user.getDisplayName();
+            if (username != null && !username.isEmpty()) {
+                txtUser.setText(username);
+            } else {
+                fetchUsernameFromFirestore(user.getUid());
+            }
+        }
+    }
+
+    private void fetchUsernameFromFirestore(String uid) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String username = documentSnapshot.getString("username");
+                        if (username != null && !username.isEmpty()) {
+                            txtUser.setText(username);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    txtUser.setText("Usuario");
+                });
     }
 }

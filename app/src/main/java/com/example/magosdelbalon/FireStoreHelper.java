@@ -1264,46 +1264,6 @@ public class FireStoreHelper {
         }).addOnFailureListener(e -> callback.onFailure("Error al leer datos: " + e.getMessage()));
     }
 
-
-    public void getPlayersByPosition(String userId, String leagueName, String position, OnPlayersLoadedListener listener) {
-        db.collection("users")
-                .document(userId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            Map<String, Object> leagues = (Map<String, Object>) document.getData().get(leagueName);
-                            if (leagues != null) {
-                                List<Map<String, Object>> players = (List<Map<String, Object>>) leagues.get("jugadores");
-                                List<String> playerNames = new ArrayList<>();
-                                for (Map<String, Object> player : players) {
-                                    String playerPosition = (String) player.get("posicion");
-                                    if (playerPosition.equals(position)) {
-                                        String playerName = (String) player.get("nombre");
-                                        playerNames.add(playerName);
-                                    }
-                                }
-                                Log.d("FirestoreHelper", "Players loaded: " + playerNames.size());
-                                listener.onPlayersLoaded(playerNames);
-                            } else {
-                                listener.onPlayersLoaded(new ArrayList<>());
-                            }
-                        } else {
-                            listener.onPlayersLoaded(new ArrayList<>());
-                        }
-                    } else {
-                        Log.e("FirestoreHelper", "Error getting document: ", task.getException());
-                        listener.onPlayersLoaded(new ArrayList<>());
-                    }
-                });
-    }
-
-
-
-    public interface OnPlayersLoadedListener {
-        void onPlayersLoaded(List<String> players);
-    }
     public void saveLineup(String userId, String ligaName, String posicionClave, String nombreJugador) {
         String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
         DocumentReference userDocRef = db.collection("users").document(userId);

@@ -182,10 +182,10 @@ public class AlineacionFragment extends Fragment {
     }
 
     private String getGeneralPosition(String key) {
-        if (key.startsWith("Def")) return "Defender";
-        if (key.startsWith("Mid")) return "Midfielder";
-        if (key.startsWith("Fw")) return "Forward";
-        if (key.equals("Goalkeeper")) return "Goalkeeper";
+        if (key.startsWith("Def")) return "Defensa";
+        if (key.startsWith("Mid")) return "Mediocentro";
+        if (key.startsWith("Fw")) return "Delantero";
+        if (key.equals("Goalkeeper")) return "Portero";
         return "";
     }
 }

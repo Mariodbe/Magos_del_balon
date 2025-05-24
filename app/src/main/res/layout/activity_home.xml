@@ -25,11 +25,12 @@
 
         <!-- Nombre o información adicional del perfil -->
         <TextView
+            android:id="@+id/txt_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tu Perfil"
             android:textSize="18sp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:textAlignment="center" />
 
         <!-- Botón de configuración -->
@@ -39,7 +40,7 @@
             android:layout_height="48dp"
             android:src="@drawable/ic_settings"
             android:background="?attr/selectableItemBackground"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="6dp"
             android:contentDescription="Configuración" />
 
     </LinearLayout>

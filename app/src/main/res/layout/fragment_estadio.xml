@@ -4,83 +4,123 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".EstadioFragment">
 
-    <ImageButton
-        android:id="@+id/btn_estadio"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="32dp"
-        android:background="?attr/selectableItemBackground"
-        android:src="@drawable/ic_estadio"
-        android:contentDescription="Estadio de Fútbol"
-        android:scaleType="fitCenter"
-        android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/btn_back_to_home"
+    <LinearLayout
+        android:id="@+id/container_centro_medico"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_centro_medico"
-        android:layout_marginEnd="32dp"/>
+        app:layout_constraintEnd_toStartOf="@id/container_estadio"
+        android:layout_marginEnd="16dp"
+        android:gravity="center_horizontal">
 
-    <TextView
-        android:id="@+id/texto_estadio"
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardUseCompatPadding="true">
+
+            <ImageButton
+                android:id="@+id/btn_centro_medico"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_centro_medico"
+                android:contentDescription="Centro Médico"
+                android:background="@android:color/transparent"
+                android:scaleType="centerInside"
+                android:padding="16dp"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/texto_centro_medico"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Centro Médico"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/container_estadio"
+        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Estadio de Fútbol"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/btn_estadio"
-        app:layout_constraintStart_toStartOf="@id/btn_estadio"
-        app:layout_constraintEnd_toEndOf="@id/btn_estadio"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center_horizontal">
 
-    <ImageButton
-        android:id="@+id/btn_centro_medico"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="32dp"
-        android:background="?attr/selectableItemBackground"
-        android:src="@drawable/ic_centro_medico"
-        android:contentDescription="Centro Médico"
-        android:scaleType="fitCenter"
-        android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/btn_back_to_home"
-        app:layout_constraintStart_toEndOf="@id/btn_estadio"
-        app:layout_constraintEnd_toStartOf="@id/btn_ciudad_deportiva"
-        android:layout_marginEnd="32dp"/>
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="10dp"
+            app:cardUseCompatPadding="true">
 
-    <TextView
-        android:id="@+id/texto_centro_medico"
+            <ImageButton
+                android:id="@+id/btn_estadio"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_estadiomenu"
+                android:contentDescription="Estadio"
+                android:background="@android:color/transparent"
+                android:scaleType="centerInside"
+                android:padding="20dp"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/texto_estadio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Estadio de Fútbol"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/container_ciudad_deportiva"
+        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Centro Médico"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/btn_centro_medico"
-        app:layout_constraintStart_toStartOf="@id/btn_centro_medico"
-        app:layout_constraintEnd_toEndOf="@id/btn_centro_medico"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/container_estadio"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
+        android:gravity="center_horizontal">
 
-    <ImageButton
-        android:id="@+id/btn_ciudad_deportiva"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="32dp"
-        android:background="?attr/selectableItemBackground"
-        android:src="@drawable/ic_ciudad_deportiva"
-        android:contentDescription="Ciudad Deportiva"
-        android:scaleType="fitCenter"
-        android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/btn_back_to_home"
-        app:layout_constraintStart_toEndOf="@id/btn_centro_medico"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardUseCompatPadding="true">
 
-    <TextView
-        android:id="@+id/texto_ciudad_deportiva"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ciudad Deportiva"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/btn_ciudad_deportiva"
-        app:layout_constraintStart_toStartOf="@id/btn_ciudad_deportiva"
-        app:layout_constraintEnd_toEndOf="@id/btn_ciudad_deportiva"/>
+            <ImageButton
+                android:id="@+id/btn_ciudad_deportiva"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_ciudad_deportiva"
+                android:contentDescription="Ciudad Deportiva"
+                android:background="@android:color/transparent"
+                android:scaleType="centerInside"
+                android:padding="16dp"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/texto_ciudad_deportiva"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ciudad Deportiva"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

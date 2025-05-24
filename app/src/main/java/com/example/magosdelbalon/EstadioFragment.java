@@ -22,7 +22,6 @@ import java.util.Map;
 public class EstadioFragment extends Fragment {
 
     private String ligaName;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -39,15 +38,56 @@ public class EstadioFragment extends Fragment {
             return view;
         }
 
-        ImageButton btnEstadio = view.findViewById(R.id.btn_estadio);
+        ImageButton btn_estadio = view.findViewById(R.id.btn_estadio);
         ImageButton btnCentroMedico = view.findViewById(R.id.btn_centro_medico);
         ImageButton btnCiudadDeportiva = view.findViewById(R.id.btn_ciudad_deportiva);
 
-        btnEstadio.setOnClickListener(v -> mostrarDialogo("Estadio de Fútbol", "nivel_estadio"));
+        // Ya puedes usar btn_estadio de forma segura aquí:
+        FireStoreHelper helper = new FireStoreHelper();
+        helper.obtenerDatosLigaPorId(ligaName, new FireStoreHelper.FirestoreCallback1() {
+            @Override
+            public void onSuccess(Map<String, Object> ligaData) {
+                if (ligaData.containsKey("equipo")) {
+                    String equipo = ligaData.get("equipo").toString();
+                    int imagenEstadio = obtenerImagenEstadioPorEquipo(equipo);
+                    btn_estadio.setImageResource(imagenEstadio);
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        btn_estadio.setOnClickListener(v -> mostrarDialogo("Estadio de Fútbol", "nivel_estadio"));
         btnCentroMedico.setOnClickListener(v -> mostrarDialogo("Centro Médico", "nivel_centro_medico"));
         btnCiudadDeportiva.setOnClickListener(v -> mostrarDialogo("Ciudad Deportiva", "nivel_ciudad_deportiva"));
 
         return view;
+    }
+    private int obtenerImagenEstadioPorEquipo(String equipo) {
+        switch (equipo) {
+            case "Barcelona":
+                return R.drawable.camp_nou;
+            case "Real Madrid":
+                return R.drawable.bernabeu;
+            case "Atlético de Madrid":
+                return R.drawable.estadio_metropolitano;
+            case "Athletic Club":
+                return R.drawable.san_mames;
+            case "Manchester City":
+                return R.drawable.estadio_city;
+            case "Liverpool":
+                return R.drawable.anfield;
+            case "Chelsea":
+                return R.drawable.stamford_bridge;
+            case "Arsenal":
+                return R.drawable.emirates;
+            default:
+                return R.drawable.ic_estadiomenu;
+        }
     }
 
     private void mostrarDialogo(String nombreIcono, String nivelKey) {
@@ -69,7 +109,7 @@ public class EstadioFragment extends Fragment {
                 new AlertDialog.Builder(getContext())
                         .setTitle("Mejora")
                         .setMessage("¿Quieres mejorar " + nombreIcono +
-                                " de nivel " + currentLevel + " a nivel " + nextLevel + "?\nTe costará " + cost + " €.")
+                                " de nivel " + currentLevel + " a nivel " + nextLevel + "?\nTe costará " + MainActivity.formatearDinero((int) cost) + " €.")
                         .setPositiveButton("Mejorar", (dialog, which) -> {
                             helper.upgradeEstadio(userId, ligaName, nivelKey, new FireStoreHelper.FireStoreCallback() {
                                 @Override
@@ -97,6 +137,4 @@ public class EstadioFragment extends Fragment {
             }
         });
     }
-
-
 }
