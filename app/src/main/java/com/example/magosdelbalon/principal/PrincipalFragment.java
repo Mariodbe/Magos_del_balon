@@ -45,6 +45,7 @@ public class PrincipalFragment extends Fragment {
     private int intensidadPresion;
     private String equipoActual;
     private String equipoRival;
+    private String resultadoPartido;
 
 
     public PrincipalFragment() {
@@ -431,17 +432,37 @@ public class PrincipalFragment extends Fragment {
 
         String mensajeResultado;
         String resultadoPartido;
-
+        long resultadoDinero=0;
         if (resultado < probVictoria) {
             mensajeResultado = "¡Has ganado el partido!\nPorcentaje de victoria: " + porcentajeVictoria + "%";
+            resultadoDinero=1_500_000;
             resultadoPartido = "ganado";
         } else if (resultado < probVictoria + probEmpate) {
             mensajeResultado = "El partido terminó en empate.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
             resultadoPartido = "empatado";
+            resultadoDinero=1_000_000;
         } else {
             mensajeResultado = "Has perdido el partido.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
             resultadoPartido = "perdido";
+            resultadoDinero=100_000;
         }
+
+        fireStoreHelper.actualizarDineroPorResultado(ligaName, resultadoDinero, new FireStoreHelper.FirestoreUpdateCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d("Dinero", "Dinero de partido actualizado correctamente.");
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).runOnUiThread(() -> {
+                        ((MainActivity) getActivity()).refrescarDatosLiga();
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Log.d("Dinero", "Error al Actualizar.");
+            }
+        });
 
         // Actualizar estadísticas del usuario en Firestore
         fireStoreHelper.actualizarEstadisticasPartido(ligaName, equipoActual, equipoRival, resultadoPartido, new FireStoreHelper.FirestoreUpdateCallback() {

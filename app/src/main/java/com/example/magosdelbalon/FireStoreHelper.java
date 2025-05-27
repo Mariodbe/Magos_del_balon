@@ -18,6 +18,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.functions.FirebaseFunctions;
@@ -1821,6 +1822,54 @@ public class FireStoreHelper {
         void onTacticasDataLoaded(int agresividad, int contraataques, int posesion,int presion);
         void onError(String error);
     }
+    public void actualizarDineroPorResultado(String ligaId, long resultadoDinero, FirestoreUpdateCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Log.e("ActualizarDinero", "Usuario no autenticado");
+            if (callback != null) {
+                callback.onFailure("Usuario no autenticado");
+            }
+            return;
+        }
+
+        String userId = user.getUid();
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        db.runTransaction(transaction -> {
+            DocumentSnapshot snapshot = transaction.get(userRef);
+            Map<String, Object> userData = snapshot.getData();
+            if (userData != null && userData.containsKey(ligaId)) {
+                Object rawLigaData = userData.get(ligaId);
+                if (rawLigaData instanceof Map) {
+                    Map<String, Object> ligaData = (Map<String, Object>) rawLigaData;
+                    long dinero = ((Number) ligaData.get("dinero")).longValue();
+
+                    ligaData.put("dinero", dinero + resultadoDinero);
+                    transaction.update(userRef, ligaId, ligaData);
+
+                    Log.d("ActualizarDinero", "Dinero después de la actualización: " + (dinero + resultadoDinero));
+
+                    return null;
+                } else {
+                    throw new FirebaseFirestoreException("Formato de liga incorrecto",
+                            FirebaseFirestoreException.Code.INVALID_ARGUMENT);
+                }
+            } else {
+                throw new FirebaseFirestoreException("Liga no encontrada",
+                        FirebaseFirestoreException.Code.NOT_FOUND);
+            }
+        }).addOnSuccessListener(aVoid -> {
+            Log.d("ActualizarDinero", "Dinero actualizado con éxito");
+            if (callback != null) {
+                callback.onSuccess();
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("ActualizarDinero", "Error al actualizar dinero: " + e.getMessage());
+            if (callback != null) {
+                callback.onFailure("Error al actualizar dinero: " + e.getMessage());
+            }
+ });
+}
 
 
     public void actualizarProgresoLiga(String ligaName, FirestoreUpdateCallback callback) {
