@@ -1,9 +1,11 @@
 package com.example.magosdelbalon;
 
 import android.content.Intent;
-import android.content.res.Resources;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,10 +16,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.magosdelbalon.alineacion.AlineacionFragment;
 import com.example.magosdelbalon.alineacion.AlineacionMainFragment;
 import com.example.magosdelbalon.mercado.MercadoFragment;
 import com.example.magosdelbalon.principal.PrincipalMainFragment;
+import com.example.magosdelbalon.video.VideoFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.Normalizer;
@@ -46,6 +48,52 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         );
+
+        ImageView iconoVideo = findViewById(R.id.videoIconButton);
+
+        // Obtener el tiempo de última visualización para la liga actual
+        SharedPreferences prefs = getSharedPreferences("VideoPrefs", MODE_PRIVATE);
+        long lastWatchedTime = prefs.getLong("lastWatched_" + ligaName, 0);
+        long currentTime = System.currentTimeMillis();
+
+        // Verificar si el botón debe estar visible o no
+        boolean isButtonVisible = prefs.getBoolean("isVideoButtonVisible_" + ligaName, true);
+        iconoVideo.setVisibility(isButtonVisible ? BottomNavigationView.VISIBLE : BottomNavigationView.INVISIBLE);
+
+        if (currentTime - lastWatchedTime < 2 * 60 * 1000) {
+            iconoVideo.setVisibility(BottomNavigationView.GONE);
+        } else {
+            iconoVideo.setVisibility(BottomNavigationView.VISIBLE);
+        }
+
+        iconoVideo.setOnClickListener(v -> {
+            VideoFragment videoFragment = new VideoFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("leagueName", ligaName);
+            videoFragment.setArguments(bundle);
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, videoFragment)
+                    .addToBackStack(null)
+                    .commit();
+
+            // Guarda el tiempo actual como última vez que vio el video para la liga actual
+            SharedPreferences.Editor editor = getSharedPreferences("VideoPrefs", MODE_PRIVATE).edit();
+            editor.putLong("lastWatched_" + ligaName, System.currentTimeMillis());
+            editor.putBoolean("isVideoButtonVisible_" + ligaName, false);
+            editor.apply();
+
+            // Oculta el botón inmediatamente
+            iconoVideo.setVisibility(BottomNavigationView.INVISIBLE);
+
+            // Re-aparece después de 2 minutos
+            new Handler().postDelayed(() -> {
+                iconoVideo.setVisibility(BottomNavigationView.VISIBLE);
+                editor.putBoolean("isVideoButtonVisible_" + ligaName, true);
+                editor.apply();
+            }, 2 * 60 * 1000);
+        });
 
         ImageView iconoHome = findViewById(R.id.btn_back_to_home);
         iconoHome.setOnClickListener(v -> {
@@ -291,6 +339,25 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    public void ocultarMenus() {
+        findViewById(R.id.top_menu_container).setVisibility(View.GONE);
+        bottomNavigationView.setVisibility(View.GONE);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Verificar el estado del botón al reanudar la actividad
+        ImageView iconoVideo = findViewById(R.id.videoIconButton);
+        SharedPreferences prefs = getSharedPreferences("VideoPrefs", MODE_PRIVATE);
+        boolean isButtonVisible = prefs.getBoolean("isVideoButtonVisible_" + ligaName, true);
+        iconoVideo.setVisibility(isButtonVisible ? BottomNavigationView.VISIBLE : BottomNavigationView.INVISIBLE);
+    }
+
+    public void mostrarMenus() {
+        findViewById(R.id.top_menu_container).setVisibility(View.VISIBLE);
+        bottomNavigationView.setVisibility(View.VISIBLE);
     }
 
     public void refrescarDatosLiga() {

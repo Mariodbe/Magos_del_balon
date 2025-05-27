@@ -48,6 +48,10 @@
         <activity
             android:name=".RegisterActivity"
             android:screenOrientation="landscape" />
+        <activity android:name=".video.VideoActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <!-- Actividad de inicio con botones de login y registro -->
         <activity
@@ -59,7 +63,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".EntrenamientoReceiver" />
 
     </application>
 

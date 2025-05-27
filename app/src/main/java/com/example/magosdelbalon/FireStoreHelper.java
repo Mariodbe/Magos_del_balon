@@ -7,8 +7,6 @@ import android.widget.Toast;
 import android.widget.ImageView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -1467,19 +1465,37 @@ public class FireStoreHelper {
                         ligaData.put("dinero", dinero);
 
                         // Eliminar jugador de la alineación si está
+                        List<String> posicionesAEliminar = new ArrayList<>();
                         if (ligaData.containsKey("alineacion")) {
                             Map<String, Object> alineacion = (Map<String, Object>) ligaData.get("alineacion");
                             boolean modificado = false;
                             for (Map.Entry<String, Object> entry : alineacion.entrySet()) {
                                 if (jugador.getNombre().equals(entry.getValue())) {
                                     entry.setValue(null); // Borrar posición
+                                    posicionesAEliminar.add(entry.getKey()); // Guardar clave para eliminar también en alineacionImg
                                     modificado = true;
                                 }
                             }
                             if (modificado) {
-                                ligaData.put("alineacion", alineacion); // volver a guardar alineación limpia
+                                ligaData.put("alineacion", alineacion);
                             }
                         }
+
+                        // Eliminar también en alineacionImg usando las mismas posiciones
+                        if (ligaData.containsKey("alineacionImg")) {
+                            Map<String, Object> alineacionImg = (Map<String, Object>) ligaData.get("alineacionImg");
+                            boolean modificadoImg = false;
+                            for (String pos : posicionesAEliminar) {
+                                if (alineacionImg.containsKey(pos)) {
+                                    alineacionImg.put(pos, null);
+                                    modificadoImg = true;
+                                }
+                            }
+                            if (modificadoImg) {
+                                ligaData.put("alineacionImg", alineacionImg);
+                            }
+                        }
+
 
                         userRef.update(ligaId, ligaData)
                                 .addOnSuccessListener(aVoid -> callback.onSuccess("Has vendido a " + jugador.getNombre()))
@@ -2255,4 +2271,39 @@ public class FireStoreHelper {
 
         }).addOnFailureListener(e -> Log.e("ACTUALIZAR_CLASIFICACION", "Error obteniendo usuario: " + e.getMessage()));
     }
+    public void darRecompensaPorVideo(String userId, String ligaName, RecompensaCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users").document(userId).get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                Map<String, Object> userData = doc.getData();
+                if (userData != null && userData.containsKey(ligaName)) {
+                    Map<String, Object> ligaData = (Map<String, Object>) userData.get(ligaName);
+                    if (ligaData != null && ligaData.containsKey("dinero")) {
+                        long dineroActual = ((Number) ligaData.get("dinero")).longValue();
+                        ligaData.put("dinero", dineroActual + 1_000_000);
+
+                        Map<String, Object> updateMap = new HashMap<>();
+                        updateMap.put(ligaName, ligaData);
+
+                        db.collection("users").document(userId).set(updateMap, SetOptions.merge())
+                                .addOnSuccessListener(aVoid -> callback.onSuccess("Dinero actualizado"))
+                                .addOnFailureListener(e -> callback.onFailure("Error al actualizar dinero: " + e.getMessage()));
+                    } else {
+                        callback.onFailure("No se encontró el campo 'dinero' en la liga especificada");
+                    }
+                } else {
+                    callback.onFailure("Liga no encontrada");
+                }
+            } else {
+                callback.onFailure("Documento no existe");
+            }
+        }).addOnFailureListener(e -> callback.onFailure("Error al obtener usuario: " + e.getMessage()));
+    }
+
+    public interface RecompensaCallback {
+        void onSuccess(String message);
+        void onFailure(String error);
+    }
+
 }

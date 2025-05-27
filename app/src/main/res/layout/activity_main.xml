@@ -8,6 +8,7 @@
     <!-- LinearLayout horizontal para botones y textos centrados -->
     <LinearLayout
         android:layout_width="match_parent"
+        android:id="@+id/top_menu_container"
         android:layout_height="45dp"
         android:orientation="horizontal"
         android:gravity="center_vertical">
@@ -65,6 +66,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="60dp"
                 android:textSize="18sp" />
+
+            <!-- Icono de video al lado del dinero -->
+            <ImageButton
+                android:id="@+id/videoIconButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_video"
+                android:contentDescription="Ver video" />
+
         </LinearLayout>
 
         <!-- Botón Home (derecha) -->
