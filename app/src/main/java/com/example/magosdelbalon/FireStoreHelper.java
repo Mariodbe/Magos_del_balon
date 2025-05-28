@@ -1844,7 +1844,9 @@ public class FireStoreHelper {
                     Map<String, Object> ligaData = (Map<String, Object>) rawLigaData;
                     long dinero = ((Number) ligaData.get("dinero")).longValue();
 
-                    ligaData.put("dinero", dinero + resultadoDinero);
+                    dinero+=resultadoDinero;
+
+                    ligaData.put("dinero", dinero);
                     transaction.update(userRef, ligaId, ligaData);
 
                     Log.d("ActualizarDinero", "Dinero después de la actualización: " + (dinero + resultadoDinero));

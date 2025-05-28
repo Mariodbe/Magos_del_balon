@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -45,7 +46,7 @@ public class PrincipalFragment extends Fragment {
     private int intensidadPresion;
     private String equipoActual;
     private String equipoRival;
-    private String resultadoPartido;
+
 
 
     public PrincipalFragment() {
@@ -141,7 +142,6 @@ public class PrincipalFragment extends Fragment {
                     .setNegativeButton("Cancelar", null)
                     .show();
         });
-
         Map<String, TextView> textViewsAlineacion = new HashMap<>();
         fireStoreHelper.cargarAlineacion(userId, ligaName, textViewsAlineacion);
 
@@ -444,25 +444,13 @@ public class PrincipalFragment extends Fragment {
         } else {
             mensajeResultado = "Has perdido el partido.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
             resultadoPartido = "perdido";
-            resultadoDinero=100_000;
+            resultadoDinero=500_000;
         }
 
-        fireStoreHelper.actualizarDineroPorResultado(ligaName, resultadoDinero, new FireStoreHelper.FirestoreUpdateCallback() {
-            @Override
-            public void onSuccess() {
-                Log.d("Dinero", "Dinero de partido actualizado correctamente.");
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).runOnUiThread(() -> {
-                        ((MainActivity) getActivity()).refrescarDatosLiga();
-                    });
-                }
-            }
+        Log.d("Simulacion", "Resultado: " + resultadoPartido + ", Dinero ganado: " + resultadoDinero);
 
-            @Override
-            public void onFailure(String errorMessage) {
-                Log.d("Dinero", "Error al Actualizar.");
-            }
-        });
+
+
 
         // Actualizar estadísticas del usuario en Firestore
         fireStoreHelper.actualizarEstadisticasPartido(ligaName, equipoActual, equipoRival, resultadoPartido, new FireStoreHelper.FirestoreUpdateCallback() {
@@ -519,6 +507,21 @@ public class PrincipalFragment extends Fragment {
             }
         });
 
+
+        fireStoreHelper.actualizarDineroPorResultado(ligaName, resultadoDinero, new FireStoreHelper.FirestoreUpdateCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d("FIREBASE", "Dinero actualizado correctamente.");
+                // No haces nada más aquí, porque el cambio de fragmento lo haces abajo
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Log.e("FIREBASE", "Error al actualizar dinero: " + errorMessage);
+                Toast.makeText(requireContext(), "Error al actualizar el dinero", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Resultado del Partido")
                 .setMessage(mensajeResultado)
@@ -534,7 +537,7 @@ public class PrincipalFragment extends Fragment {
                 })
                 .show();
 
-        fireStoreHelper.actualizarProgresoLiga(ligaName, new FireStoreHelper.FirestoreUpdateCallback() {
+        fireStoreHelper.actualizarProgresoLiga(ligaName,new FireStoreHelper.FirestoreUpdateCallback() {
             @Override
             public void onSuccess() {
                 Log.d("PrincipalFragment", "Partido pendiente actualizado correctamente.");
@@ -546,10 +549,12 @@ public class PrincipalFragment extends Fragment {
             }
         });
 
+
         int nuevoArbitro = new Random().nextInt(5) + 1;
         prefs.edit().putInt(claveArbitro, nuevoArbitro).apply();
         prefs.edit().putBoolean("mediaVisible_" + ligaName, false).apply();
     }
+
 
 
 

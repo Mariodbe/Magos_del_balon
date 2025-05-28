@@ -265,18 +265,20 @@ public class MainActivity extends AppCompatActivity {
                     // Cargar imagen del equipo
                     String nombreEquipoDrawable = limpiarNombreParaDrawable(equipo);
                     int resIdEquipo = getResources().getIdentifier(nombreEquipoDrawable, "drawable", getPackageName());
-
                     if (resIdEquipo != 0) {
                         equipoLogoImageView.setImageResource(resIdEquipo);
+                    } else {
+                        Log.w("MainActivity", "No se encontró drawable para el equipo: " + nombreEquipoDrawable);
                     }
 
                     // Cargar imagen de la liga
                     String tipoLiga = (String) ligaData.get("tipoLiga");
                     String nombreLigaDrawable = limpiarNombreParaDrawable(tipoLiga);
                     int resIdLiga = getResources().getIdentifier(nombreLigaDrawable, "drawable", getPackageName());
-
                     if (resIdLiga != 0) {
                         leagueLogoImageView.setImageResource(resIdLiga);
+                    } else {
+                        Log.w("MainActivity", "No se encontró drawable para la liga: " + nombreLigaDrawable);
                     }
 
                     Log.d("MainActivity", "Vistas actualizadas con logos equipo y liga");
@@ -287,10 +289,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(String errorMessage) {
-                Log.e("MainActivity", "Error en Firestore: " + errorMessage);
-                Toast.makeText(MainActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                Log.e("MainActivity", "Error al obtener datos de la liga: " + errorMessage);
+                Toast.makeText(MainActivity.this, "Error al cargar datos de la liga", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    public void actualizarDinero(int dinero) {
+        String dineroFormateado = formatearDinero(dinero);
+        dineroInicialTextView.setText("Dinero: " + dineroFormateado);
     }
 
     public void refrescarDatosLiga() {
