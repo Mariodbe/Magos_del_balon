@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.magosdelbalon.alineacion.AlineacionFragment;
 import com.example.magosdelbalon.alineacion.AlineacionMainFragment;
 import com.example.magosdelbalon.mercado.MercadoFragment;
 import com.example.magosdelbalon.principal.PrincipalMainFragment;
@@ -316,6 +317,8 @@ public class MainActivity extends AppCompatActivity {
 
                     if (resIdEquipo != 0) {
                         equipoLogoImageView.setImageResource(resIdEquipo);
+                    } else {
+                        Log.w("MainActivity", "No se encontró drawable para el equipo: " + nombreEquipoDrawable);
                     }
 
                     // Cargar imagen de la liga
@@ -325,6 +328,8 @@ public class MainActivity extends AppCompatActivity {
 
                     if (resIdLiga != 0) {
                         leagueLogoImageView.setImageResource(resIdLiga);
+                    } else {
+                        Log.w("MainActivity", "No se encontró drawable para la liga: " + nombreLigaDrawable);
                     }
 
                     Log.d("MainActivity", "Vistas actualizadas con logos equipo y liga");
@@ -339,6 +344,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    public void actualizarDinero(int dinero) {
+        String dineroFormateado = formatearDinero(dinero);
+        dineroInicialTextView.setText("Dinero: " + dineroFormateado);
     }
     public void ocultarMenus() {
         findViewById(R.id.top_menu_container).setVisibility(View.GONE);
