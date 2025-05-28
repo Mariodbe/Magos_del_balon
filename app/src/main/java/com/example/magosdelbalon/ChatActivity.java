@@ -37,6 +37,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.applyUserBrightness(this);
         setContentView(R.layout.activity_chat);
         // Ocultar la barra de acción (ActionBar)
         if (getSupportActionBar() != null) {

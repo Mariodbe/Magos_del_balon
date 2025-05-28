@@ -34,7 +34,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         applyThemeFromPreferences(); // Aplicar modo oscuro/claro antes de cargar layout
-
+        Utils.applyUserBrightness(this);
         // Ocultar la barra de acción (ActionBar)
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
@@ -155,13 +155,12 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void savePreferences() {
-        saveBrightnessPreference(seekBarBrightness.getProgress());
-
         Toast.makeText(this, "Preferencias guardadas", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(SettingsActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();
     }
+
 
     private void saveBrightnessPreference(int brightness) {
         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();

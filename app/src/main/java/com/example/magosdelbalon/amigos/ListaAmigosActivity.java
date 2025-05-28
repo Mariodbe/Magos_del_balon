@@ -11,6 +11,7 @@ import com.example.magosdelbalon.ChatActivity;
 import com.example.magosdelbalon.FireStoreHelper;
 import com.example.magosdelbalon.R;
 import com.example.magosdelbalon.User;
+import com.example.magosdelbalon.Utils;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class ListaAmigosActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.applyUserBrightness(this);
         setContentView(R.layout.activity_lista_amigos);
         // Ocultar la barra de acción (ActionBar)
         if (getSupportActionBar() != null) {

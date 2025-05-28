@@ -41,6 +41,7 @@ public class CompanerosActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.applyUserBrightness(this);
         setContentView(R.layout.activity_companeros);
         if (getSupportActionBar() != null) getSupportActionBar().hide();
 

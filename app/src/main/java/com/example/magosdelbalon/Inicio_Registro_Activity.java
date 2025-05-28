@@ -15,6 +15,7 @@ public class Inicio_Registro_Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        Utils.applyUserBrightness(this);
         setContentView(R.layout.activity_inicio_registro);
         // Ocultar la barra de acción (ActionBar)
         if (getSupportActionBar() != null) {
