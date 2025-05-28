@@ -1,6 +1,7 @@
 package com.example.magosdelbalon;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -47,5 +48,14 @@ public class Inicio_Registro_Activity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        SharedPreferences prefs = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+        boolean musicEnabled = prefs.getBoolean("music_enabled", true);
+        if (musicEnabled) {
+            Intent musicServiceIntent = new Intent(this, MusicService.class);
+            startService(musicServiceIntent);
+        }
+
+
     }
 }

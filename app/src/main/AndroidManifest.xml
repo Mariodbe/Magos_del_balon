@@ -59,6 +59,11 @@
             android:screenOrientation="landscape"
             />
 
+
+        <service android:name=".MusicService"
+            android:exported="false"/>
+
+
         <!-- Actividad de inicio con botones de login y registro -->
         <activity
             android:name=".Inicio_Registro_Activity"

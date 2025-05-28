@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.Toast;
+import android.media.AudioManager;
+import android.widget.CompoundButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -25,6 +27,9 @@ public class SettingsActivity extends AppCompatActivity {
     private Button btnSaveSettings;
     private Button btnLogout;
     private FirebaseAuth mAuth;
+    private Switch switchMusic;
+    private SeekBar seekBarVolume;
+    private AudioManager audioManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +91,51 @@ public class SettingsActivity extends AppCompatActivity {
             // Reiniciar para aplicar el tema
             recreate();
         });
+
+
+        switchMusic = findViewById(R.id.switch_music);
+        seekBarVolume = findViewById(R.id.seekbar_volume);
+
+        // Control de volumen del sistema (STREAM_MUSIC)
+        audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        int currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+        seekBarVolume.setMax(maxVolume);
+        seekBarVolume.setProgress(currentVolume);
+
+        // Cambiar volumen
+        seekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+// Control de música
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean musicEnabled = prefs.getBoolean("music_enabled", true);
+        switchMusic.setChecked(musicEnabled);
+
+        switchMusic.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("music_enabled", isChecked);
+            editor.apply();
+
+            Intent musicIntent = new Intent(this, MusicService.class);
+            if (isChecked) {
+                startService(musicIntent);
+            } else {
+                stopService(musicIntent);
+            }
+        });
+
     }
 
     private void applyThemeFromPreferences() {
