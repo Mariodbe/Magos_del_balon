@@ -10,17 +10,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.magosdelbalon.ChatActivity;
 import com.example.magosdelbalon.FireStoreHelper;
 import com.example.magosdelbalon.R;
+import com.example.magosdelbalon.User;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ListaAmigosActivity extends AppCompatActivity {
 
     private String miUid;
     private RecyclerView recyclerAmigos;
     private AmigosAdapter amigosAdapter;
-    private List<String> listaUidsAmigos;
+    private List<User> listaAmigos;
     private FireStoreHelper firestoreHelper;
 
     @Override
@@ -38,8 +40,8 @@ public class ListaAmigosActivity extends AppCompatActivity {
         }
 
         recyclerAmigos = findViewById(R.id.recycler_amigos);
-        listaUidsAmigos = new ArrayList<>();
-        amigosAdapter = new AmigosAdapter(listaUidsAmigos, uid -> {
+        listaAmigos = new ArrayList<>();
+        amigosAdapter = new AmigosAdapter(listaAmigos, uid -> {
             // Cuando seleccionen un amigo, abrir ChatActivity con ese uidDestino
             Intent intent = new Intent(ListaAmigosActivity.this, ChatActivity.class);
             intent.putExtra("uidDestino", uid);
@@ -50,19 +52,46 @@ public class ListaAmigosActivity extends AppCompatActivity {
 
         firestoreHelper = FireStoreHelper.getInstance();
 
-        // Cargar lista de amigos
         firestoreHelper.getSeguidoresMutuos(miUid, new FireStoreHelper.ListaCallback() {
             @Override
-            public void onListaObtenida(List<String> lista) {
-                listaUidsAmigos.clear();
-                listaUidsAmigos.addAll(lista);
-                amigosAdapter.notifyDataSetChanged();
+            public void onListaObtenida(List<String> listaUids) {
+                List<User> listaUsuarios = new ArrayList<>();
+                // Contador para saber cuándo terminan las consultas
+                AtomicInteger pendientes = new AtomicInteger(listaUids.size());
+
+                for (String uidAmigo : listaUids) {
+                    firestoreHelper.getUsuario(uidAmigo, new FireStoreHelper.UsuarioCallback() {
+                        @Override
+                        public void onUsuarioObtenido(User usuario) {
+                            listaUsuarios.add(usuario);
+                            if (pendientes.decrementAndGet() == 0) {
+                                // Actualizar adapter en el hilo principal
+                                runOnUiThread(() -> {
+                                    amigosAdapter.setListaAmigos(listaUsuarios);
+                                    amigosAdapter.notifyDataSetChanged();
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onError() {
+                            if (pendientes.decrementAndGet() == 0) {
+                                runOnUiThread(() -> {
+                                    amigosAdapter.setListaAmigos(listaUsuarios);
+                                    amigosAdapter.notifyDataSetChanged();
+                                });
+                            }
+                        }
+                    });
+                }
             }
 
             @Override
             public void onError() {
+                // manejar error
             }
         });
+
 
     }
 }

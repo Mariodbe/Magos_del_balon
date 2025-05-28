@@ -5,57 +5,69 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.magosdelbalon.FireStoreHelper;
+import com.example.magosdelbalon.R;
+import com.example.magosdelbalon.User;
+
 import java.util.List;
+import android.widget.ImageView;
+import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class AmigosAdapter extends RecyclerView.Adapter<AmigosAdapter.AmigoViewHolder> {
 
-    public interface OnAmigoClickListener {
-        void onAmigoClick(String uid);
+    private List<User> listaAmigos;
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onClick(String uid);
     }
 
-    private List<String> listaUids;
-    private OnAmigoClickListener listener;
-
-    public AmigosAdapter(List<String> listaUids, OnAmigoClickListener listener) {
-        this.listaUids = listaUids;
+    public AmigosAdapter(List<User> listaAmigos, OnItemClickListener listener) {
+        this.listaAmigos = listaAmigos;
         this.listener = listener;
     }
 
+    @NonNull
     @Override
-    public AmigoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
+    public AmigoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_amigo, parent, false);
         return new AmigoViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(AmigoViewHolder holder, int position) {
-        String uid = listaUids.get(position);
-        holder.bind(uid);
+    public void onBindViewHolder(@NonNull AmigoViewHolder holder, int position) {
+        User amigo = listaAmigos.get(position);
+        holder.usernameTextView.setText(amigo.getUsername());
+        FireStoreHelper fireStoreHelper = new FireStoreHelper();
+        // Carga la imagen usando el método getProfileImageForUser
+        fireStoreHelper.getProfileImageForUser(amigo.getUid(), holder.imagePerfilAmigo);
+
+        holder.itemView.setOnClickListener(v -> listener.onClick(amigo.getUid()));
     }
 
     @Override
     public int getItemCount() {
-        return listaUids.size();
+        return listaAmigos.size();
     }
 
-    class AmigoViewHolder extends RecyclerView.ViewHolder {
-        TextView txtUid;
+    public void setListaAmigos(List<User> nuevaLista) {
+        listaAmigos.clear();
+        listaAmigos.addAll(nuevaLista);
+        notifyDataSetChanged();
+    }
 
-        public AmigoViewHolder(View itemView) {
+    static class AmigoViewHolder extends RecyclerView.ViewHolder {
+        TextView usernameTextView;
+        ImageView imagePerfilAmigo;
+
+        public AmigoViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtUid = itemView.findViewById(android.R.id.text1);
-            itemView.setOnClickListener(v -> {
-                int pos = getAdapterPosition();
-                if(pos != RecyclerView.NO_POSITION && listener != null) {
-                    listener.onAmigoClick(listaUids.get(pos));
-                }
-            });
-        }
-
-        void bind(String uid) {
-            txtUid.setText(uid); // Aquí podrías cargar el nombre con Firestore si quieres
+            usernameTextView = itemView.findViewById(R.id.text_username);
+            imagePerfilAmigo = itemView.findViewById(R.id.image_perfil_amigo);
         }
     }
 }

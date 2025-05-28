@@ -10,6 +10,10 @@ public class User {
         this.username = username;
         this.email = email;
     }
+    public User(String uid, String username) {
+        this.uid = uid;
+        this.username = username;
+    }
 
     // getters y setters
     public String getUid() { return uid; }

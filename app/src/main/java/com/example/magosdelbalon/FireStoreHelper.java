@@ -1107,6 +1107,30 @@ public class FireStoreHelper {
                     imageView.setImageResource(R.drawable.ic_profile_placeholder);
                 });
     }
+    public void getProfileImageForUser(String userId, ImageView imageView) {
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("profileImageUrl");
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Glide.with(imageView.getContext())
+                                    .load(imageUrl)
+                                    .circleCrop()
+                                    .placeholder(R.drawable.ic_profile_placeholder)
+                                    .error(R.drawable.ic_profile_placeholder)
+                                    .into(imageView);
+                        } else {
+                            imageView.setImageResource(R.drawable.ic_profile_placeholder);
+                        }
+                    } else {
+                        imageView.setImageResource(R.drawable.ic_profile_placeholder);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    imageView.setImageResource(R.drawable.ic_profile_placeholder);
+                });
+    }
 
     public void upgradeEstadio(String userId, String ligaId, String nivelKey, final FireStoreCallback callback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -2554,6 +2578,22 @@ public class FireStoreHelper {
 
     public String generarChatId(String uid1, String uid2) {
         return uid1.compareTo(uid2) < 0 ? uid1 + "_" + uid2 : uid2 + "_" + uid1;
+    }
+    public interface UsuarioCallback {
+        void onUsuarioObtenido(User usuario);
+        void onError();
+    }
+
+    public void getUsuario(String uid, UsuarioCallback callback) {
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        String username = document.getString("username");
+                        callback.onUsuarioObtenido(new User(uid, username));
+                    } else {
+                        callback.onError();
+                    }
+                }).addOnFailureListener(e -> callback.onError());
     }
 
 

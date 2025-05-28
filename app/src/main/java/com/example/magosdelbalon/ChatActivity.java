@@ -3,11 +3,14 @@ package com.example.magosdelbalon;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.magosdelbalon.mensaje.Mensaje;
 import com.example.magosdelbalon.mensaje.MensajeAdapter;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,7 +32,8 @@ public class ChatActivity extends AppCompatActivity {
     private FireStoreHelper firestoreHelper;
     private List<Mensaje> listaMensajes;
     private MensajeAdapter mensajeAdapter;
-
+    private ImageView imagePerfilAmigo;
+    private TextView textUsernameAmigo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +46,6 @@ public class ChatActivity extends AppCompatActivity {
         uidDestino = getIntent().getStringExtra("uidDestino");
 
         if (miUid == null || uidDestino == null) {
-            // Aquí puedes cerrar la actividad o mostrar mensaje de error
             finish();
             return;
         }
@@ -67,6 +70,10 @@ public class ChatActivity extends AppCompatActivity {
                 inputMensaje.setText("");
             }
         });
+        imagePerfilAmigo = findViewById(R.id.image_perfil_amigo);
+        textUsernameAmigo = findViewById(R.id.text_username_amigo);
+
+        cargarDatosAmigo(uidDestino);
 
         firestoreHelper.escucharMensajes(chatId, (snapshots, e) -> {
             if (e != null) return;
@@ -79,5 +86,26 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
+    private void cargarDatosAmigo(String uid) {
+        firestoreHelper.getUsuario(uid, new FireStoreHelper.UsuarioCallback() {
+            @Override
+            public void onUsuarioObtenido(User usuario) {
+                if (usuario != null) {
+                    textUsernameAmigo.setText(usuario.getUsername());
+                    firestoreHelper.getProfileImageForUser(uid, imagePerfilAmigo);
+                } else {
+                    textUsernameAmigo.setText("Amigo");
+                    imagePerfilAmigo.setImageResource(R.drawable.ic_profile_placeholder);
+                }
+            }
+
+            @Override
+            public void onError() {
+                textUsernameAmigo.setText("Amigo");
+                imagePerfilAmigo.setImageResource(R.drawable.ic_profile_placeholder);
+            }
+        });
+    }
+
 
 }
