@@ -8,6 +8,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
+import com.example.magosdelbalon.mensaje.Mensaje;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
@@ -16,9 +17,11 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.functions.FirebaseFunctions;
@@ -40,12 +43,19 @@ public class FireStoreHelper {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
+    private static FireStoreHelper instance;
+
     public FireStoreHelper() {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
     }
-
+    public static synchronized FireStoreHelper getInstance() {
+        if (instance == null) {
+            instance = new FireStoreHelper();
+        }
+        return instance;
+    }
     public void registerUser(String username, String email, String password, Context context) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
@@ -2496,4 +2506,55 @@ public class FireStoreHelper {
                 })
                 .addOnFailureListener(e -> Toast.makeText(context, "Error al eliminar seguidor", Toast.LENGTH_SHORT).show());
     }
+    public void getSeguidoresMutuos(String uid, ListaCallback callback) {
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        List<String> siguiendo = (List<String>) document.get("siguiendo");
+                        List<String> seguidores = (List<String>) document.get("seguidores");
+
+                        if (siguiendo == null) siguiendo = new ArrayList<>();
+                        if (seguidores == null) seguidores = new ArrayList<>();
+
+                        // Intersección de siguiendo y seguidores
+                        List<String> mutuos = new ArrayList<>();
+                        for (String s : siguiendo) {
+                            if (seguidores.contains(s)) {
+                                mutuos.add(s);
+                            }
+                        }
+
+                        callback.onListaObtenida(mutuos);
+
+                    } else {
+                        callback.onError();
+                    }
+                }).addOnFailureListener(e -> callback.onError());
+    }
+
+    public interface ListaCallback {
+        void onListaObtenida(List<String> lista);
+        void onError();
+    }
+
+    public void enviarMensaje(String chatId, Mensaje mensaje) {
+        db.collection("chats")
+                .document(chatId)
+                .collection("mensajes")
+                .add(mensaje);
+    }
+
+    public void escucharMensajes(String chatId, EventListener<QuerySnapshot> listener) {
+        db.collection("chats")
+                .document(chatId)
+                .collection("mensajes")
+                .orderBy("timestamp")
+                .addSnapshotListener(listener);
+    }
+
+    public String generarChatId(String uid1, String uid2) {
+        return uid1.compareTo(uid2) < 0 ? uid1 + "_" + uid2 : uid2 + "_" + uid1;
+    }
+
+
 }

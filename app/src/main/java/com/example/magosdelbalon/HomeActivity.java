@@ -17,9 +17,9 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.example.magosdelbalon.amigos.ListaAmigosActivity;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -30,7 +30,7 @@ public class HomeActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private ImageView profileImage;
     private TextView txtUser;
-    private ImageButton btnSettings;
+    private ImageButton btnSettings, btn_chat, btnCompaneros;
 
     // ActivityResultLauncher para la selección de imagen
     private final ActivityResultLauncher<String> getContent = registerForActivityResult(
@@ -89,10 +89,17 @@ public class HomeActivity extends AppCompatActivity {
             FireStoreHelper helper = new FireStoreHelper();
             helper.getProfileImage(profileImage);
         }
-        ImageButton btnCompaneros = findViewById(R.id.btn_companeros);
+        btnCompaneros = findViewById(R.id.btn_companeros);
         if (btnCompaneros != null) {
             btnCompaneros.setOnClickListener(v -> {
                 Intent intent = new Intent(HomeActivity.this, CompanerosActivity.class);
+                startActivity(intent);
+            });
+        }
+        btn_chat = findViewById(R.id.btn_chat);
+        if (btn_chat != null) {
+            btn_chat.setOnClickListener(v -> {
+                Intent intent = new Intent(HomeActivity.this, ListaAmigosActivity.class);
                 startActivity(intent);
             });
         }

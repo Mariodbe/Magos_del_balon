@@ -52,6 +52,12 @@
         <activity android:name=".CompanerosActivity"
             android:screenOrientation="landscape"
             />
+        <activity android:name=".ChatActivity"
+            android:screenOrientation="landscape"
+            />
+        <activity android:name=".amigos.ListaAmigosActivity"
+            android:screenOrientation="landscape"
+            />
 
         <!-- Actividad de inicio con botones de login y registro -->
         <activity
