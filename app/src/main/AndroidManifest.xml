@@ -48,10 +48,10 @@
         <activity
             android:name=".RegisterActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".video.VideoActivity"
+
+        <activity android:name=".CompanerosActivity"
             android:screenOrientation="landscape"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            />
 
         <!-- Actividad de inicio con botones de login y registro -->
         <activity

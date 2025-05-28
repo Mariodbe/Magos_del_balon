@@ -89,7 +89,13 @@ public class HomeActivity extends AppCompatActivity {
             FireStoreHelper helper = new FireStoreHelper();
             helper.getProfileImage(profileImage);
         }
-
+        ImageButton btnCompaneros = findViewById(R.id.btn_companeros);
+        if (btnCompaneros != null) {
+            btnCompaneros.setOnClickListener(v -> {
+                Intent intent = new Intent(HomeActivity.this, CompanerosActivity.class);
+                startActivity(intent);
+            });
+        }
         btnSettings = findViewById(R.id.btn_settings);
         if (btnSettings != null) {
             btnSettings.setOnClickListener(v -> openSettings());
@@ -275,24 +281,20 @@ public class HomeActivity extends AppCompatActivity {
             if (username != null && !username.isEmpty()) {
                 txtUser.setText(username);
             } else {
-                fetchUsernameFromFirestore(user.getUid());
+                FireStoreHelper firestoreHelper = new FireStoreHelper();
+                firestoreHelper.fetchUsername(user.getUid(), new FireStoreHelper.UsernameCallback() {
+                    @Override
+                    public void onUsernameFetched(String username) {
+                        txtUser.setText(username);
+                    }
+
+                    @Override
+                    public void onError() {
+                        txtUser.setText("Usuario");
+                    }
+                });
             }
         }
     }
 
-    private void fetchUsernameFromFirestore(String uid) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users").document(uid).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String username = documentSnapshot.getString("username");
-                        if (username != null && !username.isEmpty()) {
-                            txtUser.setText(username);
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    txtUser.setText("Usuario");
-                });
-    }
 }

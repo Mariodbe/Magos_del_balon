@@ -6,6 +6,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,15 +52,16 @@ public class FireStoreHelper {
                     if (task.isSuccessful()) {
                         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                         if (currentUser != null) {
-                            String userId = currentUser.getUid(); // Obtener el UID del usuario
-                            Log.d("Register", "UID del nuevo usuario: " + userId);
+                            String userId = currentUser.getUid();
 
-                            // Crear objeto usuario sin la contraseña
-                            User user = new User(username, email);
+                            Map<String, Object> userMap = new HashMap<>();
+                            userMap.put("username", username);
+                            userMap.put("email", email);
+                            userMap.put("siguiendo", new ArrayList<String>());
+                            userMap.put("seguidores", new ArrayList<String>());
 
-                            // Guardar usuario en Firestore usando el UID como ID del documento
                             FirebaseFirestore.getInstance().collection("users").document(userId)
-                                    .set(user)
+                                    .set(userMap)
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show();
                                     })
@@ -71,6 +74,7 @@ public class FireStoreHelper {
                     }
                 });
     }
+
 
 
     public void authenticateUser(String emailOrUsername, String password, Context context, final AuthCallback callback) {
@@ -135,22 +139,35 @@ public class FireStoreHelper {
                     String username = account.getDisplayName();
                     String email = account.getEmail();
 
-                    // Crear o actualizar el documento del usuario en Firestore
-                    User user = new User(username, email);
-                    FirebaseFirestore.getInstance().collection("users").document(userId)
-                            .set(user, com.google.firebase.firestore.SetOptions.merge())
-                            .addOnSuccessListener(aVoid -> {
-                                callback.onSuccess(username);
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(context, "Error al guardar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            });
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("users").document(userId).get().addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // El usuario ya existe, no sobrescribimos listas
+                            callback.onSuccess(username);
+                        } else {
+                            // El usuario no existe, lo creamos con listas vacías
+                            Map<String, Object> userMap = new HashMap<>();
+                            userMap.put("username", username);
+                            userMap.put("email", email);
+                            userMap.put("siguiendo", new ArrayList<String>());
+                            userMap.put("seguidores", new ArrayList<String>());
+
+                            db.collection("users").document(userId)
+                                    .set(userMap)
+                                    .addOnSuccessListener(aVoid -> callback.onSuccess(username))
+                                    .addOnFailureListener(e ->
+                                            Toast.makeText(context, "Error al guardar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        }
+                    }).addOnFailureListener(e ->
+                            Toast.makeText(context, "Error al verificar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 }
             } else {
                 Toast.makeText(context, "Error al autenticar con Google", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+
 
     public interface AuthCallback {
         void onSuccess(String username);
@@ -2356,5 +2373,127 @@ public class FireStoreHelper {
         void onSuccess(String message);
         void onFailure(String error);
     }
+    public interface UsernameCallback {
+        void onUsernameFetched(String username);
+        void onError();
+    }
 
+    public void fetchUsername(String uid, UsernameCallback callback) {
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        callback.onUsernameFetched(documentSnapshot.getString("username"));
+                    } else {
+                        callback.onError();
+                    }
+                })
+                .addOnFailureListener(e -> callback.onError());
+    }
+
+    public interface UserListsCallback {
+        void onListsFetched(List<User> paraSeguir, List<User> siguiendo, List<User> seguidores);
+        void onError();
+    }
+
+    public void cargarListasUsuarios(String currentUserId, @NonNull UserListsCallback callback) {
+        db.collection("users").get().addOnSuccessListener(querySnapshots -> {
+            List<User> todosUsuarios = new ArrayList<>();
+            for (DocumentSnapshot doc : querySnapshots) {
+                if (doc.getId().equals(currentUserId)) continue;
+                String username = doc.getString("username");
+                String email = doc.getString("email");
+                if (username != null) {
+                    todosUsuarios.add(new User(doc.getId(), username, email));
+                }
+            }
+
+            db.collection("users").document(currentUserId).get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    List<String> siguiendo = (List<String>) documentSnapshot.get("siguiendo");
+                    List<String> seguidores = (List<String>) documentSnapshot.get("seguidores");
+
+                    if (siguiendo == null) siguiendo = new ArrayList<>();
+                    if (seguidores == null) seguidores = new ArrayList<>();
+
+                    List<User> listaSiguiendo = new ArrayList<>();
+                    List<User> listaSeguidores = new ArrayList<>();
+                    List<User> listaParaSeguir = new ArrayList<>();
+
+                    for (User user : todosUsuarios) {
+                        String uid = user.getUid();
+                        boolean loSigo = siguiendo.contains(uid);
+                        boolean meSigue = seguidores.contains(uid);
+
+                        if (loSigo) listaSiguiendo.add(user);
+                        if (meSigue) listaSeguidores.add(user);
+                        if (!loSigo) listaParaSeguir.add(user);
+                    }
+
+                    callback.onListsFetched(listaParaSeguir, listaSiguiendo, listaSeguidores);
+                }
+            }).addOnFailureListener(e -> callback.onError());
+        }).addOnFailureListener(e -> callback.onError());
+    }
+
+    public void seguir(Context context, String currentUserId, String uidObjetivo, Runnable onSuccess) {
+        db.collection("users").document(currentUserId)
+                .update("siguiendo", FieldValue.arrayUnion(uidObjetivo))
+                .addOnSuccessListener(aVoid -> {
+                    db.collection("users").document(uidObjetivo).get()
+                            .addOnSuccessListener(doc -> {
+                                if (doc.exists()) {
+                                    List<String> seguidores = (List<String>) doc.get("seguidores");
+                                    if (seguidores == null) {
+                                        db.collection("users").document(uidObjetivo)
+                                                .update("seguidores", new ArrayList<String>())
+                                                .addOnSuccessListener(v -> agregarSeguidor(context, uidObjetivo, currentUserId, onSuccess));
+                                    } else {
+                                        agregarSeguidor(context, uidObjetivo, currentUserId, onSuccess);
+                                    }
+                                }
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(context, "Error al obtener usuario objetivo", Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e -> Toast.makeText(context, "Error al seguir", Toast.LENGTH_SHORT).show());
+    }
+
+    private void agregarSeguidor(Context context, String uidObjetivo, String currentUserId, Runnable onSuccess) {
+        db.collection("users").document(uidObjetivo)
+                .update("seguidores", FieldValue.arrayUnion(currentUserId))
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(context, "Ahora sigues al usuario", Toast.LENGTH_SHORT).show();
+                    onSuccess.run();
+                })
+                .addOnFailureListener(e -> Toast.makeText(context, "Error al agregar seguidor", Toast.LENGTH_SHORT).show());
+    }
+
+    public void dejarDeSeguir(Context context, String currentUserId, String uidObjetivo, Runnable onSuccess) {
+        db.collection("users").document(currentUserId)
+                .update("siguiendo", FieldValue.arrayRemove(uidObjetivo))
+                .addOnSuccessListener(aVoid -> {
+                    db.collection("users").document(uidObjetivo)
+                            .update("seguidores", FieldValue.arrayRemove(currentUserId))
+                            .addOnSuccessListener(aVoid1 -> {
+                                Toast.makeText(context, "Dejaste de seguir", Toast.LENGTH_SHORT).show();
+                                onSuccess.run();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(context, "Error al actualizar seguidores", Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e -> Toast.makeText(context, "Error al actualizar siguiendo", Toast.LENGTH_SHORT).show());
+    }
+
+    public void eliminarSeguidor(Context context, String currentUserId, String uidSeguidor, Runnable onSuccess) {
+        db.collection("users").document(currentUserId)
+                .update("seguidores", FieldValue.arrayRemove(uidSeguidor))
+                .addOnSuccessListener(aVoid -> {
+                    db.collection("users").document(uidSeguidor)
+                            .update("siguiendo", FieldValue.arrayRemove(currentUserId))
+                            .addOnSuccessListener(aVoid2 -> {
+                                Toast.makeText(context, "Seguidor eliminado", Toast.LENGTH_SHORT).show();
+                                onSuccess.run();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(context, "Error al eliminar en siguiendo", Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e -> Toast.makeText(context, "Error al eliminar seguidor", Toast.LENGTH_SHORT).show());
+    }
 }

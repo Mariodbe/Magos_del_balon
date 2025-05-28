@@ -33,15 +33,35 @@
             android:layout_marginTop="10dp"
             android:textAlignment="center" />
 
-        <!-- Botón de configuración -->
-        <ImageButton
-            android:id="@+id/btn_settings"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_settings"
-            android:background="?attr/selectableItemBackground"
+        <!-- Contenedor horizontal para botones -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_marginTop="6dp"
-            android:contentDescription="Configuración" />
+            android:gravity="center_horizontal">
+
+            <!-- Botón de configuración -->
+            <ImageButton
+                android:id="@+id/btn_settings"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_settings"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="Configuración"
+                android:layout_marginEnd="8dp" />
+
+            <!-- Botón de compañeros -->
+            <ImageButton
+                android:id="@+id/btn_companeros"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_group"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="Compañeros"
+                android:scaleType="centerInside" />
+        </LinearLayout>
+
 
     </LinearLayout>
 
