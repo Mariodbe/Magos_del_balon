@@ -70,7 +70,7 @@ public class MiFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(titulo)
                 .setContentText(cuerpo)
-                .setSmallIcon(R.drawable.ic_chat) // Asegúrate de tener un icono válido aquí
+                .setSmallIcon(R.drawable.ic_chat)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
