@@ -16,6 +16,7 @@ public class Inicio_Registro_Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         Utils.applyUserBrightness(this);
+        Utils.enableImmersiveMode(this);
         setContentView(R.layout.activity_inicio_registro);
         // Ocultar la barra de acción (ActionBar)
         if (getSupportActionBar() != null) {

@@ -37,6 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         applyThemeFromPreferences(); // Aplicar modo oscuro/claro antes de cargar layout
         Utils.applyUserBrightness(this);
+        Utils.enableImmersiveMode(this);
         // Ocultar la barra de acción (ActionBar)
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();

@@ -31,6 +31,7 @@ public class ListaAmigosActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Utils.applyUserBrightness(this);
+        Utils.enableImmersiveMode(this);
         setContentView(R.layout.activity_lista_amigos);
         // Ocultar la barra de acción (ActionBar)
         if (getSupportActionBar() != null) {

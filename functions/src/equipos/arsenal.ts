@@ -2,8 +2,8 @@ import * as functions from "firebase-functions";
 
 export const getArsenalPlayers = functions.https.onRequest(
   (request, response) => {
-    const storageBaseUrl = "gs://magosdelbalon-f8f08."+
-    "firebasestorage.app/Arsenal/";
+    const storageBaseUrl =
+      "gs://magosdelbalon-f8f08." + "firebasestorage.app/Arsenal/";
     const arsenalPlayers = [
       {
         name: "Aaron Ramsdale",
@@ -147,7 +147,10 @@ export const getArsenalPlayers = functions.https.onRequest(
       },
     ];
 
-    const totalOverall = arsenalPlayers.reduce((acc, player) => acc + player.overall, 0);
+    const totalOverall = arsenalPlayers.reduce(
+      (acc, player) => acc + player.overall,
+      0
+    );
     const averageOverall = totalOverall / arsenalPlayers.length;
 
     response.json({data: {players: arsenalPlayers, averageOverall}});

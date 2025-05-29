@@ -12,7 +12,7 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:background="#E0E0E0"
+        android:background="@drawable/bg_card_liga"
         android:padding="16dp">
         <!-- Botón pequeño arriba izquierda -->
         <ImageButton
@@ -100,7 +100,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="#B0BEC5"
+                android:background="@drawable/bg_card_liga"
                 android:padding="16dp"
                 android:layout_margin="8dp">
 
@@ -129,7 +129,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="#B0BEC5"
+                android:background="@drawable/bg_card_liga"
                 android:padding="16dp"
                 android:layout_margin="8dp">
 
@@ -168,7 +168,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="#B0BEC5"
+                android:background="@drawable/bg_card_liga"
                 android:padding="16dp"
                 android:layout_margin="8dp">
 
@@ -197,7 +197,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="#B0BEC5"
+                android:background="@drawable/bg_card_liga"
                 android:padding="16dp"
                 android:layout_margin="8dp">
 

@@ -42,6 +42,7 @@ public class CompanerosActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Utils.applyUserBrightness(this);
+        Utils.enableImmersiveMode(this);
         setContentView(R.layout.activity_companeros);
         if (getSupportActionBar() != null) getSupportActionBar().hide();
 

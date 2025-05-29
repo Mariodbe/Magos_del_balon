@@ -26,6 +26,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         Utils.applyUserBrightness(this);
+        Utils.enableImmersiveMode(this);
         setContentView(R.layout.activity_register);
         // Ocultar la barra de acción (ActionBar)
         if (getSupportActionBar() != null) {
