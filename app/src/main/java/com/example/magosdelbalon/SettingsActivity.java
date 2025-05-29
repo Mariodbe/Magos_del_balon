@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -26,6 +27,7 @@ public class SettingsActivity extends AppCompatActivity {
     private SeekBar seekBarBrightness;
     private Button btnSaveSettings;
     private Button btnLogout;
+    private ImageButton btnAtras;
     private FirebaseAuth mAuth;
     private Switch switchMusic;
     private SeekBar seekBarVolume;
@@ -56,7 +58,13 @@ public class SettingsActivity extends AppCompatActivity {
         seekBarBrightness = findViewById(R.id.seekbar_brightness);
         btnSaveSettings = findViewById(R.id.btn_save_settings);
         btnLogout = findViewById(R.id.btn_logout);
-
+        btnAtras = findViewById(R.id.btn_back);
+        btnAtras.setOnClickListener(v -> {
+            Intent intent = new Intent(SettingsActivity.this, HomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        });
         // Cargar preferencias guardadas
         loadPreferences();
 

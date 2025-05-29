@@ -64,7 +64,6 @@ public class CompanerosActivity extends AppCompatActivity {
         recyclerUsuarios.setLayoutManager(new LinearLayoutManager(this));
 
         btnBack.setOnClickListener(v -> {
-            startActivity(new Intent(CompanerosActivity.this, HomeActivity.class));
             finish();
         });
 

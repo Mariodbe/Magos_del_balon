@@ -47,7 +47,7 @@ public class VideoFragment extends Fragment {
 
         videoView = view.findViewById(R.id.video_view);
 
-        String videoPath = "android.resource://" + requireContext().getPackageName() + "/" + R.raw.tutorial;
+        String videoPath = "android.resource://" + requireContext().getPackageName() + "/" + R.raw.anuncio_magosdelbalon;
         Uri uri = Uri.parse(videoPath);
         videoView.setVideoURI(uri);
 

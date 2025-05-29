@@ -1,27 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="#FFFFFF">
 
-    <TextView
-        android:id="@+id/text_instruccion"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Selecciona el amigo con el que quieres chatear"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#075E54"
-        android:paddingBottom="16dp"
-        android:gravity="center" />
+        android:layout_marginBottom="8dp"
+        android:paddingEnd="32dp">
+
+        <ImageButton
+            android:id="@+id/btn_atras"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_back_arrow"
+            android:contentDescription="Ir atrás"
+            app:tint="#075E54" />
+
+        <TextView
+            android:id="@+id/text_instruccion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:text="Selecciona el amigo con el que quieres chatear"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#075E54"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+
+        <ImageButton
+            android:id="@+id/btn_help"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/circle_background"
+            android:src="@drawable/ic_help"
+            android:contentDescription="Ayuda"
+            android:scaleType="fitCenter"
+            android:padding="4dp"
+            app:tint="#075E54" />
+
+    </RelativeLayout>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_amigos"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_marginTop="8dp"
         android:scrollbars="vertical" />
+
 
 </LinearLayout>

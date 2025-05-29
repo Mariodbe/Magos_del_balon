@@ -3,6 +3,7 @@ package com.example.magosdelbalon;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -98,6 +99,8 @@ public class ChatActivity extends AppCompatActivity {
             primeraCarga = false;
         });
 
+        ImageButton btnAtras = findViewById(R.id.btn_atras);
+        btnAtras.setOnClickListener(v -> finish());
 
 
         firestoreHelper.getUsuario(miUid, new FireStoreHelper.UsuarioCallback() {

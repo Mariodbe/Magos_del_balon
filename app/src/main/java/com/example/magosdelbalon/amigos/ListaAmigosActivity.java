@@ -2,6 +2,7 @@ package com.example.magosdelbalon.amigos;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,6 +41,18 @@ public class ListaAmigosActivity extends AppCompatActivity {
             finish();
             return;
         }
+        ImageButton btnAtras = findViewById(R.id.btn_atras);
+        btnAtras.setOnClickListener(v -> finish());
+
+        ImageButton btnHelp = findViewById(R.id.btn_help);
+        btnHelp.setOnClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(ListaAmigosActivity.this)
+                    .setTitle("¿Cómo funciona?")
+                    .setMessage("Solo puedes chatear con personas que te siguen y que tú también sigues.")
+                    .setPositiveButton("Entendido", null)
+                    .show();
+        });
+
 
         recyclerAmigos = findViewById(R.id.recycler_amigos);
         listaAmigos = new ArrayList<>();
