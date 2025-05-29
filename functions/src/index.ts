@@ -36,12 +36,18 @@ export const enviarNotificacion = onDocumentCreated("chats/{chatId}/mensajes/{me
     const destinatarioId = mensaje.destinatarioId;
     const remitenteNombre = mensaje.remitenteNombre || "Alguien";
 
+    console.log(`Mensaje recibido para ${destinatarioId} de ${remitenteNombre}`);
+
     try {
       const usuarioDoc = await admin.firestore().collection("users").doc(destinatarioId).get();
       const userData = usuarioDoc.data();
-      if (!userData) return;
+      if (!userData) {
+        console.error("No se encontraron datos del usuario");
+        return;
+      }
 
       const token = userData.fcmToken;
+      console.log(`Token FCM del destinatario: ${token}`);
 
       if (token) {
         const payload = {
@@ -54,6 +60,8 @@ export const enviarNotificacion = onDocumentCreated("chats/{chatId}/mensajes/{me
 
         await admin.messaging().send(payload);
         console.log(`Notificación enviada a ${destinatarioId}`);
+      } else {
+        console.error("Token FCM no encontrado para el destinatario");
       }
     } catch (error) {
       console.error("Error al enviar la notificación:", error);

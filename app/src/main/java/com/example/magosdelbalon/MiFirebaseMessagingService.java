@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
@@ -20,7 +21,8 @@ public class MiFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        // Obtener título y cuerpo de la notificación
+        Log.d("FCMService", "Mensaje recibido: " + remoteMessage.toString());
+
         String titulo = "";
         String cuerpo = "";
 
@@ -29,8 +31,11 @@ public class MiFirebaseMessagingService extends FirebaseMessagingService {
             cuerpo = remoteMessage.getNotification().getBody();
         }
 
+        Log.d("FCMService", "Notificación recibida - Título: " + titulo + ", Cuerpo: " + cuerpo);
+
         mostrarNotificacion(titulo, cuerpo);
     }
+
 
     private void mostrarNotificacion(String titulo, String cuerpo) {
         NotificationManager notificationManager =
@@ -50,7 +55,7 @@ public class MiFirebaseMessagingService extends FirebaseMessagingService {
             }
         }
 
-        // Intent para abrir la app al tocar la notificación (puedes cambiar MainActivity por tu actividad)
+        // Intent para abrir la app al tocar la notificación
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
@@ -58,13 +63,14 @@ public class MiFirebaseMessagingService extends FirebaseMessagingService {
                 this,
                 0,
                 intent,
-                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE // FLAG_IMMUTABLE para Android 12+
+                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
         );
 
         // Construir la notificación
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(titulo)
                 .setContentText(cuerpo)
+                .setSmallIcon(R.drawable.ic_chat) // Asegúrate de tener un icono válido aquí
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
@@ -72,6 +78,9 @@ public class MiFirebaseMessagingService extends FirebaseMessagingService {
         // Mostrar la notificación
         if (notificationManager != null) {
             notificationManager.notify(0, builder.build());
+            Log.d("FCMService", "Notificación mostrada correctamente");
         }
     }
+
+
 }
