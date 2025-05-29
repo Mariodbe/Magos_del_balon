@@ -63,8 +63,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Seguir"
-            android:backgroundTint="#CCCCCC"
-            android:textColor="@android:color/black"/>
+            app:backgroundTint="@null"
+            android:background="@drawable/button_background_principal"
+            android:textColor="@android:color/white"/>
 
         <Button
             android:id="@+id/btn_siguiendo"
@@ -72,8 +73,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Siguiendo"
-            android:backgroundTint="#CCCCCC"
-            android:textColor="@android:color/black"/>
+            app:backgroundTint="@null"
+            android:background="@drawable/button_background_principal"
+            android:textColor="@android:color/white"/>
 
         <Button
             android:id="@+id/btn_seguidores"
@@ -81,8 +83,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Seguidores"
-            android:backgroundTint="#CCCCCC"
-            android:textColor="@android:color/black"/>
+            app:backgroundTint="@null"
+            android:background="@drawable/button_background_principal"
+            android:textColor="@android:color/white"/>
     </LinearLayout>
 
     <!-- Lista de usuarios -->

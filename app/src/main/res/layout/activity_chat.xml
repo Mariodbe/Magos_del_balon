@@ -11,7 +11,7 @@
         android:orientation="horizontal"
         android:padding="8dp"
         android:gravity="center_vertical"
-        android:background="#075E54">  <!-- color tipo WhatsApp -->
+        android:background="@color/purple_500">  <!-- color tipo WhatsApp -->
 
         <!-- Botón de retroceso -->
         <ImageButton
@@ -72,6 +72,8 @@
             android:id="@+id/btn_enviar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:backgroundTint="@null"
+            android:background="@drawable/button_background_principal"
             android:text="Enviar" />
     </LinearLayout>
 </LinearLayout>

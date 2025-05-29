@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="12dp"
     android:orientation="horizontal"
     android:gravity="center_vertical">
@@ -18,5 +19,7 @@
         android:id="@+id/btn_follow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:backgroundTint="@null"
+        android:background="@drawable/button_background_principal"
         android:text="Seguir" />
 </LinearLayout>

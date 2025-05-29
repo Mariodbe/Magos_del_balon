@@ -39,6 +39,7 @@
             android:layout_height="wrap_content"
             android:text="Tu Perfil"
             android:textSize="18sp"
+            android:textColor="@color/white"
             android:layout_marginTop="10dp"
             android:textAlignment="center" />
 
@@ -54,8 +55,8 @@
             <ImageButton
                 android:id="@+id/btn_chat"
                 android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_chat"
+                android:layout_height="38dp"
+                android:src="@drawable/icono_msg"
                 android:background="?attr/selectableItemBackground"
                 android:contentDescription="Chat"
                 android:layout_marginEnd="8dp"
@@ -108,7 +109,7 @@
                     android:id="@+id/btn_create_liga_1"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@drawable/ic_add"
+                    android:src="@drawable/icono_mas"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
 
@@ -117,6 +118,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Liga 1"
+                    android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textAlignment="center" />
             </LinearLayout>
@@ -137,7 +139,7 @@
                     android:id="@+id/btn_create_liga_2"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@drawable/ic_add"
+                    android:src="@drawable/icono_mas"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
 
@@ -146,6 +148,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Liga 2"
+                    android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textAlignment="center" />
             </LinearLayout>
@@ -176,7 +179,7 @@
                     android:id="@+id/btn_create_liga_3"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@drawable/ic_add"
+                    android:src="@drawable/icono_mas"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
 
@@ -185,6 +188,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Liga 3"
+                    android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textAlignment="center" />
             </LinearLayout>
@@ -205,7 +209,7 @@
                     android:id="@+id/btn_create_liga_4"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@drawable/ic_add"
+                    android:src="@drawable/icono_mas"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
 
@@ -213,6 +217,7 @@
                     android:id="@+id/liga_4_nombre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/white"
                     android:text="Liga 4"
                     android:textSize="14sp"
                     android:textAlignment="center" />

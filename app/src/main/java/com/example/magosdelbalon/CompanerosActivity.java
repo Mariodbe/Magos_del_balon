@@ -112,9 +112,9 @@ public class CompanerosActivity extends AppCompatActivity {
     }
 
     private void actualizarColoresPestañas() {
-        btnSeguir.setBackgroundTintList(getColorStateList(pestañaActual == 0 ? android.R.color.holo_orange_light : android.R.color.darker_gray));
-        btnSiguiendo.setBackgroundTintList(getColorStateList(pestañaActual == 1 ? android.R.color.holo_orange_light : android.R.color.darker_gray));
-        btnSeguidores.setBackgroundTintList(getColorStateList(pestañaActual == 2 ? android.R.color.holo_orange_light : android.R.color.darker_gray));
+        btnSeguir.setBackgroundTintList(getColorStateList(pestañaActual == 0 ? R.color.purple_500 : android.R.color.darker_gray));
+        btnSiguiendo.setBackgroundTintList(getColorStateList(pestañaActual == 1 ? R.color.purple_500 : android.R.color.darker_gray));
+        btnSeguidores.setBackgroundTintList(getColorStateList(pestañaActual == 2 ? R.color.purple_500: android.R.color.darker_gray));
     }
 
     private void actualizarListaUsuarios() {

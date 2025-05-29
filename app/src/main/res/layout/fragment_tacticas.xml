@@ -24,24 +24,32 @@
             android:id="@+id/btn_agresividad"
             android:layout_width="250dp"
             android:layout_height="125dp"
+            app:backgroundTint="@null"
+            android:background="@drawable/button_background_principal"
             android:text="Agresividad" />
 
         <Button
             android:id="@+id/btn_posesion"
             android:layout_width="250dp"
             android:layout_height="125dp"
+            app:backgroundTint="@null"
+            android:background="@drawable/button_background_principal"
             android:text="Posesión" />
 
         <Button
             android:id="@+id/btn_presion"
             android:layout_width="250dp"
             android:layout_height="125dp"
+            app:backgroundTint="@null"
+            android:background="@drawable/button_background_principal"
             android:text="Presión" />
 
         <Button
             android:id="@+id/btn_contrataques"
             android:layout_width="250dp"
             android:layout_height="125dp"
+            app:backgroundTint="@null"
+            android:background="@drawable/button_background_principal"
             android:text="Contraataques" />
 
     </GridLayout>
