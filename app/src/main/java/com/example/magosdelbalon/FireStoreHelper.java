@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.functions.FirebaseFunctions;
 
@@ -73,6 +74,15 @@ public class FireStoreHelper {
                             FirebaseFirestore.getInstance().collection("users").document(userId)
                                     .set(userMap)
                                     .addOnSuccessListener(aVoid -> {
+                                        // Guardar token FCM
+                                        FirebaseMessaging.getInstance().getToken()
+                                                .addOnCompleteListener(tokenTask -> {
+                                                    if (tokenTask.isSuccessful()) {
+                                                        String token = tokenTask.getResult();
+                                                        FirebaseFirestore.getInstance().collection("users").document(userId)
+                                                                .update("fcmToken", token);
+                                                    }
+                                                });
                                         Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show();
                                     })
                                     .addOnFailureListener(e -> {
@@ -100,6 +110,15 @@ public class FireStoreHelper {
                                 FirebaseFirestore.getInstance().collection("users").document(userId)
                                         .get()
                                         .addOnSuccessListener(documentSnapshot -> {
+                                            FirebaseMessaging.getInstance().getToken()
+                                                    .addOnCompleteListener(tokenTask -> {
+                                                        if (tokenTask.isSuccessful()) {
+                                                            String token = tokenTask.getResult();
+                                                            FirebaseFirestore.getInstance().collection("users").document(userId)
+                                                                    .update("fcmToken", token);
+                                                        }
+                                                    });
+
                                             if (documentSnapshot.exists()) {
                                                 String username = documentSnapshot.getString("username");
                                                 callback.onSuccess(username);
@@ -125,6 +144,15 @@ public class FireStoreHelper {
                             String email = document.getString("email");
                             FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                                     .addOnCompleteListener(task -> {
+                                        FirebaseMessaging.getInstance().getToken()
+                                                .addOnCompleteListener(tokenTask -> {
+                                                    if (tokenTask.isSuccessful()) {
+                                                        String token = tokenTask.getResult();
+                                                        FirebaseFirestore.getInstance().collection("users").document(userId)
+                                                                .update("fcmToken", token);
+                                                    }
+                                                });
+
                                         if (task.isSuccessful()) {
                                             callback.onSuccess(emailOrUsername);
                                         } else {
@@ -153,6 +181,15 @@ public class FireStoreHelper {
                     db.collection("users").document(userId).get().addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             // El usuario ya existe, no sobrescribimos listas
+                            FirebaseMessaging.getInstance().getToken()
+                                    .addOnCompleteListener(tokenTask -> {
+                                        if (tokenTask.isSuccessful()) {
+                                            String token = tokenTask.getResult();
+                                            FirebaseFirestore.getInstance().collection("users").document(userId)
+                                                    .update("fcmToken", token);
+                                        }
+                                    });
+
                             callback.onSuccess(username);
                         } else {
                             // El usuario no existe, lo creamos con listas vacías
@@ -2594,6 +2631,12 @@ public class FireStoreHelper {
                         callback.onError();
                     }
                 }).addOnFailureListener(e -> callback.onError());
+    }
+    public void enviarMensajeMap(String chatId, Map<String, Object> mensajeMap) {
+        db.collection("chats")
+                .document(chatId)
+                .collection("mensajes")
+                .add(mensajeMap);
     }
 
 

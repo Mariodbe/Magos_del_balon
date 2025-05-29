@@ -17,7 +17,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -94,6 +96,8 @@ public class ChatActivity extends AppCompatActivity {
                 if (usuario != null) {
                     textUsernameAmigo.setText(usuario.getUsername());
                     firestoreHelper.getProfileImageForUser(uid, imagePerfilAmigo);
+                    String remitenteNombre = usuario.getUsername();
+                    configurarBotonEnviar(remitenteNombre);
                 } else {
                     textUsernameAmigo.setText("Amigo");
                     imagePerfilAmigo.setImageResource(R.drawable.ic_profile_placeholder);
@@ -104,6 +108,25 @@ public class ChatActivity extends AppCompatActivity {
             public void onError() {
                 textUsernameAmigo.setText("Amigo");
                 imagePerfilAmigo.setImageResource(R.drawable.ic_profile_placeholder);
+            }
+        });
+    }
+    private void configurarBotonEnviar(String remitenteNombre) {
+        btnEnviar.setOnClickListener(v -> {
+            String texto = inputMensaje.getText().toString().trim();
+            if (!texto.isEmpty()) {
+                Mensaje mensaje = new Mensaje(miUid, texto, System.currentTimeMillis());
+
+                // Añadir campos extra necesarios para la notificación
+                Map<String, Object> mensajeMap = new HashMap<>();
+                mensajeMap.put("remitenteId", mensaje.getRemitenteId());
+                mensajeMap.put("contenido", mensaje.getContenido());
+                mensajeMap.put("timestamp", mensaje.getTimestamp());
+                mensajeMap.put("destinatarioId", uidDestino);
+                mensajeMap.put("remitenteNombre", remitenteNombre);
+
+                firestoreHelper.enviarMensajeMap(chatId, mensajeMap);
+                inputMensaje.setText("");
             }
         });
     }
