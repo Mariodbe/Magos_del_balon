@@ -35,6 +35,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:21.1.1'
     implementation 'com.google.firebase:firebase-storage:20.2.1' // Si usarás almacenamiento
     implementation 'com.google.firebase:firebase-functions:20.0.3' //para usar API
+    implementation 'com.google.firebase:firebase-messaging:23.1.0'
 
 
     //LoginConGoogle

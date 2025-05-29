@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.functions.FirebaseFunctions;
 
@@ -63,7 +64,6 @@ public class FireStoreHelper {
                         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                         if (currentUser != null) {
                             String userId = currentUser.getUid();
-
                             Map<String, Object> userMap = new HashMap<>();
                             userMap.put("username", username);
                             userMap.put("email", email);
@@ -73,6 +73,7 @@ public class FireStoreHelper {
                             FirebaseFirestore.getInstance().collection("users").document(userId)
                                     .set(userMap)
                                     .addOnSuccessListener(aVoid -> {
+                                        saveFCMToken(userId, context);
                                         Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show();
                                     })
                                     .addOnFailureListener(e -> {
@@ -85,18 +86,15 @@ public class FireStoreHelper {
                 });
     }
 
-
-
     public void authenticateUser(String emailOrUsername, String password, Context context, final AuthCallback callback) {
         if (android.util.Patterns.EMAIL_ADDRESS.matcher(emailOrUsername).matches()) {
-            // Intentar iniciar sesión con correo electrónico y contraseña
             FirebaseAuth.getInstance().signInWithEmailAndPassword(emailOrUsername, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                             if (currentUser != null) {
                                 String userId = currentUser.getUid();
-                                // Obtener el nombre de usuario desde Firestore
+                                saveFCMToken(userId, context);
                                 FirebaseFirestore.getInstance().collection("users").document(userId)
                                         .get()
                                         .addOnSuccessListener(documentSnapshot -> {
@@ -114,18 +112,17 @@ public class FireStoreHelper {
                         }
                     });
         } else {
-            // Si no es un correo electrónico, buscar por nombre de usuario
             FirebaseFirestore.getInstance().collection("users").whereEqualTo("username", emailOrUsername)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
                             String userId = document.getId();
-                            // Intentar iniciar sesión con el correo electrónico asociado al nombre de usuario
                             String email = document.getString("email");
                             FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                                     .addOnCompleteListener(task -> {
                                         if (task.isSuccessful()) {
+                                            saveFCMToken(userId, context);
                                             callback.onSuccess(emailOrUsername);
                                         } else {
                                             Toast.makeText(context, "Error en el inicio de sesión: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -152,10 +149,9 @@ public class FireStoreHelper {
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                     db.collection("users").document(userId).get().addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
-                            // El usuario ya existe, no sobrescribimos listas
+                            saveFCMToken(userId, context);
                             callback.onSuccess(username);
                         } else {
-                            // El usuario no existe, lo creamos con listas vacías
                             Map<String, Object> userMap = new HashMap<>();
                             userMap.put("username", username);
                             userMap.put("email", email);
@@ -164,7 +160,10 @@ public class FireStoreHelper {
 
                             db.collection("users").document(userId)
                                     .set(userMap)
-                                    .addOnSuccessListener(aVoid -> callback.onSuccess(username))
+                                    .addOnSuccessListener(aVoid -> {
+                                        saveFCMToken(userId, context);
+                                        callback.onSuccess(username);
+                                    })
                                     .addOnFailureListener(e ->
                                             Toast.makeText(context, "Error al guardar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                         }
@@ -176,6 +175,22 @@ public class FireStoreHelper {
             }
         });
     }
+
+    private void saveFCMToken(String userId, Context context) {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(tokenTask -> {
+                    if (tokenTask.isSuccessful()) {
+                        String token = tokenTask.getResult();
+                        FirebaseFirestore.getInstance().collection("users").document(userId)
+                                .update("fcmToken", token)
+                                .addOnSuccessListener(aVoid -> Log.d("FCM Token", "Token guardado exitosamente"))
+                                .addOnFailureListener(e -> Log.e("FCM Token", "Error al guardar token", e));
+                    } else {
+                        Log.e("FCM Token", "Error al obtener token", tokenTask.getException());
+                    }
+                });
+    }
+
 
 
 
@@ -2595,6 +2610,20 @@ public class FireStoreHelper {
                     }
                 }).addOnFailureListener(e -> callback.onError());
     }
+    public void enviarMensajeMap(String chatId, Map<String, Object> mensajeMap) {
+        FirebaseFirestore.getInstance()
+                .collection("chats")
+                .document(chatId)
+                .collection("mensajes")
+                .add(mensajeMap)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("FireStoreHelper", "Mensaje enviado con éxito: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FireStoreHelper", "Error al enviar mensaje", e);
+                });
+    }
+
 
 
 }
