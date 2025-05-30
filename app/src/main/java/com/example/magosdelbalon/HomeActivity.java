@@ -164,20 +164,29 @@ public class HomeActivity extends AppCompatActivity {
                     int ligaId = i + 1;
                     String nombreLiga = liga.getNombre();
 
+                    String equipoName = MainActivity.limpiarNombreParaDrawable(liga.getEquipos().get(0));
                     // Obtener IDs de los elementos
                     int textViewId = getResources().getIdentifier("liga_" + ligaId + "_nombre", "id", getPackageName());
                     int imageViewId = getResources().getIdentifier("btn_create_liga_" + ligaId, "id", getPackageName());
                     int layoutId = getResources().getIdentifier("liga_layout_" + ligaId, "id", getPackageName());
+                    int createButtonId = getResources().getIdentifier("liga_" + ligaId + "_escudo", "id", getPackageName());
 
                     TextView ligaTextView = findViewById(textViewId);
                     ImageView createButton = findViewById(imageViewId);
                     View ligaLayout = findViewById(layoutId); // Captura el cuadrado de la liga
+                    ImageView escudoImageView = findViewById(createButtonId);
 
                     if (ligaTextView != null) {
                         ligaTextView.setText(nombreLiga);
                         ligaTextView.setVisibility(View.VISIBLE);
                     }
-
+                    if (escudoImageView != null) {
+                        int escudoId = getResources().getIdentifier(equipoName, "drawable", getPackageName());
+                        if (escudoId != 0) {
+                            escudoImageView.setImageResource(escudoId);
+                            escudoImageView.setVisibility(View.VISIBLE);
+                        }
+                    }
                     if (createButton != null) {
                         if (liga.getNombre() != null && !liga.getNombre().isEmpty()) {
                             createButton.setVisibility(View.GONE); // Ocultar botón si la liga está ocupada

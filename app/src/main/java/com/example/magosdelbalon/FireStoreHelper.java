@@ -914,8 +914,7 @@ public class FireStoreHelper {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists() && documentSnapshot.getData() != null) {
-                        String ligaKey = "liga_" + ligaSlot; // Assuming the keys are named like liga_1, liga_2, etc.
-                        //Check if a key like liga_1, liga_2, liga_3 or liga_4 exists.
+                        String ligaKey = "liga_" + ligaSlot;
                         if (documentSnapshot.getData().containsKey(ligaKey)) {
                             callback.onFailure("Ya tienes una liga en este espacio.");
                             return;

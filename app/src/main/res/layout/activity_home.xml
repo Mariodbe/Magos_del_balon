@@ -112,7 +112,13 @@
                     android:src="@drawable/icono_mas"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
-
+                <ImageView
+                    android:id="@+id/liga_1_escudo"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Escudo del equipo"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
                 <TextView
                     android:id="@+id/liga_1_nombre"
                     android:layout_width="wrap_content"
@@ -142,7 +148,13 @@
                     android:src="@drawable/icono_mas"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
-
+                <ImageView
+                    android:id="@+id/liga_2_escudo"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Escudo del equipo"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
                 <TextView
                     android:id="@+id/liga_2_nombre"
                     android:layout_width="wrap_content"
@@ -182,7 +194,13 @@
                     android:src="@drawable/icono_mas"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
-
+                <ImageView
+                    android:id="@+id/liga_3_escudo"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Escudo del equipo"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
                 <TextView
                     android:id="@+id/liga_3_nombre"
                     android:layout_width="wrap_content"
@@ -212,7 +230,13 @@
                     android:src="@drawable/icono_mas"
                     android:contentDescription="Crear Liga"
                     android:layout_gravity="center" />
-
+                <ImageView
+                    android:id="@+id/liga_4_escudo"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Escudo del equipo"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
                 <TextView
                     android:id="@+id/liga_4_nombre"
                     android:layout_width="wrap_content"

@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String limpiarNombreParaDrawable(String nombre) {
+    static String limpiarNombreParaDrawable(String nombre) {
         // Quita tildes
         String sinTildes = Normalizer.normalize(nombre, Normalizer.Form.NFD)
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
