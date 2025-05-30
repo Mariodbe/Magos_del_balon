@@ -2,6 +2,8 @@ package com.example.magosdelbalon.principal;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -10,9 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -54,27 +58,36 @@ public class PrincipalFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d("PrincipalFragment", "Inflando layout del fragment");
 
         View rootView = inflater.inflate(R.layout.fragment_principal, container, false);
 
         // Obtener argumentos
-        String ligaName = getArguments() != null ? getArguments().getString("leagueName") : null;
+        Bundle args = getArguments();
+        String ligaName = args != null ? args.getString("leagueName") : null;
         Log.d("PrincipalFragment", "Liga recibida en fragment: " + ligaName);
 
         SharedPreferences prefs = requireContext().getSharedPreferences("MagosPrefs", Context.MODE_PRIVATE);
         String claveArbitro = "arbitroPermisividad_" + ligaName;
-        int permisividadArbitro = prefs.getInt(claveArbitro, -1);
+        int permisividadArbitro = args != null ? args.getInt("arbitroPermisividad", -1) : -1;
 
         // Si no hay valor guardado, generamos uno y lo guardamos
         if (permisividadArbitro == -1) {
-            permisividadArbitro = new Random().nextInt(5) + 1;
+            permisividadArbitro = prefs.getInt(claveArbitro, new Random().nextInt(5) + 1);
             prefs.edit().putInt(claveArbitro, permisividadArbitro).apply();
         }
+
         TextView textViewPermisividad = rootView.findViewById(R.id.text_view_arbitro_permisividad);
         textViewPermisividad.setText("Permisividad árbitro: " + permisividadArbitro);
+
+        ProgressBar progressBar = rootView.findViewById(R.id.progress_bar_permisividad);
+        // Invertir el progreso: 1 -> lleno, 5 -> vacío
+        progressBar.setProgress(progressBar.getMax() - permisividadArbitro + 1);
+
+        Drawable drawable = progressBar.getProgressDrawable().mutate();
+        int color = getColorForPermisividad(permisividadArbitro);
+        drawable.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
 
         if (!TextUtils.isEmpty(ligaName)) {
             cargarDatosLiga(rootView, ligaName);
@@ -87,6 +100,24 @@ public class PrincipalFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+
+
+    private int getColorForPermisividad(int permisividad) {
+        switch (permisividad) {
+            case 1:
+                return Color.parseColor("#FF0000"); // Rojo
+            case 2:
+                return Color.parseColor("#FF8000"); // Naranja
+            case 3:
+                return Color.parseColor("#FFFF00"); // Amarillo
+            case 4:
+                return Color.parseColor("#80FF00"); // Verde Lima
+            case 5:
+            default:
+                return Color.parseColor("#0000FF"); // Azul
+        }
     }
 
     private void cargarDatosLiga(View rootView, String ligaName) {
@@ -405,7 +436,6 @@ public class PrincipalFragment extends Fragment {
 
     private void simularPartido(double mediaEquipo, double mediaRival) {
         SharedPreferences prefs = requireContext().getSharedPreferences("MagosPrefs", Context.MODE_PRIVATE);
-
         String ligaName = getArguments() != null ? getArguments().getString("leagueName") : null;
         if (TextUtils.isEmpty(ligaName)) return;
 
@@ -413,46 +443,48 @@ public class PrincipalFragment extends Fragment {
         int arbitro = prefs.getInt(claveArbitro, 3);
 
         double probVictoriaBase = calcularProbabilidadVictoria(mediaEquipo, mediaRival, arbitro);
-
-        // Calcular diferencia de medias (valor absoluto)
         double diferenciaMedias = Math.abs(mediaEquipo - mediaRival);
+        double probEmpate = 0.3 - Math.min(0.25, diferenciaMedias * 0.025);
+        probEmpate += new Random().nextDouble() * 0.05 - 0.025;
+        probEmpate = Math.max(0.05, Math.min(0.3, probEmpate));
 
-        // Cuanto más parejos, mayor probabilidad de empate (máx 30%, mín 5%)
-        double probEmpate = 0.3 - Math.min(0.25, diferenciaMedias * 0.025); // lineal
-        probEmpate += new Random().nextDouble() * 0.05 - 0.025; // +/- 2.5% aleatorio
-        probEmpate = Math.max(0.05, Math.min(0.3, probEmpate)); // límites
-
-        // Ajustar victoria y derrota proporcional al restante (1 - empate)
         double factor = 1.0 - probEmpate;
         double probVictoria = probVictoriaBase * factor;
-        //double probDerrota = 1.0 - probVictoria - probEmpate;
-
         int porcentajeVictoria = (int) Math.round(probVictoria * 100);
         double resultado = new Random().nextDouble();
 
         String mensajeResultado;
         String resultadoPartido;
-        long resultadoDinero=0;
+        long resultadoDinero = 0;
         if (resultado < probVictoria) {
             mensajeResultado = "¡Has ganado el partido!\nPorcentaje de victoria: " + porcentajeVictoria + "%";
-            resultadoDinero=1_500_000;
+            resultadoDinero = 1_500_000;
             resultadoPartido = "ganado";
         } else if (resultado < probVictoria + probEmpate) {
             mensajeResultado = "El partido terminó en empate.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
             resultadoPartido = "empatado";
-            resultadoDinero=1_000_000;
+            resultadoDinero = 1_000_000;
         } else {
             mensajeResultado = "Has perdido el partido.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
             resultadoPartido = "perdido";
-            resultadoDinero=500_000;
+            resultadoDinero = 500_000;
         }
 
         Log.d("Simulacion", "Resultado: " + resultadoPartido + ", Dinero ganado: " + resultadoDinero);
 
+        fireStoreHelper.actualizarDineroPorResultado(ligaName, resultadoDinero, new FireStoreHelper.FirestoreUpdateCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d("FIREBASE", "Dinero actualizado correctamente.");
+            }
 
+            @Override
+            public void onFailure(String errorMessage) {
+                Log.e("FIREBASE", "Error al actualizar dinero: " + errorMessage);
+                Toast.makeText(requireContext(), "Error al actualizar el dinero", Toast.LENGTH_SHORT).show();
+            }
+        });
 
-
-        // Actualizar estadísticas del usuario en Firestore
         fireStoreHelper.actualizarEstadisticasPartido(ligaName, equipoActual, equipoRival, resultadoPartido, new FireStoreHelper.FirestoreUpdateCallback() {
             @Override
             public void onSuccess() {
@@ -465,19 +497,14 @@ public class PrincipalFragment extends Fragment {
             }
         });
 
-
-        // Obtener y mostrar grupos de 2 equipos en consola
         fireStoreHelper.obtenerDatosLigaPorId(ligaName, new FireStoreHelper.FirestoreCallback1() {
             @Override
             public void onSuccess(Map<String, Object> ligaData) {
                 if (ligaData != null && ligaData.containsKey("progresoLiga")) {
-
                     Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
-
                     Map<String, Integer> pendientes = (Map<String, Integer>) progresoLiga.get("pendientesJugar");
                     if (pendientes != null && !pendientes.isEmpty()) {
                         String proximoRival = Collections.max(pendientes.entrySet(), Map.Entry.comparingByValue()).getKey();
-
                         List<List<Map<String, Object>>> grupos = obtenerGruposDeClasificacionSinRival(ligaData, proximoRival);
 
                         for (int i = 0; i < grupos.size(); i++) {
@@ -487,15 +514,11 @@ public class PrincipalFragment extends Fragment {
                                 sb.append(equipo.get("equipo")).append(" ");
                             }
                             Log.d("GRUPOS_CLASIFICACION", sb.toString().trim());
-
-                            // Llamada para simular el grupo
                             simularGrupoDeDos(grupo, ligaName);
                         }
-
                     } else {
                         Log.d("GRUPOS_CLASIFICACION", "No hay rivales pendientes");
                     }
-
                 } else {
                     Log.d("GRUPOS_CLASIFICACION", "Datos de liga o progresoLiga no disponibles");
                 }
@@ -507,37 +530,44 @@ public class PrincipalFragment extends Fragment {
             }
         });
 
+        // Generar nuevo valor de permisividad del árbitro
+        int nuevoArbitro = new Random().nextInt(5) + 1;
+        prefs.edit().putInt(claveArbitro, nuevoArbitro).apply();
 
-        fireStoreHelper.actualizarDineroPorResultado(ligaName, resultadoDinero, new FireStoreHelper.FirestoreUpdateCallback() {
-            @Override
-            public void onSuccess() {
-                Log.d("FIREBASE", "Dinero actualizado correctamente.");
-                // No haces nada más aquí, porque el cambio de fragmento lo haces abajo
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                Log.e("FIREBASE", "Error al actualizar dinero: " + errorMessage);
-                Toast.makeText(requireContext(), "Error al actualizar el dinero", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        new AlertDialog.Builder(requireContext())
                 .setTitle("Resultado del Partido")
                 .setMessage(mensajeResultado)
                 .setPositiveButton("Aceptar", (dialog, which) -> {
-                    FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    Bundle args = new Bundle();
+                    args.putString("leagueName", ligaName);
+                    args.putInt("arbitroPermisividad", nuevoArbitro);
 
                     PrincipalMainFragment nuevoFragment = new PrincipalMainFragment();
-                    nuevoFragment.setArguments(getArguments());
+                    nuevoFragment.setArguments(args);
 
+                    FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
                     transaction.replace(R.id.fragment_container, nuevoFragment);
                     transaction.commit();
                 })
                 .show();
 
-        fireStoreHelper.actualizarProgresoLiga(ligaName,new FireStoreHelper.FirestoreUpdateCallback() {
+        // Actualizar visualmente la permisividad en el hilo de la interfaz de usuario
+        requireActivity().runOnUiThread(() -> {
+            ProgressBar progressBar = getView().findViewById(R.id.progress_bar_permisividad);
+            TextView textViewPermisividad = getView().findViewById(R.id.text_view_arbitro_permisividad);
+
+            // Invertir el progreso: 1 -> lleno, 5 -> vacío
+            progressBar.setProgress(progressBar.getMax() - nuevoArbitro + 1);
+
+            Drawable drawable = progressBar.getProgressDrawable().mutate();
+            int color = getColorForPermisividad(nuevoArbitro);
+            drawable.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+
+            textViewPermisividad.setText("Permisividad: " + nuevoArbitro);
+        });
+
+        fireStoreHelper.actualizarProgresoLiga(ligaName, new FireStoreHelper.FirestoreUpdateCallback() {
             @Override
             public void onSuccess() {
                 Log.d("PrincipalFragment", "Partido pendiente actualizado correctamente.");
@@ -549,14 +579,8 @@ public class PrincipalFragment extends Fragment {
             }
         });
 
-
-        int nuevoArbitro = new Random().nextInt(5) + 1;
-        prefs.edit().putInt(claveArbitro, nuevoArbitro).apply();
         prefs.edit().putBoolean("mediaVisible_" + ligaName, false).apply();
     }
-
-
-
 
     private double calcularProbabilidadVictoria(double mediaEquipo, double mediaRival, int arbitroPermisividad) {
         double probabilidadBase = 0.5; // 50% base
@@ -709,10 +733,5 @@ public class PrincipalFragment extends Fragment {
             }
         });
     }
-
-
-
-
-
 
 }
