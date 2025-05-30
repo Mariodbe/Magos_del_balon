@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_weight="1"
         android:textSize="18sp"
-        android:textColor="#000000"
+        android:textColor="@color/text"
         android:layout_height="wrap_content" />
 
     <Button
@@ -20,6 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:backgroundTint="@null"
+        android:textColor="@color/text"
         android:background="@drawable/button_background_principal"
         android:text="Seguir" />
 </LinearLayout>

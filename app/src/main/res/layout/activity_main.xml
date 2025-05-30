@@ -21,7 +21,8 @@
             android:layout_margin="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Papelera"
-            android:src="@drawable/ic_papelera" />
+            android:src="@drawable/ic_papelera"
+            app:tint="@color/bottom_icon_color" />
 
         <!-- Contenedor central con los TextView en fila -->
         <LinearLayout
@@ -89,6 +90,7 @@
             android:layout_margin="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back to Home"
+            app:tint="@color/bottom_icon_color"
             android:src="@drawable/ic_home" />
     </LinearLayout>
 

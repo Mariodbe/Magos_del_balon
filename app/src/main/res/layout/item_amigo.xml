@@ -23,7 +23,7 @@
     android:layout_height="wrap_content"
     android:text="Nombre de usuario"
     android:textSize="18sp"
-    android:textColor="#333333"
+    android:textColor="@color/text"
     android:layout_weight="1"
     android:maxLines="1"
     android:ellipsize="end" />

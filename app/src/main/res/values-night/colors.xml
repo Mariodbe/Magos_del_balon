@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="cardBackground">#2C2C2C</color>
+    <color name="cardStroke">#444444</color>
+
+    <color name="bottom_icon_color">#FFFFFF</color>
+
+    <color name="text">#FFFFFF</color>
+    <color name="circle_background">#000000</color>
+
+    <color name="buscador">#aaa</color>
+
+
+</resources>
