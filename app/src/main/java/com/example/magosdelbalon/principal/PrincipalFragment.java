@@ -115,6 +115,7 @@ public class PrincipalFragment extends Fragment {
             case 4:
                 return Color.parseColor("#80FF00"); // Verde Lima
             case 5:
+                return Color.parseColor("#008f39"); //Verde Puro
             default:
                 return Color.parseColor("#0000FF"); // Azul
         }
