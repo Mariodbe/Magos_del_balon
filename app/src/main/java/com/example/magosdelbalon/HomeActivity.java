@@ -266,18 +266,33 @@ public class HomeActivity extends AppCompatActivity {
                 Toast.makeText(HomeActivity.this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
             } else {
                 FireStoreHelper fireStoreHelper = new FireStoreHelper();
-                fireStoreHelper.createLigaInFirestore(ligaId, ligaName, equipoName, ligaSeleccionada[0], new FireStoreHelper.FireStoreCallback() {
+                fireStoreHelper.userHasLigaConNombre(ligaName, new FireStoreHelper.LigaNameCallback() {
                     @Override
-                    public void onSuccess(String message) {
-                        Toast.makeText(HomeActivity.this, message, Toast.LENGTH_SHORT).show();
-                        loadUserLigas();
+                    public void onResult(boolean exists) {
+                        if (exists) {
+                            Toast.makeText(HomeActivity.this, "Ya tienes una liga con ese nombre", Toast.LENGTH_SHORT).show();
+                        } else {
+                            fireStoreHelper.createLigaInFirestore(ligaId, ligaName, equipoName, ligaSeleccionada[0], new FireStoreHelper.FireStoreCallback() {
+                                @Override
+                                public void onSuccess(String message) {
+                                    Toast.makeText(HomeActivity.this, message, Toast.LENGTH_SHORT).show();
+                                    loadUserLigas();
+                                }
+
+                                @Override
+                                public void onFailure(String message) {
+                                    Toast.makeText(HomeActivity.this, message, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
                     }
 
                     @Override
-                    public void onFailure(String message) {
-                        Toast.makeText(HomeActivity.this, message, Toast.LENGTH_SHORT).show();
+                    public void onError(String error) {
+                        Toast.makeText(HomeActivity.this, "Error al verificar el nombre de la liga: " + error, Toast.LENGTH_SHORT).show();
                     }
                 });
+
             }
         });
 

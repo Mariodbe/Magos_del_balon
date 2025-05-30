@@ -2623,6 +2623,32 @@ public class FireStoreHelper {
                 });
     }
 
+    public void userHasLigaConNombre(String ligaName, LigaNameCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String nombreFormateado = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
 
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> datosUsuario = documentSnapshot.getData();
+                        if (datosUsuario != null && datosUsuario.containsKey(nombreFormateado)) {
+                            callback.onResult(true); // Ya existe una liga con ese nombre
+                        } else {
+                            callback.onResult(false); // No existe, se puede crear
+                        }
+                    } else {
+                        callback.onResult(false); // No hay documento, luego no tiene ligas
+                    }
+                })
+                .addOnFailureListener(e -> callback.onError("Error al acceder a Firestore: " + e.getMessage()));
+    }
+
+    public interface LigaNameCallback {
+        void onResult(boolean exists);
+        void onError(String error);
+    }
 
 }
