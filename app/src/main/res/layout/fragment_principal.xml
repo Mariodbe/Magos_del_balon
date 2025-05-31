@@ -100,36 +100,24 @@
             android:id="@+id/layout_arbitro_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
             android:gravity="center"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:id="@+id/text_view_arbitro_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Árbitro:"
-                android:textSize="18sp"
-                android:layout_marginEnd="8dp"/>
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/text_view_arbitro_permisividad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Permisividad: -"
                 android:textSize="18sp"
-                android:textStyle="bold"/>
-
+                android:textStyle="bold" />
             <ProgressBar
                 android:id="@+id/progress_bar_permisividad"
                 style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
+                android:layout_width="136dp"
                 android:layout_height="wrap_content"
+                android:indeterminate="false"
                 android:max="5"
-                android:progress="5"
-                android:progressDrawable="@drawable/progress_drawable_permisividad" />
-
-
+                android:progress="3" />
         </LinearLayout>
 
         <Button

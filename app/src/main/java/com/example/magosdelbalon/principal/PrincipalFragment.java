@@ -79,11 +79,13 @@ public class PrincipalFragment extends Fragment {
         }
 
         TextView textViewPermisividad = rootView.findViewById(R.id.text_view_arbitro_permisividad);
-        textViewPermisividad.setText("Permisividad árbitro: " + permisividadArbitro);
+        textViewPermisividad.setText("Arbitro: "+ nivelPermisividad(permisividadArbitro)+" ");
 
         ProgressBar progressBar = rootView.findViewById(R.id.progress_bar_permisividad);
         // Invertir el progreso: 1 -> lleno, 5 -> vacío
-        progressBar.setProgress(progressBar.getMax() - permisividadArbitro + 1);
+        int progresoInvertido = progressBar.getMax() + 1 - permisividadArbitro;
+        progressBar.setProgress(progresoInvertido);
+        Log.d("", "Permisividad real: " + permisividadArbitro + ", Progreso invertido: " + progresoInvertido);
 
         Drawable drawable = progressBar.getProgressDrawable().mutate();
         int color = getColorForPermisividad(permisividadArbitro);
@@ -102,6 +104,16 @@ public class PrincipalFragment extends Fragment {
         return rootView;
     }
 
+    private String nivelPermisividad(int valor) {
+        switch (valor) {
+            case 1: return "Muy Estricto";
+            case 2: return "Estricto";
+            case 3: return "Moderado";
+            case 4: return "Flexible";
+            case 5: return "Muy Permisivo";
+            default: return "Desconocido";
+        }
+    }
 
 
     private int getColorForPermisividad(int permisividad) {
@@ -553,20 +565,18 @@ public class PrincipalFragment extends Fragment {
                 })
                 .show();
 
-        // Actualizar visualmente la permisividad en el hilo de la interfaz de usuario
-        requireActivity().runOnUiThread(() -> {
-            ProgressBar progressBar = getView().findViewById(R.id.progress_bar_permisividad);
-            TextView textViewPermisividad = getView().findViewById(R.id.text_view_arbitro_permisividad);
+            // Actualizar visualmente la permisividad en el hilo de la interfaz de usuario
+            requireActivity().runOnUiThread(() -> {
+                ProgressBar progressBar = getView().findViewById(R.id.progress_bar_permisividad);
 
-            // Invertir el progreso: 1 -> lleno, 5 -> vacío
-            progressBar.setProgress(progressBar.getMax() - nuevoArbitro + 1);
+                // Invertir el progreso: 1 -> lleno, 5 -> vacío
+                progressBar.setProgress(progressBar.getMax() - nuevoArbitro + 1);
 
-            Drawable drawable = progressBar.getProgressDrawable().mutate();
-            int color = getColorForPermisividad(nuevoArbitro);
-            drawable.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+                Drawable drawable = progressBar.getProgressDrawable().mutate();
+                int color = getColorForPermisividad(nuevoArbitro);
+                drawable.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
 
-            textViewPermisividad.setText("Permisividad: " + nuevoArbitro);
-        });
+            });
 
         fireStoreHelper.actualizarProgresoLiga(ligaName, new FireStoreHelper.FirestoreUpdateCallback() {
             @Override
