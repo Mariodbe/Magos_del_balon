@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,7 +78,7 @@ public class PrincipalFragment extends Fragment {
             permisividadArbitro = prefs.getInt(claveArbitro, new Random().nextInt(5) + 1);
             prefs.edit().putInt(claveArbitro, permisividadArbitro).apply();
         }
-
+        ImageView homeTeamShield = rootView.findViewById(R.id.image_view_home_team_shield);
         TextView textViewPermisividad = rootView.findViewById(R.id.text_view_arbitro_permisividad);
         textViewPermisividad.setText("Arbitro: "+ nivelPermisividad(permisividadArbitro)+" ");
 
@@ -267,19 +268,30 @@ public class PrincipalFragment extends Fragment {
         });
 
     }
-
-
-
     private void actualizarEquipo(Map<String, Object> ligaData, TextView teamTextView) {
         if (ligaData != null && ligaData.containsKey("equipo")) {
             String equipo = (String) ligaData.get("equipo");
             teamTextView.setText(equipo);
-            equipoActual = equipo;  // <-- Guardamos el nombre
+            equipoActual = equipo;  // Guardar el nombre del equipo
+
+            // Cargar imagen del equipo
+            String nombreEquipoDrawable = MainActivity.limpiarNombreParaDrawable(equipo);
+            Log.d("PrincipalFragment", "Intentando cargar el drawable: " + nombreEquipoDrawable); // Log para depuración
+            int resIdEquipo = getResources().getIdentifier(nombreEquipoDrawable, "drawable", getActivity().getPackageName());
+            if (resIdEquipo != 0) {
+                ImageView homeTeamShield = getView().findViewById(R.id.image_view_home_team_shield);
+                homeTeamShield.setImageResource(resIdEquipo);
+            } else {
+                Log.e("PrincipalFragment", "No se encontró el drawable para el equipo: " + equipo);
+                // Establecer un drawable por defecto si no se encuentra el drawable del equipo
+                ImageView homeTeamShield = getView().findViewById(R.id.image_view_home_team_shield);
+            }
         } else {
             teamTextView.setText("Desconocido");
             equipoActual = "Desconocido";
         }
     }
+
 
     private void calcularMediaRival(String nombreRival, TextView rivalMediaTextView) {
         if (nombreRival == null || nombreRival.isEmpty()) {
@@ -287,6 +299,22 @@ public class PrincipalFragment extends Fragment {
             return;
         }
 
+        // Establecer el nombre del equipo rival en el TextView correspondiente
+        TextView rivalTextView = getView().findViewById(R.id.text_view_away_team_name);
+        rivalTextView.setText(nombreRival);
+
+        // Cargar el escudo del equipo rival
+        String nombreRivalDrawable = MainActivity.limpiarNombreParaDrawable(nombreRival);
+        int resIdRival = getResources().getIdentifier(nombreRivalDrawable, "drawable", getActivity().getPackageName());
+        ImageView awayTeamShield = getView().findViewById(R.id.image_view_away_team_shield);
+
+        if (resIdRival != 0) {
+            awayTeamShield.setImageResource(resIdRival);
+        } else {
+            Log.e("PrincipalFragment", "No se encontró el drawable para el rival: " + nombreRival);
+        }
+
+        // Calcular y mostrar la media del equipo rival
         fireStoreHelper.fetchRivalAverageByTeamName(nombreRival, new FireStoreHelper.AverageCallback() {
             @Override
             public void onAverageLoaded(double average) {
@@ -295,7 +323,7 @@ public class PrincipalFragment extends Fragment {
                     average = 0;
                 }
                 rivalMediaTextView.setText("Media: " + Math.round(average));
-                mediaRival = getMediaFromTextView(rivalMediaTextView);
+                mediaRival = average;
             }
 
             @Override

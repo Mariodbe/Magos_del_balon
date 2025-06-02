@@ -7,12 +7,14 @@
     android:orientation="vertical"
     android:gravity="center"
     tools:context=".principal.PrincipalFragment">
+
     <LinearLayout
         android:id="@+id/layout_contenido_liga"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -20,30 +22,43 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="40dp">
 
-            <!-- Home Team - ocupa peso 1 -->
+            <!-- Home Team -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:gravity="center">
 
-                <TextView
-                    android:id="@+id/text_view_home_team_name"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tu Equipo"
-                    android:textSize="20sp" />
+                    android:orientation="vertical"
+                    android:gravity="center">
 
-                <TextView
-                    android:id="@+id/text_view_home_team_rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Media: "
-                    android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/text_view_home_team_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tu Equipo"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/text_view_home_team_rating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Media: "
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/image_view_home_team_shield"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
 
-            <!-- VS text - ancho fijo para centrar -->
+            <!-- VS text -->
             <TextView
                 android:id="@+id/text_view_vs"
                 android:layout_width="wrap_content"
@@ -54,45 +69,55 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp" />
 
-            <!-- Away Team - ocupa peso 1 -->
+            <!-- Away Team -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:gravity="center">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:orientation="vertical"
+                    android:gravity="center">
 
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/text_view_away_team_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Equipo Contrario"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
                     <TextView
-                        android:id="@+id/text_view_away_team_name"
+                        android:id="@+id/text_view_away_team_rating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Equipo Contrario"
-                        android:textSize="20sp" />
-
-                    <ImageButton
-                        android:id="@+id/button_show_rival_media"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_search"
-                        android:contentDescription="Mostrar media rival"
-                        android:layout_marginStart="8dp" />
+                        android:text="Media: "
+                        android:textSize="16sp" />
                 </LinearLayout>
-
-                <TextView
-                    android:id="@+id/text_view_away_team_rating"
+                <ImageView
+                    android:id="@+id/image_view_away_team_shield"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp" />
+                <ImageButton
+                    android:id="@+id/button_show_rival_media"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Media: "
-                    android:textSize="16sp" />
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_search"
+                    android:contentDescription="Mostrar media rival"
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
-
         </LinearLayout>
 
         <!-- Árbitro y Permisividad -->
@@ -110,6 +135,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+
             <ProgressBar
                 android:id="@+id/progress_bar_permisividad"
                 style="?android:attr/progressBarStyleHorizontal"
@@ -127,7 +153,7 @@
             app:backgroundTint="@null"
             android:background="@drawable/button_background_principal"
             android:textColor="#FFFFFF"
-            android:text="Iniciar Partido"/>
+            android:text="Iniciar Partido" />
 
         <TextView
             android:id="@+id/text_view_alerta_alineacion"
@@ -140,8 +166,9 @@
             android:drawableStart="@android:drawable/ic_dialog_alert"
             android:drawablePadding="8dp"
             android:textSize="16sp"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp" />
     </LinearLayout>
+
     <!-- Layout que muestra la liga finalizada -->
     <TextView
         android:id="@+id/text_view_liga_finalizada"
@@ -164,6 +191,5 @@
         android:gravity="center"
         android:visibility="gone"
         android:textColor="#FF0000" />
-
 
 </LinearLayout>
