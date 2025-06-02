@@ -25,7 +25,7 @@ public class ClasificacionFragment extends Fragment {
     private RecyclerView recyclerView;
 
     // Vistas para el equipo propio (view fijo)
-    private TextView txtEquipoPropio, txtPuntosPropio, txtGanadosPropio, txtEmpatadosPropio, txtPerdidosPropio;
+    private TextView txtEquipoPropio, txtPuntosPropio, txtGanadosPropio, txtEmpatadosPropio, txtPerdidosPropio, txtDiferenciaGolesPropio;
 
     private String nombreEquipoPropio = ""; // Guardamos el nombre para filtrar de la lista
 
@@ -44,40 +44,48 @@ public class ClasificacionFragment extends Fragment {
         txtGanadosPropio = layoutEquipoPropio.findViewById(R.id.txt_ganados);
         txtEmpatadosPropio = layoutEquipoPropio.findViewById(R.id.txt_empatados);
         txtPerdidosPropio = layoutEquipoPropio.findViewById(R.id.txt_perdidos);
+        txtDiferenciaGolesPropio = layoutEquipoPropio.findViewById(R.id.txt_diferencia_goles);
 
         String ligaName = getArguments() != null ? getArguments().getString("leagueName") : null;
         if (ligaName != null) {
-            // Primero obtenemos el equipo propio
             fireStoreHelper.obtenerEstadisticasClasificacion(ligaName, new FireStoreHelper.ClasificacionCallback() {
                 @Override
                 public void onSuccess(Map<String, Object> equipoPropio) {
                     setDatosEquipoPropio(equipoPropio);
                     nombreEquipoPropio = (String) equipoPropio.get("equipo");
 
-                    // Ahora obtenemos la clasificación completa y filtramos el equipo propio
-                    fireStoreHelper.obtenerClasificacionCompleta(ligaName,new FireStoreHelper.ListaClasificacionCallback() {
+                    fireStoreHelper.obtenerClasificacionCompleta(ligaName, new FireStoreHelper.ListaClasificacionCallback() {
                         @Override
                         public void onSuccess(List<Map<String, Object>> clasificacion) {
                             List<Map<String, Object>> rivales = new ArrayList<>();
                             for (Map<String, Object> equipo : clasificacion) {
                                 String nombre = (String) equipo.get("equipo");
                                 if (!nombre.equals(nombreEquipoPropio)) {
-                                    // Calculamos y guardamos los puntos como campo temporal
                                     int ganados = toInt(equipo.get("partidosGanados"));
                                     int empatados = toInt(equipo.get("partidosEmpatados"));
+                                    int golesAfavor = toInt(equipo.get("golesAfavor"));
+                                    int golesContra = toInt(equipo.get("golesEnContra"));
                                     int puntos = ganados * 3 + empatados;
+                                    int diferenciaGoles = golesAfavor - golesContra;
+
                                     equipo.put("puntos", puntos);
+                                    equipo.put("diferenciaGoles", diferenciaGoles);
                                     rivales.add(equipo);
                                 }
                             }
 
-                            // Ordenamos de mayor a menor por puntos
+                            // Ordenamos por puntos y luego por diferencia de goles
                             rivales.sort((e1, e2) -> {
                                 int puntos1 = toInt(e1.get("puntos"));
                                 int puntos2 = toInt(e2.get("puntos"));
-                                return Integer.compare(puntos2, puntos1); // Descendente
+                                if (puntos1 != puntos2) {
+                                    return Integer.compare(puntos2, puntos1); // Orden descendente por puntos
+                                } else {
+                                    int difGoles1 = toInt(e1.get("diferenciaGoles"));
+                                    int difGoles2 = toInt(e2.get("diferenciaGoles"));
+                                    return Integer.compare(difGoles2, difGoles1); // Orden descendente por diferencia de goles
+                                }
                             });
-
 
                             ClasificacionAdapter adapter = new ClasificacionAdapter(rivales);
                             recyclerView.setAdapter(adapter);
@@ -106,13 +114,17 @@ public class ClasificacionFragment extends Fragment {
         int ganados = toInt(equipo.get("partidosGanados"));
         int empatados = toInt(equipo.get("partidosEmpatados"));
         int perdidos = toInt(equipo.get("partidosPerdidos"));
+        int golesAFavor = toInt(equipo.get("golesAfavor"));
+        int golesEnContra = toInt(equipo.get("golesContra"));
         int puntos = ganados * 3 + empatados;
+        int diferenciaGoles = golesAFavor - golesEnContra;
 
         txtEquipoPropio.setText(nombre);
         txtGanadosPropio.setText("G: " + ganados);
         txtEmpatadosPropio.setText("E: " + empatados);
         txtPerdidosPropio.setText("P: " + perdidos);
         txtPuntosPropio.setText(puntos + " pts");
+        txtDiferenciaGolesPropio.setText("Dif: " + diferenciaGoles);
     }
 
     private int toInt(Object value) {

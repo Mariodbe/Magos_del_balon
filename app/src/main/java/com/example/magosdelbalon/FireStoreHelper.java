@@ -2153,6 +2153,8 @@ public class FireStoreHelper {
                 int ganados = ((Long) progresoLiga.getOrDefault("MIpartidosGanados", 0L)).intValue();
                 int empatados = ((Long) progresoLiga.getOrDefault("MIpartidosEmpatados", 0L)).intValue();
                 int perdidos = ((Long) progresoLiga.getOrDefault("MIpartidosPerdidos", 0L)).intValue();
+                int golesAfavor= ((Long) progresoLiga.getOrDefault("MIgolesAFavor", 0L)).intValue();
+                int golesContra = ((Long) progresoLiga.getOrDefault("MIgolesEnContra", 0L)).intValue();
                 int puntos = (ganados * 3) + (empatados);
 
                 // Aquí recuperas el nombre del equipo
@@ -2164,6 +2166,8 @@ public class FireStoreHelper {
                 equipoPropio.put("partidosGanados", ganados);
                 equipoPropio.put("partidosEmpatados", empatados);
                 equipoPropio.put("partidosPerdidos", perdidos);
+                equipoPropio.put("golesAfavor", golesAfavor);
+                equipoPropio.put("golesContra", golesContra);
                 equipoPropio.put("puntos", puntos);
 
                 callback.onSuccess(equipoPropio);

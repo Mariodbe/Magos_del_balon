@@ -356,45 +356,70 @@ public class PrincipalFragment extends Fragment {
 
                             return proximoRival; // devolver el rival encontrado
                         } else {
-                            // NO hay más partidos -> Buscar ganador
+                            // No hay más partidos -> Buscar ganador
                             contenidoLigaLayout.setVisibility(View.GONE);
                             ligaFinalizadaTextView.setVisibility(View.VISIBLE);
 
-                            // Obtener clasificación
+// Obtener clasificación
                             List<Map<String, Object>> clasificacion = (List<Map<String, Object>>) progresoLiga.get("clasificacion");
                             if (clasificacion != null && !clasificacion.isEmpty()) {
-                                // 1. Calcular puntos del equipo propio
+                                // 1. Calcular puntos y diferencia de goles del equipo propio
                                 int misGanados = toInt(progresoLiga.get("MIpartidosGanados"));
                                 int misEmpatados = toInt(progresoLiga.get("MIpartidosEmpatados"));
+                                int misGolesAFavor = toInt(progresoLiga.get("MIgolesAFavor"));
+                                int misGolesEnContra = toInt(progresoLiga.get("MIgolesEnContra"));
                                 int misPuntos = misGanados * 3 + misEmpatados;
+                                int miDiferenciaGoles = misGolesAFavor - misGolesEnContra;
 
-                                // 2. Buscar el equipo con más puntos de la clasificación
-                                Map<String, Object> mejorEquipo = Collections.max(clasificacion, Comparator.comparingInt(equipo -> {
+                                // 2. Buscar el equipo con más puntos y mayor diferencia de goles de la clasificación
+                                Map<String, Object> mejorEquipo = null;
+                                int maxPuntos = -1;
+                                int maxDiferenciaGoles = -1;
+
+                                for (Map<String, Object> equipo : clasificacion) {
                                     int ganados = toInt(equipo.get("partidosGanados"));
                                     int empatados = toInt(equipo.get("partidosEmpatados"));
-                                    return ganados * 3 + empatados;
-                                }));
+                                    int golesAFavor = toInt(equipo.get("golesAFavor"));
+                                    int golesEnContra = toInt(equipo.get("golesEnContra"));
+                                    int puntos = ganados * 3 + empatados;
+                                    int diferenciaGoles = golesAFavor - golesEnContra;
 
-                                int puntosGanador = toInt(mejorEquipo.get("partidosGanados")) * 3 + toInt(mejorEquipo.get("partidosEmpatados"));
-
-                                // 3. Comparar con mi equipo
-                                if (puntosGanador > misPuntos) {
-                                    String nombreGanador = (String) mejorEquipo.get("equipo");
-                                    textViewGanador.setText("El ganador de la liga es: " + nombreGanador);
-                                    textViewGanador.setVisibility(View.VISIBLE);
-                                } else {
-                                    textViewGanador.setText("¡Has ganado la liga!");
-                                    textViewGanador.setVisibility(View.VISIBLE);
+                                    if (puntos > maxPuntos || (puntos == maxPuntos && diferenciaGoles > maxDiferenciaGoles)) {
+                                        maxPuntos = puntos;
+                                        maxDiferenciaGoles = diferenciaGoles;
+                                        mejorEquipo = equipo;
+                                    }
                                 }
 
+                                // 3. Comparar con mi equipo
+                                if (mejorEquipo != null) {
+                                    int puntosGanador = maxPuntos;
+                                    int diferenciaGolesGanador = maxDiferenciaGoles;
+
+                                    if (puntosGanador > misPuntos) {
+                                        String nombreGanador = (String) mejorEquipo.get("equipo");
+                                        textViewGanador.setText("El ganador de la liga es: " + nombreGanador);
+                                    } else if (puntosGanador == misPuntos) {
+                                        if (diferenciaGolesGanador > miDiferenciaGoles) {
+                                            String nombreGanador = (String) mejorEquipo.get("equipo");
+                                            textViewGanador.setText("El ganador de la liga es: " + nombreGanador);
+                                        } else {
+                                            textViewGanador.setText("¡Has ganado la liga!");
+                                        }
+                                    } else {
+                                        textViewGanador.setText("¡Has ganado la liga!");
+                                    }
+                                } else {
+                                    textViewGanador.setText("No hay datos de clasificación.");
+                                }
+
+                                textViewGanador.setVisibility(View.VISIBLE);
                             } else {
                                 textViewGanador.setText("No hay datos de clasificación.");
                                 textViewGanador.setVisibility(View.VISIBLE);
                             }
-
                             return null;
                         }
-
                     } else {
                         rivalTextView.setText("Formato incorrecto de pendientes");
                         Log.e("PrincipalFragment", "pendientesJugar no es un Map");
