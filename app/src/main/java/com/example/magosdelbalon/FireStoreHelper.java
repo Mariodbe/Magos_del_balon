@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Transaction;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.functions.FirebaseFunctions;
@@ -263,6 +264,8 @@ public class FireStoreHelper {
                         progresoLiga.put("MIpartidosGanados", 0);
                         progresoLiga.put("MIpartidosEmpatados", 0);
                         progresoLiga.put("MIpartidosPerdidos", 0);
+                        progresoLiga.put("MIgolesAFavor", 0);
+                        progresoLiga.put("MIgolesEnContra", 0);
 
                         // Crear lista de clasificación inicial
                         List<Map<String, Object>> clasificacion = new ArrayList<>();
@@ -272,6 +275,8 @@ public class FireStoreHelper {
                             equipoStats.put("partidosGanados", 0);
                             equipoStats.put("partidosEmpatados", 0);
                             equipoStats.put("partidosPerdidos", 0);
+                            equipoStats.put("golesAFavor", 0);
+                            equipoStats.put("golesEnContra", 0);
                             clasificacion.add(equipoStats);
                         }
 
@@ -2649,6 +2654,126 @@ public class FireStoreHelper {
     public interface LigaNameCallback {
         void onResult(boolean exists);
         void onError(String error);
+    }
+    public void actualizarGolesEnClasificacion(String ligaName, String equipoA, String equipoB, int golesA, int golesB, Runnable onComplete) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+        DocumentReference ligaRef = db.collection("users").document(userId);
+
+        ligaRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (!documentSnapshot.exists()) {
+                Log.e("ACTUALIZAR_GOLES2", "No existe el documento del usuario");
+                return;
+            }
+
+            Map<String, Object> userData = documentSnapshot.getData();
+            if (userData == null || !userData.containsKey(ligaIdHash)) {
+                Log.e("ACTUALIZAR_GOLES2", "No existe la liga en el documento");
+                return;
+            }
+
+            Map<String, Object> ligaData = (Map<String, Object>) userData.get(ligaIdHash);
+            if (ligaData == null || !ligaData.containsKey("progresoLiga")) {
+                Log.e("ACTUALIZAR_GOLES2", "No existe progresoLiga");
+                return;
+            }
+
+            Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+            if (progresoLiga == null || !progresoLiga.containsKey("clasificacion")) {
+                Log.e("ACTUALIZAR_GOLES2", "No existe la clasificación dentro de progresoLiga");
+                return;
+            }
+
+            List<Map<String, Object>> clasificacion = (List<Map<String, Object>>) progresoLiga.get("clasificacion");
+            if (clasificacion == null) {
+                Log.e("ACTUALIZAR_GOLES2", "clasificacion es null dentro de progresoLiga");
+                return;
+            }
+
+            for (Map<String, Object> equipoStats : clasificacion) {
+                String nombreEquipo = (String) equipoStats.get("equipo");
+                if (nombreEquipo.equalsIgnoreCase(equipoA)) {
+                    int gf = ((Number) equipoStats.getOrDefault("golesAFavor", 0)).intValue();
+                    int gc = ((Number) equipoStats.getOrDefault("golesEnContra", 0)).intValue();
+                    equipoStats.put("golesAFavor", gf + golesA);
+                    equipoStats.put("golesEnContra", gc + golesB);
+                } else if (nombreEquipo.equalsIgnoreCase(equipoB)) {
+                    int gf = ((Number) equipoStats.getOrDefault("golesAFavor", 0)).intValue();
+                    int gc = ((Number) equipoStats.getOrDefault("golesEnContra", 0)).intValue();
+                    equipoStats.put("golesAFavor", gf + golesB);
+                    equipoStats.put("golesEnContra", gc + golesA);
+                }
+            }
+
+            // Guardar cambios
+            progresoLiga.put("clasificacion", clasificacion);
+            ligaData.put("progresoLiga", progresoLiga);
+            userData.put(ligaIdHash, ligaData);
+
+            ligaRef.set(userData, SetOptions.merge())
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("ACTUALIZAR_GOLES2", "Goles actualizados correctamente.");
+                        if (onComplete != null) onComplete.run();
+                    })
+                    .addOnFailureListener(e -> Log.e("ACTUALIZAR_GOLES2", "Error al actualizar goles: " + e.getMessage()));
+
+        }).addOnFailureListener(e -> Log.e("ACTUALIZAR_GOLES2", "Error al obtener usuario: " + e.getMessage()));
+    }
+    public void actualizarGolesAFavorYEnContra(String ligaName, String equipoRival, int golesEquipo, int golesRival) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String ligaIdHash = ligaName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentSnapshot snapshot = transaction.get(userRef);
+            Map<String, Object> userData = snapshot.getData();
+
+            // Asegúrate de que la liga y progresoLiga existan
+            if (userData == null || !userData.containsKey(ligaIdHash)) {
+
+                Log.d("ACTUALIZAR_GOLES", "Liga no encontrada");
+
+            }
+
+            Map<String, Object> ligaData = (Map<String, Object>) userData.get(ligaIdHash);
+            if (ligaData == null || !ligaData.containsKey("progresoLiga")) {
+
+                Log.d("ACTUALIZAR_GOLES", "progresoLiga no encontrado");
+
+            }
+
+            Map<String, Object> progresoLiga = (Map<String, Object>) ligaData.get("progresoLiga");
+
+            // Actualiza los goles
+            int golesAFavor = ((Number) progresoLiga.getOrDefault("MIgolesAFavor", 0)).intValue();
+            int golesEnContra = ((Number) progresoLiga.getOrDefault("MIgolesEnContra", 0)).intValue();
+            progresoLiga.put("MIgolesAFavor", golesAFavor + golesEquipo);
+            progresoLiga.put("MIgolesEnContra", golesEnContra + golesRival);
+
+            // Actualiza la clasificación
+            List<Map<String, Object>> clasificacion = (List<Map<String, Object>>) progresoLiga.get("clasificacion");
+            for (Map<String, Object> equipoStats : clasificacion) {
+                String nombre = (String) equipoStats.get("equipo");
+                if (nombre != null && nombre.equalsIgnoreCase(equipoRival)) {
+                    int gf = ((Number) equipoStats.getOrDefault("golesAFavor", 0)).intValue();
+                    int gc = ((Number) equipoStats.getOrDefault("golesEnContra", 0)).intValue();
+                    equipoStats.put("golesAFavor", gf + golesRival);
+                    equipoStats.put("golesEnContra", gc + golesEquipo);
+                    break;
+                }
+            }
+
+            // Actualiza el documento en la transacción
+            transaction.set(userRef, userData, SetOptions.merge());
+
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d("ACTUALIZAR_GOLES", "Transacción completada con éxito.");
+        }).addOnFailureListener(e -> {
+            Log.e("ACTUALIZAR_GOLES", "Error en la transacción.", e);
+        });
+
     }
 
 }

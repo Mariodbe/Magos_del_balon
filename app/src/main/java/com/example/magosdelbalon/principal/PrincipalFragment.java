@@ -469,19 +469,33 @@ public class PrincipalFragment extends Fragment {
         String mensajeResultado;
         String resultadoPartido;
         long resultadoDinero = 0;
+        // Simular goles de forma coherente
+        int golesEquipo, golesRival;
+        Random random = new Random();
+
         if (resultado < probVictoria) {
-            mensajeResultado = "¡Has ganado el partido!\nPorcentaje de victoria: " + porcentajeVictoria + "%";
+            // Victoria
+            golesEquipo = 1 + random.nextInt(4); // entre 1 y 4
+            golesRival = random.nextInt(golesEquipo); // siempre menor
+            mensajeResultado = "¡Has ganado el partido!\n" + equipoActual + " " + golesEquipo + " - " + golesRival + " " + equipoRival;
             resultadoDinero = 1_500_000;
             resultadoPartido = "ganado";
         } else if (resultado < probVictoria + probEmpate) {
-            mensajeResultado = "El partido terminó en empate.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
+            // Empate
+            golesEquipo = random.nextInt(4); // entre 0 y 3
+            golesRival = golesEquipo;
+            mensajeResultado = "El partido terminó en empate.\n" + equipoActual + " " + golesEquipo + " - " + golesRival + " " + equipoRival;
             resultadoPartido = "empatado";
             resultadoDinero = 1_000_000;
         } else {
-            mensajeResultado = "Has perdido el partido.\nPorcentaje de victoria: " + porcentajeVictoria + "%";
+            // Derrota
+            golesRival = 1 + random.nextInt(4); // entre 1 y 4
+            golesEquipo = random.nextInt(golesRival); // siempre menor
+            mensajeResultado = "Has perdido el partido.\n" + equipoActual + " " + golesEquipo + " - " + golesRival + " " + equipoRival;
             resultadoPartido = "perdido";
             resultadoDinero = 500_000;
         }
+
 
         Log.d("Simulacion", "Resultado: " + resultadoPartido + ", Dinero ganado: " + resultadoDinero);
 
@@ -497,7 +511,7 @@ public class PrincipalFragment extends Fragment {
                 Toast.makeText(requireContext(), "Error al actualizar el dinero", Toast.LENGTH_SHORT).show();
             }
         });
-
+        fireStoreHelper.actualizarGolesAFavorYEnContra(ligaName, equipoRival, golesEquipo, golesRival);
         fireStoreHelper.actualizarEstadisticasPartido(ligaName, equipoActual, equipoRival, resultadoPartido, new FireStoreHelper.FirestoreUpdateCallback() {
             @Override
             public void onSuccess() {
@@ -710,25 +724,39 @@ public class PrincipalFragment extends Fragment {
                         double probVictoriaB = 1.0 - probEmpate - probVictoriaA;
 
                         double resultado = new Random().nextDouble();
+                        String resultadoFinal;
                         String resultadoTexto;
 
-                        String resultadoFinal; // para almacenar el resultado simple: "A", "B" o "E" (empate)
+                        int golesA, golesB;
+                        Random random = new Random();
 
                         if (resultado < probVictoriaA) {
-                            resultadoTexto = equipoA + " gana (" + (int)(probVictoriaA * 100) + "%) vs " + equipoB + " (" + (int)(probVictoriaB * 100) + "%)";
+                            // Gana equipo A
+                            golesA = 1 + random.nextInt(4); // 1-4
+                            golesB = random.nextInt(golesA); // menos que A
+                            resultadoTexto = equipoA + " " + golesA + " - " + golesB + " " + equipoB + " (Ganador: " + equipoA + ")";
                             resultadoFinal = "A";
                         } else if (resultado < probVictoriaA + probEmpate) {
-                            resultadoTexto = equipoA + " empata con " + equipoB + " (" + (int)(probEmpate * 100) + "% de empate)";
+                            // Empate
+                            golesA = random.nextInt(4); // 0-3
+                            golesB = golesA;
+                            resultadoTexto = equipoA + " " + golesA + " - " + golesB + " " + equipoB + " (Empate)";
                             resultadoFinal = "E";
                         } else {
-                            resultadoTexto = equipoB + " gana (" + (int)(probVictoriaB * 100) + "%) vs " + equipoA + " (" + (int)(probVictoriaA * 100) + "%)";
+                            // Gana equipo B
+                            golesB = 1 + random.nextInt(4); // 1-4
+                            golesA = random.nextInt(golesB); // menos que B
+                            resultadoTexto = equipoA + " " + golesA + " - " + golesB + " " + equipoB + " (Ganador: " + equipoB + ")";
                             resultadoFinal = "B";
                         }
 
                         Log.d("SIMULACION_GRUPO", resultadoTexto);
 
-                        // Ahora actualizar Firestore con el resultado en la clasificación
-                        fireStoreHelper.actualizarClasificacionEnFirestore(ligaName, equipoA, equipoB, resultadoFinal);
+                        // Actualizar Firestore con el resultado
+                        fireStoreHelper.actualizarGolesEnClasificacion(ligaName, equipoA, equipoB, golesA, golesB, () -> {
+                            fireStoreHelper.actualizarClasificacionEnFirestore(ligaName, equipoA, equipoB, resultadoFinal);
+                        });
+
                     }
 
                     @Override
