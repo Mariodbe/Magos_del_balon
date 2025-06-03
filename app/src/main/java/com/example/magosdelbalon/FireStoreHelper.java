@@ -1466,7 +1466,7 @@ public class FireStoreHelper {
                         }
 
                         if (dinero < precio) {
-                            callback.onFailure("No tienes suficiente dinero. Precio: " + precio);
+                            callback.onFailure("No tienes suficiente dinero. Precio: " + MainActivity.formatearDinero((int) precio));
                             return;
                         }
 
@@ -1475,7 +1475,7 @@ public class FireStoreHelper {
                         ligaData.put("dinero", dinero - precio);
 
                         userRef.update(ligaId, ligaData)
-                                .addOnSuccessListener(aVoid -> callback.onSuccess("Has comprado a " + jugador.get("nombre") + " por " + precio))
+                                .addOnSuccessListener(aVoid -> callback.onSuccess("Has comprado a " + jugador.get("nombre") + " por " + MainActivity.formatearDinero((int) precio)))
                                 .addOnFailureListener(e -> callback.onFailure("Error al actualizar jugadores: " + e.getMessage()));
                     } else {
                         callback.onFailure("Formato de liga incorrecto");

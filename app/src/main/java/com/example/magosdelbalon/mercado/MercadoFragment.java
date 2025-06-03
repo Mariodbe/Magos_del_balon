@@ -13,6 +13,8 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.magosdelbalon.Jugador;
 import com.example.magosdelbalon.JugadorAdapter;
 import com.example.magosdelbalon.R;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,7 @@ public class MercadoFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_mercado, container, false);
         ViewPager2 viewPager = view.findViewById(R.id.viewPagerMercado);
+        TabLayout tabLayout = view.findViewById(R.id.tab_layout_mercado);
 
         if (getArguments() != null) {
             ligaName = getArguments().getString("leagueName");
@@ -44,6 +47,11 @@ public class MercadoFragment extends Fragment {
 
         MercadoPagerAdapter pagerAdapter = new MercadoPagerAdapter(this, ligaName);
         viewPager.setAdapter(pagerAdapter);
+
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            if (position == 0) tab.setText("Comprar");
+            else tab.setText("Vender");
+        }).attach();
 
         return view;
     }
