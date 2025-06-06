@@ -196,19 +196,19 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     selectedFragment = new EstadioFragment();
                 }
-            }else if (item.getItemId() == R.id.navigation_entrenamiento) {
+            } else if (item.getItemId() == R.id.navigation_entrenamiento) {
                 if (ligaName != null) {
                     selectedFragment = crearEntrenamientoFragmentConLiga();
                 } else {
                     selectedFragment = new EntrenamientoFragment();
                 }
-            }else if (item.getItemId() == R.id.navigation_mercado) {
+            } else if (item.getItemId() == R.id.navigation_mercado) {
                 if (ligaName != null) {
                     selectedFragment = crearMercadoFragmentConLiga();
                 } else {
                     selectedFragment = new MercadoFragment();
                 }
-            }else if (item.getItemId() == R.id.navigation_alineacion) {
+            } else if (item.getItemId() == R.id.navigation_alineacion) {
                 if (ligaName != null) {
                     selectedFragment = crearAlineacionMainFragmentConLiga();
                 } else {
@@ -216,16 +216,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, selectedFragment)
                         .commit();
+
+                // Mostrar el menú superior si no es el fragmento de alineación
+                if (item.getItemId() != R.id.navigation_alineacion) {
+                    mostrarMenus();
+                }
+
                 return true;
             }
 
             return false;
         });
+
     }
 
     private PrincipalMainFragment crearPrincipalMainFragmentConLiga() {
@@ -355,6 +361,10 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.top_menu_container).setVisibility(View.GONE);
         bottomNavigationView.setVisibility(View.GONE);
     }
+    public void ocultarMenuSuperior() {
+        findViewById(R.id.top_menu_container).setVisibility(View.GONE);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -364,7 +374,14 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("VideoPrefs", MODE_PRIVATE);
         boolean isButtonVisible = prefs.getBoolean("isVideoButtonVisible_" + ligaName, true);
         iconoVideo.setVisibility(isButtonVisible ? BottomNavigationView.VISIBLE : BottomNavigationView.INVISIBLE);
+
+        // Asegúrate de que el menú superior esté oculto si el fragmento actual es AlineacionFragment
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (currentFragment instanceof AlineacionMainFragment) {
+            ocultarMenuSuperior();
+        }
     }
+
 
     public void mostrarMenus() {
         findViewById(R.id.top_menu_container).setVisibility(View.VISIBLE);

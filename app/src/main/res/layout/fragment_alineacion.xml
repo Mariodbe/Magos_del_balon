@@ -11,267 +11,419 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/campo_futbol"
+        android:src="@drawable/campo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
         tools:ignore="ContentDescription" />
 
-    <ImageButton
-        android:id="@+id/img_portero"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="56dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
+    <!-- Portero -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_portero"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.498" />
+        app:layout_constraintVertical_bias="0.498"
+        android:layout_marginStart="56dp">
 
-    <TextView
-        android:id="@+id/txt_portero"
+        <ImageView
+            android:id="@+id/img_portero"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_portero"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/img_portero"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!-- FW1 Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_fw1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_portero"
-        app:layout_constraintTop_toTopOf="@id/img_portero"
-        app:layout_constraintBottom_toBottomOf="@id/img_portero" />
-
-    <ImageButton
-        android:id="@+id/img_fw1"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="576dp"
-        android:layout_marginTop="80dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="576dp"
+        android:layout_marginTop="80dp">
 
-    <TextView
-        android:id="@+id/txt_fw1"
+        <ImageView
+            android:id="@+id/img_fw1"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_fw1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/img_fw1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- FW2 Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_fw2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_fw1"
-        app:layout_constraintTop_toTopOf="@id/img_fw1"
-        app:layout_constraintBottom_toBottomOf="@id/img_fw1" />
-
-    <ImageButton
-        android:id="@+id/img_fw2"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
         android:layout_marginStart="576dp"
         android:layout_marginTop="160dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/txt_fw2"
+        <ImageView
+            android:id="@+id/img_fw2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_fw2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/img_fw2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- DEF1 Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_def1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_fw2"
-        app:layout_constraintTop_toTopOf="@id/img_fw2"
-        app:layout_constraintBottom_toBottomOf="@id/img_fw2" />
-
-    <ImageButton
-        android:id="@+id/img_def3"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="176dp"
-        android:layout_marginTop="145dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/txt_def3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_def3"
-        app:layout_constraintTop_toTopOf="@id/img_def3"
-        app:layout_constraintBottom_toBottomOf="@id/img_def3" />
-
-    <ImageButton
-        android:id="@+id/img_def4"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="176dp"
-        android:layout_marginTop="205dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/txt_def4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_def4"
-        app:layout_constraintTop_toTopOf="@id/img_def4"
-        app:layout_constraintBottom_toBottomOf="@id/img_def4" />
-
-    <ImageButton
-        android:id="@+id/img_def1"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
         android:layout_marginStart="176dp"
         android:layout_marginTop="4dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/txt_def1"
+        <ImageView
+            android:id="@+id/img_def1"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_def1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/img_def1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- DEF2 Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_def2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_def1"
-        app:layout_constraintTop_toTopOf="@id/img_def1"
-        app:layout_constraintBottom_toBottomOf="@id/img_def1" />
-
-    <ImageButton
-        android:id="@+id/img_def2"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
         android:layout_marginStart="176dp"
-        android:layout_marginTop="64dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/txt_def2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_def2"
-        app:layout_constraintTop_toTopOf="@id/img_def2"
-        app:layout_constraintBottom_toBottomOf="@id/img_def2" />
-
-    <ImageButton
-        android:id="@+id/img_mid3"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="328dp"
-        android:layout_marginTop="160dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/txt_mid3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_mid3"
-        app:layout_constraintTop_toTopOf="@id/img_mid3"
-        app:layout_constraintBottom_toBottomOf="@id/img_mid3" />
-
-    <ImageButton
-        android:id="@+id/img_mid2"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="328dp"
         android:layout_marginTop="80dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/txt_mid2"
+        <ImageView
+            android:id="@+id/img_def2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_def2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/img_def2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- DEF3 Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_def3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_mid2"
-        app:layout_constraintTop_toTopOf="@id/img_mid2"
-        app:layout_constraintBottom_toBottomOf="@id/img_mid2" />
-
-    <ImageButton
-        android:id="@+id/img_mid4"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="424dp"
-        android:layout_marginTop="205dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="160dp"
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/txt_mid4"
+        <ImageView
+            android:id="@+id/img_def3"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_def3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/img_def3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- DEF4 Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_def4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_mid4"
-        app:layout_constraintTop_toTopOf="@id/img_mid4"
-        app:layout_constraintBottom_toBottomOf="@id/img_mid4" />
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="236dp"
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <ImageButton
-        android:id="@+id/img_mid1"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        <ImageView
+            android:id="@+id/img_def4"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_def4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/img_def4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MID1 Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_mid1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
         android:layout_marginStart="424dp"
         android:layout_marginTop="16dp"
-        android:background="@null"
-        android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/txt_mid1"
+        <ImageView
+            android:id="@+id/img_mid1"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_mid1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/img_mid1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MID2 Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_mid2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@id/img_mid1"
-        app:layout_constraintTop_toTopOf="@id/img_mid1"
-        app:layout_constraintBottom_toBottomOf="@id/img_mid1" />
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
+        android:layout_marginStart="328dp"
+        android:layout_marginTop="80dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/img_mid2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_mid2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/img_mid2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MID3 Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_mid3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
+        android:layout_marginStart="328dp"
+        android:layout_marginTop="160dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/img_mid3"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_mid3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/img_mid3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MID4 Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_player_mid4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="424dp"
+        android:layout_marginTop="220dp"
+        android:background="@drawable/bg_player_card"
+        android:padding="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/img_mid4"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/txt_mid4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/img_mid4" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
