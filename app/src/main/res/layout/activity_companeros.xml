@@ -38,7 +38,6 @@
             android:layout_centerInParent="true" />
     </RelativeLayout>
 
-
     <!-- Buscador -->
     <EditText
         android:id="@+id/edit_search"
@@ -62,8 +61,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginEnd="8dp"
             android:text="Seguir"
-            app:backgroundTint="@null"
             android:background="@drawable/button_background_principal"
             android:textColor="@android:color/white"/>
 
@@ -72,8 +71,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:text="Siguiendo"
-            app:backgroundTint="@null"
             android:background="@drawable/button_background_principal"
             android:textColor="@android:color/white"/>
 
@@ -82,8 +82,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="8dp"
             android:text="Seguidores"
-            app:backgroundTint="@null"
             android:background="@drawable/button_background_principal"
             android:textColor="@android:color/white"/>
     </LinearLayout>

@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription" />
 
-    <!-- Portero -->
+    <!-- Portero Card -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/card_player_portero"
         android:layout_width="wrap_content"
@@ -33,29 +33,47 @@
 
         <ImageView
             android:id="@+id/img_portero"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
             android:scaleType="centerCrop"
+            android:clipToOutline="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Portero Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_portero"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_portero"
+        app:layout_constraintStart_toStartOf="@id/card_player_portero"
+        app:layout_constraintEnd_toEndOf="@id/card_player_portero"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_portero"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/img_portero"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:layout_marginTop="2dp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
     <!-- FW1 Card -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -64,34 +82,53 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="576dp"
-        android:layout_marginTop="80dp">
+        android:layout_marginTop="80dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/img_fw1"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- FW1 Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_fw1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_fw1"
+        app:layout_constraintStart_toStartOf="@id/card_player_fw1"
+        app:layout_constraintEnd_toEndOf="@id/card_player_fw1"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_fw1"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/img_fw1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:layout_marginTop="2dp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- FW2 Card -->
@@ -108,27 +145,46 @@
 
         <ImageView
             android:id="@+id/img_fw2"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- FW2 Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_fw2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_fw2"
+        app:layout_constraintStart_toStartOf="@id/card_player_fw2"
+        app:layout_constraintEnd_toEndOf="@id/card_player_fw2"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_fw2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/img_fw2"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:layout_marginTop="2dp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- DEF1 Card -->
@@ -145,27 +201,46 @@
 
         <ImageView
             android:id="@+id/img_def1"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- DEF1 Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_def1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_def1"
+        app:layout_constraintStart_toStartOf="@id/card_player_def1"
+        app:layout_constraintEnd_toEndOf="@id/card_player_def1"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_def1"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/img_def1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:layout_marginTop="2dp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- DEF2 Card -->
@@ -173,36 +248,55 @@
         android:id="@+id/card_player_def2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="176dp"
-        android:layout_marginTop="80dp"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="80dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/img_def2"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- DEF2 Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_def2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_def2"
+        app:layout_constraintStart_toStartOf="@id/card_player_def2"
+        app:layout_constraintEnd_toEndOf="@id/card_player_def2"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_def2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/img_def2"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:layout_marginTop="2dp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- DEF3 Card -->
@@ -210,36 +304,55 @@
         android:id="@+id/card_player_def3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="176dp"
-        android:layout_marginTop="160dp"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="160dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/img_def3"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- DEF3 Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_def3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_def3"
+        app:layout_constraintStart_toStartOf="@id/card_player_def3"
+        app:layout_constraintEnd_toEndOf="@id/card_player_def3"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_def3"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/img_def3"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:layout_marginTop="2dp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- DEF4 Card -->
@@ -247,36 +360,55 @@
         android:id="@+id/card_player_def4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="176dp"
-        android:layout_marginTop="236dp"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="236dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/img_def4"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- DEF4 Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_def4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_def4"
+        app:layout_constraintStart_toStartOf="@id/card_player_def4"
+        app:layout_constraintEnd_toEndOf="@id/card_player_def4"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_def4"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/img_def4"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:layout_marginTop="2dp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- MID1 Card -->
@@ -293,27 +425,46 @@
 
         <ImageView
             android:id="@+id/img_mid1"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MID1 Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_mid1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_mid1"
+        app:layout_constraintStart_toStartOf="@id/card_player_mid1"
+        app:layout_constraintEnd_toEndOf="@id/card_player_mid1"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_mid1"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/img_mid1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:layout_marginTop="2dp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- MID2 Card -->
@@ -330,27 +481,46 @@
 
         <ImageView
             android:id="@+id/img_mid2"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MID2 Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_mid2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_mid2"
+        app:layout_constraintStart_toStartOf="@id/card_player_mid2"
+        app:layout_constraintEnd_toEndOf="@id/card_player_mid2"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_mid2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/img_mid2"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:layout_marginTop="2dp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- MID3 Card -->
@@ -367,27 +537,46 @@
 
         <ImageView
             android:id="@+id/img_mid3"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MID3 Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_mid3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_mid3"
+        app:layout_constraintStart_toStartOf="@id/card_player_mid3"
+        app:layout_constraintEnd_toEndOf="@id/card_player_mid3"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_mid3"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/img_mid3"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:layout_marginTop="2dp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- MID4 Card -->
@@ -395,35 +584,55 @@
         android:id="@+id/card_player_mid4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="424dp"
-        android:layout_marginTop="220dp"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
+        android:layout_marginStart="424dp"
+        android:layout_marginTop="220dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/img_mid4"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_mask"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MID4 Text Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_mid4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_white"
+        app:layout_constraintTop_toBottomOf="@id/card_player_mid4"
+        app:layout_constraintStart_toStartOf="@id/card_player_mid4"
+        app:layout_constraintEnd_toEndOf="@id/card_player_mid4"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/txt_mid4"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Sin jugador"
             android:textColor="#000000"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/img_mid4" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

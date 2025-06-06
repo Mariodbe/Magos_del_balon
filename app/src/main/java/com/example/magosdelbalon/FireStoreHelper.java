@@ -1387,8 +1387,8 @@ public class FireStoreHelper {
                             Map<String, Object> alineacion = (Map<String, Object>) ligas.get("alineacion");
                             for (String posicion : textViews.keySet()) {
                                 String jugador = (String) alineacion.get(posicion);
-                                textViews.get(posicion).setText(jugador != null ? jugador : "");
-                                if (jugador != null) {
+                                if (jugador != null && !jugador.trim().isEmpty()) {
+                                    textViews.get(posicion).setText(jugador);
                                     selectedPlayers.put(posicion, jugador);
                                 }
                             }

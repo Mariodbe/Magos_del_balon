@@ -81,7 +81,7 @@ public class AlineacionFragment extends Fragment {
         firestoreHelper.cargarAlineacion(userId, ligaName, textViews, selectedPlayers);
         firestoreHelper.cargarAlineacionConImagenes(userId, ligaName, imageViews);
 
-        // 3) Asignar clic normal a cada ImageView para abrir selector de jugador
+        // Clic normal para seleccionar jugador
         view.findViewById(R.id.img_portero).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Goalkeeper"));
         view.findViewById(R.id.img_def1).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def1"));
         view.findViewById(R.id.img_def2).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Def2"));
@@ -94,17 +94,18 @@ public class AlineacionFragment extends Fragment {
         view.findViewById(R.id.img_fw1).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Fw1"));
         view.findViewById(R.id.img_fw2).setOnClickListener(v -> openPlayerSelectionDialog(userId, ligaName, "Fw2"));
 
-        setupLongClickPopUp(view, "Goalkeeper", R.id.card_player_portero);
-        setupLongClickPopUp(view, "Def1",       R.id.card_player_def1);
-        setupLongClickPopUp(view, "Def2",       R.id.card_player_def2);
-        setupLongClickPopUp(view, "Def3",       R.id.card_player_def3);
-        setupLongClickPopUp(view, "Def4",       R.id.card_player_def4);
-        setupLongClickPopUp(view, "Mid1",       R.id.card_player_mid1);
-        setupLongClickPopUp(view, "Mid2",       R.id.card_player_mid2);
-        setupLongClickPopUp(view, "Mid3",       R.id.card_player_mid3);
-        setupLongClickPopUp(view, "Mid4",       R.id.card_player_mid4);
-        setupLongClickPopUp(view, "Fw1",        R.id.card_player_fw1);
-        setupLongClickPopUp(view, "Fw2",        R.id.card_player_fw2);
+        // Long-click para popup: pasamos también el ID del contenedor de texto
+        setupLongClickPopUp(view, "Goalkeeper", R.id.card_player_portero, R.id.container_portero);
+        setupLongClickPopUp(view, "Def1",       R.id.card_player_def1,     R.id.container_def1);
+        setupLongClickPopUp(view, "Def2",       R.id.card_player_def2,     R.id.container_def2);
+        setupLongClickPopUp(view, "Def3",       R.id.card_player_def3,     R.id.container_def3);
+        setupLongClickPopUp(view, "Def4",       R.id.card_player_def4,     R.id.container_def4);
+        setupLongClickPopUp(view, "Mid1",       R.id.card_player_mid1,     R.id.container_mid1);
+        setupLongClickPopUp(view, "Mid2",       R.id.card_player_mid2,     R.id.container_mid2);
+        setupLongClickPopUp(view, "Mid3",       R.id.card_player_mid3,     R.id.container_mid3);
+        setupLongClickPopUp(view, "Mid4",       R.id.card_player_mid4,     R.id.container_mid4);
+        setupLongClickPopUp(view, "Fw1",        R.id.card_player_fw1,      R.id.container_fw1);
+        setupLongClickPopUp(view, "Fw2",        R.id.card_player_fw2,      R.id.container_fw2);
 
         return view;
     }
@@ -132,19 +133,23 @@ public class AlineacionFragment extends Fragment {
      * Cuando se mantiene presionado, infla dialog_player_card.xml y copia la imagen y el texto
      * desde los mapas imageViews/textViews para mostrar la carta ampliada en un AlertDialog.
      */
-    private void setupLongClickPopUp(View rootView, String positionKey, int cardId) {
+    private void setupLongClickPopUp(View rootView, String positionKey, int cardId, int textContainerId) {
+        // 1) La “card” que envuelve la foto:
         View card = rootView.findViewById(cardId);
-        if (card == null) return;
+        // 2) El contenedor blanco que envuelve el TextView (“Sin jugador” o nombre):
+        View container = rootView.findViewById(textContainerId);
 
-        card.setOnLongClickListener(v -> {
+        View.OnLongClickListener listener = v -> {
+            // Inflamos el layout de diálogo:
             View dialogView = LayoutInflater.from(getContext())
                     .inflate(R.layout.dialog_player_card, null);
 
             ImageView dialogImg = dialogView.findViewById(R.id.dialog_img_player);
-            TextView dialogTxt = dialogView.findViewById(R.id.dialog_txt_player);
+            TextView  dialogTxt = dialogView.findViewById(R.id.dialog_txt_player);
 
+            // Obtenemos la imagen y texto original de la posición
             ImageView originalImg = imageViews.get(positionKey);
-            TextView originalTxt = textViews.get(positionKey);
+            TextView  originalTxt = textViews.get(positionKey);
             if (originalImg != null && dialogImg != null) {
                 dialogImg.setImageDrawable(originalImg.getDrawable());
             }
@@ -154,15 +159,23 @@ public class AlineacionFragment extends Fragment {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setView(dialogView);
-            builder.setPositiveButton("Cerrar", (dialogInterface, which) -> dialogInterface.dismiss());
-
+            builder.setPositiveButton("Cerrar", (d, which) -> d.dismiss());
             AlertDialog dialog = builder.create();
             dialog.setCanceledOnTouchOutside(true);
             dialog.show();
-
             return true;
-        });
+        };
+
+        if (card != null) {
+            card.setLongClickable(true);
+            card.setOnLongClickListener(listener);
+        }
+        if (container != null) {
+            container.setLongClickable(true);
+            container.setOnLongClickListener(listener);
+        }
     }
+
 
     /**
      * Abre un AlertDialog para seleccionar un jugador de la posición indicada.
