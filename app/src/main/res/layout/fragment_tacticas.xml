@@ -25,6 +25,7 @@
             android:layout_width="250dp"
             android:layout_height="125dp"
             app:backgroundTint="@null"
+            android:textColor="@android:color/white"
             android:background="@drawable/button_background_principal"
             android:text="Agresividad" />
 
@@ -33,6 +34,7 @@
             android:layout_width="250dp"
             android:layout_height="125dp"
             app:backgroundTint="@null"
+            android:textColor="@android:color/white"
             android:background="@drawable/button_background_principal"
             android:text="Posesión" />
 
@@ -41,6 +43,7 @@
             android:layout_width="250dp"
             android:layout_height="125dp"
             app:backgroundTint="@null"
+            android:textColor="@android:color/white"
             android:background="@drawable/button_background_principal"
             android:text="Presión" />
 
@@ -49,6 +52,7 @@
             android:layout_width="250dp"
             android:layout_height="125dp"
             app:backgroundTint="@null"
+            android:textColor="@android:color/white"
             android:background="@drawable/button_background_principal"
             android:text="Contraataques" />
 

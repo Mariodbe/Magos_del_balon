@@ -33,6 +33,7 @@
                 android:src="@drawable/ic_centro_medico"
                 android:contentDescription="Centro Médico"
                 android:background="@android:color/transparent"
+                app:tint="@color/bottom_icon_color"
                 android:scaleType="centerInside"
                 android:padding="16dp"/>
         </com.google.android.material.card.MaterialCardView>
@@ -109,6 +110,7 @@
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_ciudad_deportiva"
                 android:contentDescription="Ciudad Deportiva"
+                app:tint="@color/bottom_icon_color"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
                 android:padding="16dp"/>

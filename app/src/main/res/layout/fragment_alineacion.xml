@@ -29,7 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.498"
-        android:layout_marginStart="56dp">
+        android:layout_marginStart="65dp">
 
         <ImageView
             android:id="@+id/img_portero"
@@ -82,7 +82,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        android:layout_marginStart="576dp"
+        android:layout_marginStart="586dp"
         android:layout_marginTop="80dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -138,7 +138,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        android:layout_marginStart="576dp"
+        android:layout_marginStart="586dp"
         android:layout_marginTop="160dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -194,7 +194,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        android:layout_marginStart="176dp"
+        android:layout_marginStart="186dp"
         android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -250,7 +250,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        android:layout_marginStart="176dp"
+        android:layout_marginStart="186dp"
         android:layout_marginTop="80dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -306,7 +306,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        android:layout_marginStart="176dp"
+        android:layout_marginStart="186dp"
         android:layout_marginTop="160dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -362,7 +362,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        android:layout_marginStart="176dp"
+        android:layout_marginStart="186dp"
         android:layout_marginTop="236dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -418,7 +418,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        android:layout_marginStart="424dp"
+        android:layout_marginStart="434dp"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -474,7 +474,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        android:layout_marginStart="328dp"
+        android:layout_marginStart="338dp"
         android:layout_marginTop="80dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -530,7 +530,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        android:layout_marginStart="328dp"
+        android:layout_marginStart="338dp"
         android:layout_marginTop="160dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -586,7 +586,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_player_card"
         android:padding="4dp"
-        android:layout_marginStart="424dp"
+        android:layout_marginStart="434dp"
         android:layout_marginTop="220dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">

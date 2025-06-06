@@ -107,6 +107,7 @@
                 android:layout_height="wrap_content"
                 android:text="Guardar cambios"
                 app:backgroundTint="@null"
+                android:textColor="@android:color/white"
                 android:background="@drawable/button_background_principal"/>
 
             <Button
@@ -116,6 +117,7 @@
                 android:text="Cerrar sesión"
                 android:layout_marginTop="16dp"
                 app:backgroundTint="@null"
+                android:textColor="@android:color/white"
                 android:background="@drawable/button_background_principal"/>
         </LinearLayout>
     </LinearLayout>

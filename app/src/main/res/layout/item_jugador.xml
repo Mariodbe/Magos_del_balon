@@ -52,6 +52,7 @@
                 android:layout_height="wrap_content"
                 android:text="Comprar"
                 app:backgroundTint="@null"
+                android:textColor="@android:color/white"
                 android:background="@drawable/button_background_principal"
                 android:layout_marginTop="8dp" />
         </LinearLayout>

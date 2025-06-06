@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -17,6 +18,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.magosdelbalon.amigos.ListaAmigosActivity;
@@ -258,7 +260,6 @@ public class HomeActivity extends AppCompatActivity {
                 return;
             }
 
-            // Convertir a minúsculas, eliminar espacios y limpiar caracteres
             String ligaName = rawLigaName.toLowerCase().replaceAll("\\s+", "").replaceAll("[^a-z0-9]", "");
             String equipoName = spinnerEquipos.getSelectedItem() != null ? spinnerEquipos.getSelectedItem().toString() : "";
 
@@ -292,13 +293,21 @@ public class HomeActivity extends AppCompatActivity {
                         Toast.makeText(HomeActivity.this, "Error al verificar el nombre de la liga: " + error, Toast.LENGTH_SHORT).show();
                     }
                 });
-
             }
         });
 
-
         builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss());
-        builder.show();
+
+        // Crear el diálogo y aplicar el color al botón Cancelar
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dlg -> {
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            negativeButton.setTextColor(ContextCompat.getColor(HomeActivity.this, R.color.text));
+            positiveButton.setTextColor(ContextCompat.getColor(HomeActivity.this, R.color.text));// Asegúrate de definir este color en colors.xml
+        });
+
+        dialog.show();
     }
 
     private void setSpinnerEquipos(Spinner spinner, String[] equipos) {
